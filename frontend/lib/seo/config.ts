@@ -28,7 +28,7 @@ export const SEO_CONFIG = {
     'FABINS Automation is an AI-powered fabric inspection automation solution for automated fabric defect detection and quality inspection in the textile industry.',
   brandName: 'FABINS Automation',
   parentBrandName: 'NEVOLYN',
-  parentCompanyLegalName: 'Nevolyn Technology',
+  parentCompanyLegalName: 'NEVOLYN',
   sponsorName: 'Saturn Textiles Limited',
   social: {
     fabinsLinkedIn: 'https://www.linkedin.com/company/fabinsautomation/',
@@ -482,11 +482,15 @@ export function buildSchemaGraph() {
         '@type': 'Organization',
         '@id': `${parentUrl}/#organization`,
         name: parentBrandName,
+        legalName: SEO_CONFIG.parentCompanyLegalName,
         alternateName: [
+          'NEVOLYN',
           'Nevolyn',
           'nevolyn',
           'NEVOLYN Technology',
+          'Nevolyn',
           'Nevolyn Technology',
+          'nevolyn',
           'nevolyn technology',
           'NEVOLYN Automation',
           'Nevolyn Automation',
@@ -497,13 +501,28 @@ export function buildSchemaGraph() {
         ],
         url: `${parentUrl}/`,
         disambiguatingDescription:
-          'NEVOLYN (Nevolyn Technology) is an industrial technology and automation company in Bangladesh, creator and parent organization of FABINS fabric inspection automation.',
+          'NEVOLYN is an industrial technology and automation company in Bangladesh, creator and parent organization of FABINS fabric inspection automation.',
         knowsAbout: [
           'Industrial Automation',
-          'AI and Computer Vision',
-          'Fabric Inspection Systems',
+          'Industrial Automation Solutions',
+          'Garments Automation',
+          'Smarter Automation',
+          'Smarter Manufacturing',
+          'Engineering Solutions',
+          'Deep Tech',
+          'Artificial Intelligence',
+          'Computer Vision',
+          'Intelligent Systems',
+          'Industrial Robotics',
+          'Smart Manufacturing',
+          'Fabric Inspection Automation',
           'Textile Automation Bangladesh',
           'RMG Automation',
+        ],
+        subOrganization: [
+          {
+            '@id': `${siteUrl}/#organization`,
+          },
         ],
         sameAs: [social.nevolynLinkedIn],
       },
@@ -525,12 +544,12 @@ export function buildSchemaGraph() {
           'ফ্যাবিন্স অটোমেশন',
         ],
         url: `${siteUrl}/`,
-        logo: `${siteUrl}${assets.logo}`,
-        image: `${siteUrl}${assets.machinePhoto}`,
+        logo: `${siteUrl}/logo.png`,
+        image: `${siteUrl}/logo.png`,
         description,
         slogan: 'AI-Powered Fabric Inspection Automation',
         disambiguatingDescription:
-          'FABINS Automation (also known as FABINS) is an AI-powered fabric defect inspection and quality automation system developed by Nevolyn Technology for textile and RMG mills.',
+          'FABINS Automation (also known as FABINS) is an AI-powered fabric defect inspection and quality automation system developed by NEVOLYN for textile and RMG mills.',
         knowsAbout: [
           'Fabric Inspection Automation',
           'AI Fabric Defect Detection',
@@ -560,18 +579,29 @@ export function buildSchemaGraph() {
           'নেভোলিন ফ্যাবিনস অটোমেশন',
         ],
         description,
-        category: 'Fabric Inspection Automation System',
+        category: 'BusinessApplication',
         disambiguatingDescription:
-          'AI-driven fabric defect detection and roll quality inspection retrofit system engineered by Nevolyn Technology for textile manufacturing.',
+          'AI-driven fabric defect detection and roll quality inspection retrofit system engineered by NEVOLYN for textile manufacturing.',
         url: `${siteUrl}/`,
-        image: `${siteUrl}${assets.machinePhoto}`,
+        image: `${siteUrl}/logo.png`,
+        applicationCategory: 'BusinessApplication',
+        operatingSystem: 'Linux, Windows, Web',
+        offers: {
+          '@type': 'Offer',
+          price: '0',
+          priceCurrency: 'USD',
+          availability: 'https://schema.org/InStock',
+          url: `${siteUrl}/`,
+        },
         brand: {
           '@id': `${siteUrl}/#organization`,
         },
         manufacturer: {
           '@id': `${parentUrl}/#organization`,
         },
-        applicationCategory: 'Industrial Automation / Quality Inspection',
+        parentOrganization: {
+          '@id': `${parentUrl}/#organization`,
+        },
       },
 
       // 4. WebSite Entity
@@ -583,6 +613,9 @@ export function buildSchemaGraph() {
         alternateName: ['FABINS', 'FABINS Automation', 'নেভোলিন ফ্যাবিনস'],
         description,
         publisher: {
+          '@id': `${parentUrl}/#organization`,
+        },
+        creator: {
           '@id': `${siteUrl}/#organization`,
         },
         isPartOf: {
@@ -621,6 +654,9 @@ export const rootSiteMetadata: Metadata = {
   alternates: {
     canonical: `${SEO_CONFIG.siteUrl}/`,
   },
+  verification: {
+    google: '8D8ZxIJ21XVGK0G3HqFCCEMQuxOxK_WMi5_q3-tX6m4',
+  },
   openGraph: {
     type: 'website',
     locale: 'en_US',
@@ -629,6 +665,12 @@ export const rootSiteMetadata: Metadata = {
     title: SEO_CONFIG.title,
     description: SEO_CONFIG.description,
     images: [
+      {
+        url: `${SEO_CONFIG.siteUrl}/logo.png`,
+        width: 1200,
+        height: 630,
+        alt: 'FABINS Automation - AI-Powered Fabric Inspection Automation',
+      },
       {
         url: SEO_CONFIG.assets.machinePhoto,
         width: 1254,
@@ -647,7 +689,7 @@ export const rootSiteMetadata: Metadata = {
     card: 'summary_large_image',
     title: SEO_CONFIG.title,
     description: SEO_CONFIG.description,
-    images: [SEO_CONFIG.assets.machinePhoto],
+    images: [`${SEO_CONFIG.siteUrl}/logo.png`, SEO_CONFIG.assets.machinePhoto],
   },
   robots: {
     index: true,

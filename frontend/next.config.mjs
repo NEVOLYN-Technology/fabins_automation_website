@@ -28,6 +28,14 @@ const nextConfig = {
    * It is a development-only setting and is ignored in production.
    */
   allowedDevOrigins: ['192.168.68.103', '192.168.68.103:3000'],
+  async rewrites() {
+    return [
+      {
+        source: '/logo.png',
+        destination: '/fabins-logo.png',
+      },
+    ]
+  },
 }
 
 export default nextConfig

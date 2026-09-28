@@ -1,6 +1,6 @@
 import type { Metadata, Viewport } from 'next'
 import { ThemeProvider } from '@/components/theme-provider'
-import { rootSiteMetadata, buildSchemaGraph } from '@/lib/seo/config'
+import { rootSiteMetadata, buildSchemaGraph, SEO_CONFIG } from '@/lib/seo/config'
 import './globals.css'
 
 /**
@@ -11,7 +11,18 @@ import './globals.css'
  * `@/lib/seo/config.ts`.
  */
 
-export const metadata: Metadata = rootSiteMetadata
+export const metadata: Metadata = {
+  ...rootSiteMetadata,
+  title: SEO_CONFIG.title,
+  description: SEO_CONFIG.description,
+  alternates: {
+    canonical: 'https://fabins.nevolyn.com/',
+  },
+  openGraph: rootSiteMetadata.openGraph,
+  verification: {
+    google: '8D8ZxIJ21XVGK0G3HqFCCEMQuxOxK_WMi5_q3-tX6m4',
+  },
+}
 
 const schemaGraph = buildSchemaGraph()
 
