@@ -136,31 +136,22 @@ export function NewsDetailModal({ item, isOpen, onClose }: NewsDetailModalProps)
             transition={{ type: 'spring', damping: 28, stiffness: 350 }}
             className="relative w-full h-[100dvh] sm:h-auto sm:max-w-2xl sm:max-h-[92vh] flex flex-col rounded-none sm:rounded-3xl bg-white shadow-2xl border-0 sm:border border-slate-200/90 overflow-hidden z-10 overscroll-contain"
           >
-            {/* Sticky Top Mobile Navigation Bar */}
-            <div className="sticky top-0 z-30 flex items-center justify-between px-3.5 sm:px-6 py-2.5 sm:py-3 bg-white/95 backdrop-blur-md border-b border-slate-100 shrink-0">
-              <button
-                onClick={handleClose}
-                type="button"
-                aria-label="Back to news"
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-800 font-bold text-xs sm:text-sm transition-all duration-200 active:scale-95 cursor-pointer shadow-xs"
-              >
-                <ArrowLeft size={16} className="text-sky-600" />
-                <span>Back</span>
-              </button>
-
-              {/* Centered category pill */}
+            {/* Sticky Top Navigation Bar */}
+            <div className="sticky top-0 z-30 flex items-center justify-between px-4 sm:px-6 py-2.5 sm:py-3 bg-white/95 backdrop-blur-md border-b border-slate-100 shrink-0">
+              {/* Category pill */}
               <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-[11px] sm:text-xs font-black tracking-wider uppercase bg-sky-50 text-sky-700 border border-sky-200/80">
                 <span className="w-1.5 h-1.5 rounded-full bg-sky-500 animate-pulse" />
-                <span className="truncate max-w-[150px] sm:max-w-xs">{item.category}</span>
+                <span className="truncate max-w-[200px] sm:max-w-xs">{item.category}</span>
               </span>
 
+              {/* Prominent Close Button */}
               <button
                 onClick={handleClose}
                 type="button"
                 aria-label="Close dialog"
-                className="p-2 rounded-full text-slate-400 hover:text-slate-800 hover:bg-slate-100 transition-colors cursor-pointer"
+                className="p-1.5 sm:p-2 rounded-full text-slate-400 hover:text-slate-800 hover:bg-slate-100 transition-all duration-200 cursor-pointer active:scale-95"
               >
-                <X size={20} />
+                <X className="w-6 h-6 sm:w-7 sm:h-7" strokeWidth={2.2} />
               </button>
             </div>
 

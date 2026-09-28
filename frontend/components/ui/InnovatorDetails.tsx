@@ -101,21 +101,11 @@ export function InnovatorDetails({ member, onClose }: InnovatorDetailsProps) {
         {/* Top Decorative Gradient Accent Bar */}
         <div className="h-1.5 w-full bg-gradient-to-r from-blue-600 via-sky-400 to-indigo-500 shrink-0" />
 
-        {/* ── Fixed Header: portrait, name, title, Back & close buttons ─────────────────── */}
+        {/* ── Fixed Header: portrait, name, title, close button ─────────────────── */}
         <div
           className={`flex shrink-0 items-center justify-between gap-3 sm:gap-4 border-b ${PALETTE.hairline} ${PALETTE.panel} p-3.5 sm:p-6 md:px-8 bg-white z-10`}
         >
           <div className="flex items-center gap-3 sm:gap-6 min-w-0">
-            {/* Quick Back Button on Mobile */}
-            <button
-              onClick={handleClose}
-              type="button"
-              aria-label="Back to innovators"
-              className="inline-flex sm:hidden items-center justify-center p-2 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-700 active:scale-95 cursor-pointer shrink-0"
-            >
-              <ArrowLeft className="w-5 h-5" />
-            </button>
-
             {/* Portrait avatar */}
             <div
               className={`relative flex h-12 w-12 sm:h-20 sm:w-20 shrink-0 items-center justify-center rounded-full bg-white p-0.5 sm:p-1 shadow-sm ring-2 ${PALETTE.ring}`}
@@ -149,24 +139,15 @@ export function InnovatorDetails({ member, onClose }: InnovatorDetailsProps) {
             </div>
           </div>
 
-          {/* Top Right Actions */}
-          <div className="flex items-center gap-2 shrink-0">
-            <button
-              onClick={handleClose}
-              type="button"
-              className="hidden sm:inline-flex items-center gap-1.5 px-3.5 py-2 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs transition-colors cursor-pointer"
-            >
-              <ArrowLeft className="w-4 h-4" />
-              <span>Back</span>
-            </button>
-
+          {/* Top Right Close Action */}
+          <div className="flex items-center shrink-0">
             <button
               onClick={handleClose}
               type="button"
               aria-label="Close profile"
-              className="p-2 sm:p-2.5 rounded-full text-slate-400 hover:text-slate-900 hover:bg-slate-100 transition-all duration-200 cursor-pointer"
+              className="p-1.5 sm:p-2 rounded-full text-slate-400 hover:text-slate-900 hover:bg-slate-100 transition-all duration-200 active:scale-95 cursor-pointer"
             >
-              <X className="w-5 h-5 sm:w-6 sm:h-6" />
+              <X className="w-6 h-6 sm:w-7 sm:h-7" strokeWidth={2.2} />
             </button>
           </div>
         </div>
