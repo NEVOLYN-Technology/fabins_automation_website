@@ -40,13 +40,19 @@ export const Footer = () => {
               <Wordmark size="md" className="gap-3" />
             </a>
 
-            <div className="mt-4 inline-flex items-center gap-3 rounded-2xl border border-line bg-panel px-4 py-3">
+            <a
+              href="https://nevolyn.com/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="mt-4 inline-flex items-center gap-3 rounded-2xl border border-line bg-panel px-4 py-3 transition-colors hover:border-accent/40"
+              title="NEVOLYN Technology"
+            >
               <Zap className="h-4 w-4 shrink-0 text-accent" />
               <span className="text-xs leading-tight">
-                <span className="block font-semibold">Nevolyn Technology</span>
                 <span className="block text-ink-soft">Powered by</span>
+                <span className="block font-semibold">Nevolyn Technology</span>
               </span>
-            </div>
+            </a>
             <div className="mt-2 inline-flex items-center gap-3 rounded-2xl border border-line bg-panel px-4 py-3">
               <ShieldCheck className="h-4 w-4 shrink-0 text-accent" />
               <span className="text-xs leading-tight">

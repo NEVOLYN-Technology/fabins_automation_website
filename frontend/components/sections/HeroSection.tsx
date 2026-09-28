@@ -76,10 +76,16 @@ export const HeroSection = () => (
           </motion.p>
 
           <motion.div {...fadeUpProps(0.4)} className="mt-4 flex flex-wrap items-center gap-2">
-            <span className="inline-flex items-center gap-1.5 rounded-full border border-accent/30 bg-accent/10 px-3 py-1 text-[11px] font-semibold tracking-wide text-accent">
+            <a
+              href="https://nevolyn.com/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1.5 rounded-full border border-accent/30 bg-accent/10 px-3 py-1 text-[11px] font-semibold tracking-wide text-accent transition-colors hover:bg-accent/20"
+              title="NEVOLYN Technology"
+            >
               <Zap className="h-3 w-3" />
               A Nevolyn Product
-            </span>
+            </a>
             <span className="text-xs text-ink-soft/40">·</span>
             <span className="inline-flex items-center gap-1.5 rounded-full border border-accent/30 bg-accent/10 px-3 py-1 text-[11px] font-semibold tracking-wide text-accent">
               <ShieldCheck className="h-3 w-3" />
@@ -94,7 +100,6 @@ export const HeroSection = () => (
             {/* eslint-disable-next-line @next/next/no-img-element -- see note in README on image optimisation */}
             <img
               src="/fabins-machine.png"
-              alt="FABINS line-scan inspection rig running fabric with a live operator dashboard"
               className="max-h-[380px] w-full object-cover object-center"
             />
           </div>

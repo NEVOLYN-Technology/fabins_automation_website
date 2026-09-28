@@ -71,7 +71,15 @@ export const InnovatorsSection = () => {
         description={
           <>
             System architecture, hardware integration, computer vision and production software —
-            built at the Saturn Textiles Ltd R&amp;D department.
+            built at Saturn Textiles R&amp;D by our parent company{' '}
+            <Link
+              href="https://nevolyn.com/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="font-bold text-ink underline decoration-accent/40 underline-offset-4 transition-colors hover:text-accent"
+            >
+              Nevolyn Technology
+            </Link>.
           </>
         }
       />
