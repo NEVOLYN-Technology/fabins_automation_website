@@ -106,24 +106,7 @@ export const Footer = () => {
           {/* Year is computed at render so the notice never goes stale. */}
           <p>© {new Date().getFullYear()} FABINS · Saturn Textiles Limited. All rights reserved.</p>
           <p className="flex items-center gap-1.5">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              className="h-3.5 w-3.5 shrink-0 opacity-60"
-              aria-hidden="true"
-            >
-              <circle cx="12" cy="12" r="10" />
-              <line x1="2" y1="12" x2="22" y2="12" />
-              <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />
-            </svg>
-            <span>Dhaka&nbsp;1212,&nbsp;Bangladesh</span>
-            <span className="opacity-40">·</span>
-            <span>BD&nbsp;+880</span>
+            <span>Dhaka, Bangladesh</span>
           </p>
         </div>
       </div>
