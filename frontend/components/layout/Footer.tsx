@@ -1,7 +1,7 @@
 'use client'
 
 import Link from 'next/link'
-import { ShieldCheck } from 'lucide-react'
+import { ShieldCheck, Zap } from 'lucide-react'
 import { FOOTER_LINKS } from '@/lib/data/site'
 import { fabinsInnovators } from '@/lib/data/innovators'
 import { scrollToSection } from '@/lib/scroll'
@@ -41,6 +41,13 @@ export const Footer = () => {
             </a>
 
             <div className="mt-4 inline-flex items-center gap-3 rounded-2xl border border-line bg-panel px-4 py-3">
+              <Zap className="h-4 w-4 shrink-0 text-accent" />
+              <span className="text-xs leading-tight">
+                <span className="block font-semibold">Nevolyn Technology</span>
+                <span className="block text-ink-soft">Powered by</span>
+              </span>
+            </div>
+            <div className="mt-2 inline-flex items-center gap-3 rounded-2xl border border-line bg-panel px-4 py-3">
               <ShieldCheck className="h-4 w-4 shrink-0 text-accent" />
               <span className="text-xs leading-tight">
                 <span className="block font-semibold">Saturn Textiles Limited</span>
@@ -104,7 +111,7 @@ export const Footer = () => {
 
         <div className="mt-14 flex flex-col items-center justify-between gap-4 border-t border-line pt-8 text-xs text-ink-soft sm:flex-row">
           {/* Year is computed at render so the notice never goes stale. */}
-          <p>© {new Date().getFullYear()} FABINS · Saturn Textiles Limited. All rights reserved.</p>
+          <p>© {new Date().getFullYear()} FABINS · NEVOLYN . All rights reserved.</p>
           <p className="flex items-center gap-1.5">
             <span>Dhaka, Bangladesh</span>
           </p>

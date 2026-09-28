@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { motion } from 'framer-motion'
-import { ShieldCheck, CheckCircle2, Ruler, Award } from 'lucide-react'
+import { ShieldCheck, CheckCircle2, Ruler, Award, Zap } from 'lucide-react'
 import { fadeUpProps } from '@/lib/animations'
 
 /**
@@ -74,6 +74,18 @@ export const HeroSection = () => (
             <ShieldCheck className="mt-0.5 h-4 w-4 shrink-0 text-accent" />
             Automate Fabric Inspection with FABINS.
           </motion.p>
+
+          <motion.div {...fadeUpProps(0.4)} className="mt-4 flex flex-wrap items-center gap-2">
+            <span className="inline-flex items-center gap-1.5 rounded-full border border-accent/30 bg-accent/10 px-3 py-1 text-[11px] font-semibold tracking-wide text-accent">
+              <Zap className="h-3 w-3" />
+              A Nevolyn Product
+            </span>
+            <span className="text-xs text-ink-soft/40">·</span>
+            <span className="inline-flex items-center gap-1.5 rounded-full border border-accent/30 bg-accent/10 px-3 py-1 text-[11px] font-semibold tracking-wide text-accent">
+              <ShieldCheck className="h-3 w-3" />
+              Sponsored by Saturn Textiles Limited
+            </span>
+          </motion.div>
         </div>
 
         {/* ── Right: machine photograph ──────────────────────────────────── */}
