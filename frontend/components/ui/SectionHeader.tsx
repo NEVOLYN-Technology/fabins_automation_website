@@ -47,7 +47,9 @@ const DEFAULT_TITLE_SIZE = 'text-[clamp(2rem,4.4vw,3.25rem)]'
 
 export interface SectionHeaderProps {
   /** Small uppercase label above the heading, e.g. "The problem". */
-  eyebrow: string
+  eyebrow?: string
+  /** Pill-shaped badge label, e.g. "UPDATES & MILESTONES". */
+  pillLabel?: string
   /**
    * The heading itself. Accepts a node so sections can insert `<br />` line
    * breaks or accent-coloured `<span>`s.
@@ -67,6 +69,7 @@ export interface SectionHeaderProps {
 
 export function SectionHeader({
   eyebrow,
+  pillLabel,
   title,
   description,
   layout = 'stacked',
@@ -74,13 +77,28 @@ export function SectionHeader({
   descriptionClassName,
   className,
 }: SectionHeaderProps) {
+  const labelText = pillLabel || eyebrow
+  const isPill = Boolean(pillLabel)
+
   // Shared between all three layouts, so they can never drift apart again.
-  const eyebrowElement = (
-    <motion.span {...fadeUpProps(DELAY_EYEBROW)} className="eyebrow">
-      <span className="h-2 w-2 rounded-full bg-accent sm:h-2.5 sm:w-2.5" />
-      {eyebrow}
+  const eyebrowElement = labelText ? (
+    <motion.span
+      {...fadeUpProps(DELAY_EYEBROW)}
+      className={
+        isPill
+          ? 'inline-flex items-center gap-2 rounded-full border border-sky-300/80 bg-sky-50/80 px-3.5 py-1 text-xs font-bold tracking-wider text-sky-700 uppercase shadow-xs mb-3'
+          : 'eyebrow'
+      }
+    >
+      <span
+        className={cn(
+          'rounded-full',
+          isPill ? 'h-2 w-2 bg-sky-500 animate-pulse' : 'h-2 w-2 bg-accent sm:h-2.5 sm:w-2.5'
+        )}
+      />
+      {labelText}
     </motion.span>
-  )
+  ) : null
 
   const titleElement = (
     <motion.h2
@@ -134,3 +152,41 @@ export function SectionHeader({
     </div>
   )
 }
+
+/**
+ * Gradient text helper for stylized heading words.
+ */
+export function GradText({
+  children,
+  variant = 'sky',
+  className,
+}: {
+  children: ReactNode
+  variant?: 'sky' | 'emerald' | 'cyan' | 'indigo' | 'accent' | 'rose'
+  className?: string
+}) {
+  const gradientClass =
+    variant === 'emerald'
+      ? 'from-emerald-500 to-teal-500'
+      : variant === 'indigo'
+        ? 'from-indigo-500 to-purple-500'
+        : variant === 'cyan'
+          ? 'from-cyan-500 to-blue-500'
+          : variant === 'rose'
+            ? 'from-rose-500 to-pink-500'
+            : variant === 'accent'
+              ? 'from-accent to-accent-bright'
+              : 'from-sky-500 via-blue-600 to-indigo-600'
+
+  return (
+    <span
+      className={cn(
+        'bg-gradient-to-r bg-clip-text text-transparent font-extrabold',
+        gradientClass,
+        className
+      )}
+    >
+      {children}
+    </span>
+  )
+}

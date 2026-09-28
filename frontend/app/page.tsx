@@ -6,6 +6,7 @@ import { AboutSection } from '@/components/sections/AboutSection'
 import { SystemSection } from '@/components/sections/SystemSection'
 import { StandardsSection } from '@/components/sections/StandardsSection'
 import { InnovatorsSection } from '@/components/sections/InnovatorsSection'
+import { LatestNewsSection } from '@/components/sections/LatestNewsSection'
 import { ContactSection } from '@/components/sections/ContactSection'
 
 /**
@@ -19,6 +20,7 @@ import { ContactSection } from '@/components/sections/ContactSection'
  *   System      → how it works, end to end
  *   Standards   → how defects are scored (ASTM D5430 Four-Point)
  *   Innovators  → who built it
+ *   News        → official milestones, awards and updates
  *   Contact     → how to get it
  *
  * ─── TO REORDER OR ADD A SECTION ────────────────────────────────────────────
@@ -39,6 +41,7 @@ export default function Home() {
       <SystemSection />
       <StandardsSection />
       <InnovatorsSection />
+      <LatestNewsSection />
       <ContactSection />
     </PageShell>
   )

@@ -29,6 +29,7 @@ export const NAV_LINKS: readonly NavLink[] = [
   { name: 'System', id: 'system' },
   { name: 'Standards', id: 'standards' },
   { name: 'Innovators', id: 'innovators' },
+  { name: 'News', id: 'news' },
 ]
 
 /**

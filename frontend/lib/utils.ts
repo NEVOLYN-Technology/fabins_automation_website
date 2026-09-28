@@ -19,3 +19,22 @@ import { twMerge } from 'tailwind-merge'
 export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs))
 }
+
+/**
+ * Formats an ISO date string (YYYY-MM-DD) into readable human-friendly text.
+ * E.g., '2026-09-14' -> 'Sep 14, 2026'
+ */
+export function formatDate(dateString: string): string {
+  try {
+    const [year, month, day] = dateString.split('-').map(Number)
+    if (!year || !month || !day) return dateString
+    const date = new Date(year, month - 1, day)
+    return date.toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'short',
+      day: 'numeric',
+    })
+  } catch {
+    return dateString
+  }
+}
