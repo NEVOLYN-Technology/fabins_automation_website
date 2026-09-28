@@ -84,61 +84,78 @@ export const InnovatorsSection = () => {
         }
       />
 
-      {/* Two-column grid, so an odd number of members leaves a gap. */}
-      <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
+      {/* Two-column grid with wider horizontal spread and aligned card heights */}
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-8 lg:gap-10 md:auto-rows-fr max-w-5xl lg:max-w-6xl mx-auto">
         {fabinsInnovators.map((member, index) => (
           <motion.article
             key={member.id}
             {...fadeUpProps(index * 0.1)}
-            className="card card-hover group flex flex-col gap-6 !p-6 sm:flex-row sm:items-start"
+            className="card card-hover group flex flex-col items-center text-center !p-8 sm:!p-10 h-full"
           >
-            {/* Portrait, or a placeholder if the member has no image. */}
-            <div className="relative h-40 w-full shrink-0 overflow-hidden rounded-2xl border border-line bg-panel-2 sm:h-44 sm:w-36">
-              {member.image ? (
-                /* eslint-disable-next-line @next/next/no-img-element -- see note in README on image optimisation */
-                <img
-                  src={member.image}
-                  alt={`${member.name} portrait`}
-                  // `object-top` keeps faces in frame when the crop is tight.
-                  className="h-full w-full object-cover object-top transition-transform duration-500 group-hover:scale-105"
-                />
-              ) : (
-                <div className="flex h-full w-full items-center justify-center text-ink-soft">
-                  <User className="h-10 w-10" />
-                </div>
-              )}
+            {/* Person circular portrait with glowing accent ring */}
+            <div className="relative mx-auto flex h-40 w-40 sm:h-48 sm:w-48 shrink-0 items-center justify-center rounded-full p-1 border-2 border-accent/80 shadow-[0_0_24px_rgba(14,116,144,0.25)] bg-panel transition-transform duration-500 group-hover:scale-[1.03]">
+              <div className="relative h-full w-full overflow-hidden rounded-full bg-panel-2">
+                {member.image ? (
+                  /* eslint-disable-next-line @next/next/no-img-element -- see note in README on image optimisation */
+                  <img
+                    src={member.image}
+                    alt={`${member.name} portrait`}
+                    // `object-top` keeps faces in frame when the crop is tight.
+                    className="h-full w-full object-cover object-top transition-transform duration-500 group-hover:scale-105"
+                  />
+                ) : (
+                  <div className="flex h-full w-full items-center justify-center text-accent">
+                    <User className="h-16 w-16 stroke-[1.6]" />
+                  </div>
+                )}
+              </div>
             </div>
 
-            <div className="flex min-w-0 flex-1 flex-col">
-              <h3 className="text-lg font-semibold leading-snug tracking-tight">{member.name}</h3>
-              <p className="mt-1 font-mono text-[11px] uppercase tracking-[0.14em] text-accent">
-                {member.title}
-              </p>
-              <p className="mt-3 text-sm leading-relaxed text-ink-muted">{member.bio}</p>
+            {/* Name & Title with consistent heights across cards */}
+            <h3 className="mt-6 text-xl sm:text-2xl font-bold tracking-tight text-ink leading-snug min-h-[2rem] sm:min-h-[2.5rem] flex items-center justify-center">
+              {member.name}
+            </h3>
+            <p className="mt-2 text-sm sm:text-base font-semibold text-accent min-h-[1.5rem] flex items-center justify-center">
+              {member.title}
+            </p>
 
-              {/* `mt-auto` pins this row to the bottom so both cards align. */}
-              <div className="mt-auto flex flex-wrap items-center gap-4 pt-6">
-                <button
-                  onClick={() => setSelectedMember(member)}
-                  className="group inline-flex cursor-pointer items-center gap-1.5 text-[13px] font-semibold text-accent transition-all duration-300 hover:-translate-y-0.5 hover:text-accent-bright active:scale-95"
-                >
-                  View details
-                  <ChevronDown className="h-4 w-4 transition-transform duration-300 group-hover:translate-y-0.5" />
-                </button>
+            {/* Short Bio with uniform container height */}
+            <p className="mt-3 text-sm leading-relaxed text-ink-muted max-w-md min-h-[3rem] sm:min-h-[3.5rem] flex items-center justify-center">
+              {member.bio}
+            </p>
 
-                {member.social?.linkedin && (
+            {/* Accent divider dash */}
+            <div className="w-10 h-0.5 bg-accent/80 rounded-full mx-auto my-6 shrink-0" />
+
+            {/* Bottom Actions pinned to bottom of tall card so both are on the exact same level */}
+            <div className="mt-auto flex flex-col items-center w-full">
+              {/* Pill-shaped VIEW DETAILS button */}
+              <button
+                onClick={() => setSelectedMember(member)}
+                className="inline-flex cursor-pointer items-center justify-center gap-1.5 rounded-full border border-accent/40 bg-accent/5 px-6 py-2.5 text-xs font-bold uppercase tracking-wider text-accent transition-all duration-300 hover:border-accent hover:bg-accent/15 hover:scale-105 active:scale-95 shadow-xs"
+              >
+                <span>VIEW DETAILS</span>
+                <ChevronDown className="h-4 w-4 transition-transform duration-300 group-hover:translate-y-0.5" />
+              </button>
+
+              {member.social?.linkedin && (
+                <>
+                  {/* Subtle hairline divider line across card */}
+                  <div className="w-full border-t border-line/70 mt-6 mb-5" />
+
+                  {/* Centered LinkedIn link with brand color */}
                   <Link
                     href={member.social.linkedin}
                     target="_blank"
                     rel="noopener noreferrer"
                     aria-label={`${member.name} on LinkedIn`}
-                    className="group inline-flex cursor-pointer items-center gap-2 text-[13px] font-semibold text-ink-muted transition-all duration-300 hover:-translate-y-0.5 hover:text-[#0A66C2] active:scale-95"
+                    className="inline-flex cursor-pointer items-center justify-center gap-2 text-sm font-semibold text-[#0a66c2] hover:text-[#084e96] transition-all duration-300 active:scale-95"
                   >
                     <LinkedinIcon className="h-5 w-5 shrink-0 transition-transform group-hover:scale-110" />
                     <span>LinkedIn</span>
                   </Link>
-                )}
-              </div>
+                </>
+              )}
             </div>
           </motion.article>
         ))}
