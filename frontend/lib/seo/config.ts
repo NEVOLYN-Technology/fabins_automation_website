@@ -23,7 +23,7 @@ import type { Metadata } from 'next'
 export const SEO_CONFIG = {
   siteUrl: 'https://fabins.nevolyn.com',
   parentUrl: 'https://nevolyn.com',
-  title: 'FABINS Automation | AI-Powered Fabric Inspection Automation',
+  title: 'FABINS Automation',
   description:
     'FABINS Automation is an AI-powered fabric inspection automation solution for automated fabric defect detection and quality inspection in the textile industry.',
   brandName: 'FABINS Automation',
