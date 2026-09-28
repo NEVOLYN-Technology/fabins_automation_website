@@ -655,7 +655,7 @@ export const rootSiteMetadata: Metadata = {
     canonical: `${SEO_CONFIG.siteUrl}/`,
   },
   verification: {
-    google: '8D8ZxIJ21XVGK0G3HqFCCEMQuxOxK_WMi5_q3-tX6m4',
+    google: 'vzbTJSa6lso2s74DPf_itEshA7SPnSNE2As5Jg4N2iM',
   },
   openGraph: {
     type: 'website',
