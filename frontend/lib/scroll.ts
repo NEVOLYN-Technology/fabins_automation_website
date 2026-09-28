@@ -78,22 +78,30 @@ export function useActiveSection(sectionIds: readonly string[]): string {
   const [activeSection, setActiveSection] = useState(sectionIds[0] ?? '')
 
   useEffect(() => {
+    let ticking = false
+
     const handleScroll = () => {
-      const probeLine = window.scrollY + SPY_PROBE_OFFSET_PX
-      let current = sectionIds[0] ?? ''
+      if (!ticking) {
+        window.requestAnimationFrame(() => {
+          const probeLine = window.scrollY + SPY_PROBE_OFFSET_PX
+          let current = sectionIds[0] ?? ''
 
-      for (let i = sectionIds.length - 1; i >= 0; i--) {
-        const element = document.getElementById(sectionIds[i])
-        if (!element) continue
+          for (let i = sectionIds.length - 1; i >= 0; i--) {
+            const element = document.getElementById(sectionIds[i])
+            if (!element) continue
 
-        const elementTop = element.getBoundingClientRect().top + window.scrollY
-        if (elementTop <= probeLine) {
-          current = sectionIds[i]
-          break
-        }
+            const elementTop = element.getBoundingClientRect().top + window.scrollY
+            if (elementTop <= probeLine) {
+              current = sectionIds[i]
+              break
+            }
+          }
+
+          setActiveSection((prev) => (prev !== current ? current : prev))
+          ticking = false
+        })
+        ticking = true
       }
-
-      setActiveSection(current)
     }
 
     window.addEventListener('scroll', handleScroll, { passive: true })
@@ -115,7 +123,20 @@ export function useIsScrolled(): boolean {
   const [isScrolled, setIsScrolled] = useState(false)
 
   useEffect(() => {
-    const handleScroll = () => setIsScrolled(window.scrollY > SCROLLED_THRESHOLD_PX)
+    let ticking = false
+
+    const handleScroll = () => {
+      if (!ticking) {
+        window.requestAnimationFrame(() => {
+          setIsScrolled((prev) => {
+            const next = window.scrollY > SCROLLED_THRESHOLD_PX
+            return prev !== next ? next : prev
+          })
+          ticking = false
+        })
+        ticking = true
+      }
+    }
 
     window.addEventListener('scroll', handleScroll, { passive: true })
     handleScroll()

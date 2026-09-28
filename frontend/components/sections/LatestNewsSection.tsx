@@ -55,22 +55,24 @@ export const LatestNewsSection = (): JSX.Element => {
     const container = scrollContainerRef.current
     if (!container) return
 
-    const containerCenter = container.scrollLeft + container.clientWidth / 2
+    window.requestAnimationFrame(() => {
+      const containerCenter = container.scrollLeft + container.clientWidth / 2
 
-    let minDistance = Infinity
-    let closestIndex = 0
+      let minDistance = Infinity
+      let closestIndex = 0
 
-    container.querySelectorAll<HTMLElement>('[data-milestone-index]').forEach((card) => {
-      const cardCenter = card.offsetLeft + card.offsetWidth / 2
-      const distance = Math.abs(containerCenter - cardCenter)
+      container.querySelectorAll<HTMLElement>('[data-milestone-index]').forEach((card) => {
+        const cardCenter = card.offsetLeft + card.offsetWidth / 2
+        const distance = Math.abs(containerCenter - cardCenter)
 
-      if (distance < minDistance) {
-        minDistance = distance
-        closestIndex = Number(card.getAttribute('data-milestone-index'))
-      }
+        if (distance < minDistance) {
+          minDistance = distance
+          closestIndex = Number(card.getAttribute('data-milestone-index'))
+        }
+      })
+
+      setCenteredIndex((prev) => (prev !== closestIndex ? closestIndex : prev))
     })
-
-    setCenteredIndex(closestIndex)
   }, [])
 
   /** Scrolls the milestone card at `index` to the centre of the track */
@@ -134,8 +136,11 @@ export const LatestNewsSection = (): JSX.Element => {
 
   return (
     <section id="news" className={`relative py-16 sm:py-20 ${SECTION_BG.primary} ${SECTION_BG.border} overflow-hidden`}>
-      {/* Background Ambient Glow Orbs - Multi-chromatic Soft Aura */}
-      <div className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[580px] h-[580px] bg-gradient-to-tr from-sky-400/20 via-indigo-400/15 to-emerald-400/15 rounded-full blur-[140px] pointer-events-none z-0" />
+      {/* Background Ambient Glow Orbs - Multi-chromatic Soft Aura with zero blur overhead */}
+      <div
+        className="absolute top-1/3 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[580px] h-[580px] rounded-full pointer-events-none z-0"
+        style={{ background: 'radial-gradient(circle, rgba(56, 189, 248, 0.16) 0%, rgba(99, 102, 241, 0.12) 35%, rgba(16, 185, 129, 0.08) 55%, transparent 70%)' }}
+      />
 
       <div className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
 
@@ -195,7 +200,7 @@ export const LatestNewsSection = (): JSX.Element => {
               <div
                 ref={scrollContainerRef}
                 style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
-                className="flex snap-x snap-mandatory select-none gap-6 overflow-x-auto scroll-smooth px-[calc(50%-150px)] py-6 sm:px-[calc(50%-210px)] lg:px-[calc(50%-230px)] no-scrollbar"
+                className="flex snap-x snap-mandatory gap-6 overflow-x-auto scroll-smooth px-[calc(50%-150px)] py-6 sm:px-[calc(50%-210px)] lg:px-[calc(50%-230px)] no-scrollbar"
               >
                 {sortedFeatured.map((item, index) => {
                   const isCentered = index === activeIndex
@@ -209,11 +214,11 @@ export const LatestNewsSection = (): JSX.Element => {
                         'w-[300px] shrink-0 snap-center sm:w-[420px] lg:w-[460px]',
                         'group transform cursor-pointer rounded-[28px] p-[1.5px] transition-all duration-500 ease-out',
                         isCentered
-                          ? 'z-20 -translate-y-3 scale-105 bg-gradient-to-b from-accent/80 via-accent-bright/50 to-blue-600/30 opacity-100 filter blur-0 shadow-[0_20px_50px_rgba(8,145,178,0.35),0_0_25px_rgba(8,145,178,0.2)]'
-                          : 'z-10 translate-y-2 scale-95 bg-line/40 opacity-60 shadow-lg filter blur-[1.5px] hover:opacity-90 hover:blur-0'
+                          ? 'z-20 -translate-y-3 scale-105 bg-gradient-to-b from-accent/80 via-accent-bright/50 to-blue-600/30 opacity-100 shadow-[0_20px_50px_rgba(8,145,178,0.35),0_0_25px_rgba(8,145,178,0.2)]'
+                          : 'z-10 translate-y-2 scale-95 bg-line/40 opacity-60 shadow-lg sm:filter sm:blur-[1.5px] hover:opacity-90 hover:blur-0'
                       )}
                     >
-                      <div className="relative flex h-full w-full flex-col justify-between overflow-hidden rounded-[26px] bg-panel/95 backdrop-blur-2xl">
+                      <div className="relative flex h-full w-full flex-col justify-between overflow-hidden rounded-[26px] bg-panel shadow-sm">
                         {/* Accent beam across top edge */}
                         <div
                           className={cn(
@@ -392,8 +397,8 @@ export const LatestNewsSection = (): JSX.Element => {
             {/* Scrollable Track: exactly 2 rows (4 news) visible at once */}
             <div
               ref={verticalScrollRef}
-              style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}
-              className="h-[460px] sm:h-[490px] overflow-y-auto scroll-smooth snap-y snap-mandatory select-none no-scrollbar p-2 sm:p-3 pb-16 sm:pb-16"
+              style={{ WebkitOverflowScrolling: 'touch', scrollbarWidth: 'none', msOverflowStyle: 'none' }}
+              className="h-[460px] sm:h-[490px] overflow-y-auto scroll-smooth sm:snap-y sm:snap-mandatory no-scrollbar p-2 sm:p-3 pb-16 sm:pb-16 overscroll-contain"
             >
               <div className="grid grid-cols-1 md:grid-cols-2 gap-4 lg:gap-5">
                 {sortedNews.map((item: NewsItem, idx: number) => {

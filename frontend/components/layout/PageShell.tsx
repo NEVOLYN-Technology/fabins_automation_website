@@ -25,18 +25,18 @@ export function PageShell({ children }: { children: React.ReactNode }) {
       {/* Engineering grid. Pattern is defined by `.grid-bg` in globals.css. */}
       <div aria-hidden className="pointer-events-none fixed inset-0 -z-10 grid-bg opacity-70" />
 
-      {/* Cyan wash behind the hero. */}
+      {/* Cyan wash behind the hero with lightweight radial gradient (zero GPU blur overhead for mobile 60/120fps) */}
       <div
         aria-hidden
-        className="pointer-events-none fixed -top-40 left-1/2 -z-10 h-[420px] w-[820px] -translate-x-1/2 rounded-full blur-[150px]"
-        style={{ background: 'var(--glow-a)' }}
+        className="pointer-events-none fixed -top-40 left-1/2 -z-10 h-[420px] w-[820px] -translate-x-1/2 rounded-full"
+        style={{ background: 'radial-gradient(ellipse at center, var(--glow-a) 0%, transparent 70%)' }}
       />
 
-      {/* Blue wash anchored to the bottom-right corner. */}
+      {/* Blue wash anchored to the bottom-right corner */}
       <div
         aria-hidden
-        className="pointer-events-none fixed bottom-0 right-0 -z-10 h-[380px] w-[520px] rounded-full blur-[150px]"
-        style={{ background: 'var(--glow-b)' }}
+        className="pointer-events-none fixed bottom-0 right-0 -z-10 h-[380px] w-[520px] rounded-full"
+        style={{ background: 'radial-gradient(ellipse at center, var(--glow-b) 0%, transparent 70%)' }}
       />
 
       <Navbar />

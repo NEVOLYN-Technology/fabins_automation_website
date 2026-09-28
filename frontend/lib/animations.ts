@@ -39,7 +39,7 @@ const SMOOTH_POP: Transition['ease'] = [0.21, 0.47, 0.32, 0.98]
  * `amount: 0.05` triggers as soon as 5% of the element is visible, so tall
  * sections start animating as they enter rather than once mostly on screen.
  */
-export const defaultViewport = { once: false, amount: 0.05 } as const
+export const defaultViewport = { once: true, amount: 0.05 } as const
 
 /**
  * Variants for a parent that should cascade its children.

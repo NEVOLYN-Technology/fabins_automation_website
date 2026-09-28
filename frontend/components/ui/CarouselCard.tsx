@@ -39,7 +39,7 @@ export function CarouselCard({
       transition={{ duration: 0.3 }}
       className={cn(
         'group relative w-[310px] sm:w-[420px] lg:w-[460px] shrink-0 snap-center rounded-3xl overflow-hidden cursor-pointer transition-all duration-500',
-        'bg-white/95 backdrop-blur-xl flex flex-col justify-between border',
+        'bg-white flex flex-col justify-between border',
         isCenter
           ? 'scale-100 opacity-100 shadow-xl shadow-sky-500/15 border-sky-300/80 ring-2 ring-sky-400/20'
           : 'scale-95 opacity-75 sm:opacity-85 hover:opacity-100 hover:scale-[0.97] border-slate-200 shadow-md',

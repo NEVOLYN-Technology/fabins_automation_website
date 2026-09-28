@@ -103,8 +103,13 @@
    ─────────────────────────────────────────────────────────────────────────── */
 
 @layer base {
+  * {
+    -webkit-tap-highlight-color: transparent;
+  }
+
   html {
     scroll-behavior: smooth;
+    -webkit-text-size-adjust: 100%;
 
     /* Stops a section heading landing under the fixed navbar when an anchor
        link is followed. Must match HEADER_OFFSET_PX in `lib/scroll.ts` and the
@@ -313,5 +318,14 @@
     html {
       scroll-behavior: auto;
     }
+  }
+
+  /* Utility to completely hide scrollbar across all browsers */
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
   }
 }

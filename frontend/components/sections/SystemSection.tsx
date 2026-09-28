@@ -60,22 +60,24 @@ export const SystemSection = () => {
     const container = scrollContainerRef.current
     if (!container) return
 
-    const containerCenter = container.scrollLeft + container.clientWidth / 2
+    window.requestAnimationFrame(() => {
+      const containerCenter = container.scrollLeft + container.clientWidth / 2
 
-    let minDistance = Infinity
-    let closestIndex = 0
+      let minDistance = Infinity
+      let closestIndex = 0
 
-    container.querySelectorAll<HTMLElement>('[data-card-index]').forEach((card) => {
-      const cardCenter = card.offsetLeft + card.offsetWidth / 2
-      const distance = Math.abs(containerCenter - cardCenter)
+      container.querySelectorAll<HTMLElement>('[data-card-index]').forEach((card) => {
+        const cardCenter = card.offsetLeft + card.offsetWidth / 2
+        const distance = Math.abs(containerCenter - cardCenter)
 
-      if (distance < minDistance) {
-        minDistance = distance
-        closestIndex = Number(card.getAttribute('data-card-index'))
-      }
+        if (distance < minDistance) {
+          minDistance = distance
+          closestIndex = Number(card.getAttribute('data-card-index'))
+        }
+      })
+
+      setCenteredIndex((prev) => (prev !== closestIndex ? closestIndex : prev))
     })
-
-    setCenteredIndex(closestIndex)
   }, [])
 
   /** Scrolls the card at `index` to the centre of the track. */
@@ -171,12 +173,12 @@ export const SystemSection = () => {
                   'group transform cursor-pointer rounded-[28px] p-[1.5px] transition-all duration-500 ease-out',
                   isCentered
                     ? // Focused: lifted, enlarged, sharp, glowing accent border.
-                      'z-20 -translate-y-3 scale-105 bg-gradient-to-b from-accent/80 via-accent-bright/50 to-blue-600/30 opacity-100 filter blur-0 shadow-[0_20px_50px_rgba(8,145,178,0.35),0_0_25px_rgba(8,145,178,0.2)]'
+                      'z-20 -translate-y-3 scale-105 bg-gradient-to-b from-accent/80 via-accent-bright/50 to-blue-600/30 opacity-100 shadow-[0_20px_50px_rgba(8,145,178,0.35),0_0_25px_rgba(8,145,178,0.2)]'
                     : // Resting: dropped back, faded and slightly blurred, sharpening on hover.
-                      'z-10 translate-y-2 scale-95 bg-line/40 opacity-60 shadow-lg filter blur-[1.5px] hover:opacity-90 hover:blur-0'
+                      'z-10 translate-y-2 scale-95 bg-line/40 opacity-60 shadow-lg sm:filter sm:blur-[1.5px] hover:opacity-90 hover:blur-0'
                 )}
               >
-                <div className="relative flex h-full w-full flex-col justify-between overflow-hidden rounded-[26px] bg-panel/95 p-6 backdrop-blur-2xl sm:p-7">
+                <div className="relative flex h-full w-full flex-col justify-between overflow-hidden rounded-[26px] bg-panel p-6 sm:p-7">
                   {/* Accent beam across the top edge of the card. */}
                   <div
                     className={cn(

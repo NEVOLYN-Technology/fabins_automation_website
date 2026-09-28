@@ -1,10 +1,11 @@
 'use client'
 
-import { useEffect, useId, useRef } from 'react'
+import { useId, useRef } from 'react'
 import { motion } from 'framer-motion'
 import Link from 'next/link'
-import { X, Mail, ExternalLink, User } from 'lucide-react'
+import { X, Mail, ExternalLink, User, ArrowLeft } from 'lucide-react'
 import type { InnovatorMember } from '@/lib/data/innovators'
+import { useModalHistory } from '@/lib/hooks/useModalHistory'
 
 /**
  * INNOVATOR PROFILE MODAL — the full biography dialog opened from an
@@ -32,7 +33,7 @@ import type { InnovatorMember } from '@/lib/data/innovators'
  * so it is left as an explicit decision rather than done silently.
  */
 
-/** Every colour used by this dialog, in one place. See the note above. */
+/** Every colour used by this dialog, in one place. */
 const PALETTE = {
   panel: 'bg-white',
   border: 'border-blue-500/70',
@@ -48,71 +49,24 @@ const PALETTE = {
   hoverSurface: 'hover:bg-slate-100',
 } as const
 
-/** Selector matching everything the focus trap should cycle through. */
-const FOCUSABLE_SELECTOR =
-  'a[href], button:not([disabled]), textarea, input, select, [tabindex]:not([tabindex="-1"])'
-
-interface InnovatorDetailsProps {
-  /** The person to display. Changing this swaps content without remounting. */
+export interface InnovatorDetailsProps {
   member: InnovatorMember
-  /** Called on Escape, on backdrop click, and on the close button. */
   onClose: () => void
 }
 
 export function InnovatorDetails({ member, onClose }: InnovatorDetailsProps) {
   const panelRef = useRef<HTMLDivElement>(null)
-  // Ties the dialog to its heading for screen readers.
   const headingId = useId()
 
-  useEffect(() => {
-    // Remember what was focused so we can hand focus back when the modal closes.
-    const previouslyFocused = document.activeElement as HTMLElement | null
-
-    // Lock background scrolling so the page behind does not move under the modal.
-    document.body.style.overflow = 'hidden'
-
-    // Move focus into the dialog; without this, the next Tab would land on the
-    // page behind the modal.
-    panelRef.current?.querySelector<HTMLElement>(FOCUSABLE_SELECTOR)?.focus()
-
-    const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') {
-        onClose()
-        return
-      }
-
-      if (event.key !== 'Tab' || !panelRef.current) return
-
-      // Focus trap: wrap from the last focusable element back to the first
-      // (and vice versa for Shift+Tab) so focus cannot leave the dialog.
-      const focusable = Array.from(
-        panelRef.current.querySelectorAll<HTMLElement>(FOCUSABLE_SELECTOR)
-      )
-      if (focusable.length === 0) return
-
-      const first = focusable[0]
-      const last = focusable[focusable.length - 1]
-
-      if (event.shiftKey && document.activeElement === first) {
-        event.preventDefault()
-        last.focus()
-      } else if (!event.shiftKey && document.activeElement === last) {
-        event.preventDefault()
-        first.focus()
-      }
-    }
-
-    window.addEventListener('keydown', handleKeyDown)
-
-    return () => {
-      document.body.style.overflow = ''
-      window.removeEventListener('keydown', handleKeyDown)
-      previouslyFocused?.focus()
-    }
-  }, [onClose])
+  // Integrates browser history so phone back button / edge swipe closes the modal smoothly
+  const { handleClose } = useModalHistory({
+    isOpen: true,
+    onClose,
+    modalId: 'innovator-details',
+  })
 
   // Fall back to the one-line card bio if no long-form biography was written.
-  const bioParagraphs = member.extendedBio ?? [member.bio]
+  const bioParagraphs: string[] = member.extendedBio ?? [member.bio]
 
   return (
     <>
@@ -122,33 +76,49 @@ export function InnovatorDetails({ member, onClose }: InnovatorDetailsProps) {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
-        onClick={onClose}
-        className="fixed inset-0 z-50 bg-slate-950/65 backdrop-blur-sm"
+        onClick={handleClose}
+        className="fixed inset-0 z-50 bg-slate-950/65 backdrop-blur-sm sm:backdrop-blur-md"
         aria-hidden="true"
       />
 
-      {/* Dialog panel — fixed header, scrollable body. */}
+      {/* Dialog panel — mobile-first full sheet or centered desktop dialog */}
       <motion.div
         key="panel"
         ref={panelRef}
         role="dialog"
         aria-modal="true"
         aria-labelledby={headingId}
-        initial={{ opacity: 0, scale: 0.96, y: 20 }}
+        initial={{ opacity: 0, scale: 0.96, y: 15 }}
         animate={{ opacity: 1, scale: 1, y: 0 }}
-        exit={{ opacity: 0, scale: 0.96, y: 20 }}
+        exit={{ opacity: 0, scale: 0.96, y: 15 }}
         transition={{ type: 'spring', stiffness: 350, damping: 30 }}
-        className={`fixed left-1/2 top-1/2 z-50 flex max-h-[85vh] w-[92%] max-w-3xl -translate-x-1/2
-                   -translate-y-1/2 flex-col overflow-hidden rounded-[28px] border-2
-                   ${PALETTE.border} ${PALETTE.panel} ${PALETTE.glow}`}
+        className="fixed inset-0 sm:inset-auto sm:left-1/2 sm:top-1/2 sm:-translate-x-1/2 sm:-translate-y-1/2 z-50
+                   w-full h-[100dvh] sm:h-auto sm:w-[94%] sm:max-w-3xl sm:max-h-[85vh] flex flex-col
+                   bg-white rounded-none sm:rounded-[28px] shadow-2xl
+                   border-0 sm:border-2 border-blue-500/70 sm:ring-4 ring-blue-500/10
+                   overflow-hidden overscroll-contain"
       >
-        {/* ── Header: portrait, name, title, close button ─────────────────── */}
+        {/* Top Decorative Gradient Accent Bar */}
+        <div className="h-1.5 w-full bg-gradient-to-r from-blue-600 via-sky-400 to-indigo-500 shrink-0" />
+
+        {/* ── Fixed Header: portrait, name, title, Back & close buttons ─────────────────── */}
         <div
-          className={`flex shrink-0 items-center justify-between gap-4 border-b ${PALETTE.hairline} ${PALETTE.panel} p-6 sm:px-8`}
+          className={`flex shrink-0 items-center justify-between gap-3 sm:gap-4 border-b ${PALETTE.hairline} ${PALETTE.panel} p-3.5 sm:p-6 md:px-8 bg-white z-10`}
         >
-          <div className="flex items-center gap-5 sm:gap-6">
+          <div className="flex items-center gap-3 sm:gap-6 min-w-0">
+            {/* Quick Back Button on Mobile */}
+            <button
+              onClick={handleClose}
+              type="button"
+              aria-label="Back to innovators"
+              className="inline-flex sm:hidden items-center justify-center p-2 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-700 active:scale-95 cursor-pointer shrink-0"
+            >
+              <ArrowLeft className="w-5 h-5" />
+            </button>
+
+            {/* Portrait avatar */}
             <div
-              className={`relative flex h-16 w-16 shrink-0 items-center justify-center rounded-full bg-white p-1 shadow-sm ring-2 ${PALETTE.ring} sm:h-20 sm:w-20`}
+              className={`relative flex h-12 w-12 sm:h-20 sm:w-20 shrink-0 items-center justify-center rounded-full bg-white p-0.5 sm:p-1 shadow-sm ring-2 ${PALETTE.ring}`}
             >
               {member.image ? (
                 /* eslint-disable-next-line @next/next/no-img-element -- see note in README on image optimisation */
@@ -160,40 +130,54 @@ export function InnovatorDetails({ member, onClose }: InnovatorDetailsProps) {
               ) : (
                 /* Fallback when a member has no portrait in `public/`. */
                 <div className="flex h-full w-full items-center justify-center rounded-full bg-slate-100 text-slate-400">
-                  <User className={`h-8 w-8 ${PALETTE.accentText}`} />
+                  <User className={`h-6 w-6 sm:h-8 sm:w-8 ${PALETTE.accentText}`} />
                 </div>
               )}
             </div>
 
-            <div>
+            {/* Name & Title */}
+            <div className="min-w-0">
               <h3
                 id={headingId}
-                className={`text-xl font-extrabold tracking-tight ${PALETTE.headingText} sm:text-2xl md:text-3xl`}
+                className={`text-lg sm:text-2xl md:text-3xl font-extrabold tracking-tight ${PALETTE.headingText} truncate`}
               >
                 {member.name}
               </h3>
-              <p className={`mt-1 text-sm font-semibold ${PALETTE.accentText} sm:text-base`}>
+              <p className={`mt-0.5 sm:mt-1 text-xs sm:text-base font-semibold ${PALETTE.accentText} truncate`}>
                 {member.title}
               </p>
             </div>
           </div>
 
-          <button
-            onClick={onClose}
-            aria-label="Close profile"
-            className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-full ${PALETTE.mutedText}
-                       transition-colors ${PALETTE.hoverSurface} hover:text-slate-700`}
-          >
-            <X className="h-5 w-5" />
-          </button>
+          {/* Top Right Actions */}
+          <div className="flex items-center gap-2 shrink-0">
+            <button
+              onClick={handleClose}
+              type="button"
+              className="hidden sm:inline-flex items-center gap-1.5 px-3.5 py-2 rounded-full bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs transition-colors cursor-pointer"
+            >
+              <ArrowLeft className="w-4 h-4" />
+              <span>Back</span>
+            </button>
+
+            <button
+              onClick={handleClose}
+              type="button"
+              aria-label="Close profile"
+              className="p-2 sm:p-2.5 rounded-full text-slate-400 hover:text-slate-900 hover:bg-slate-100 transition-all duration-200 cursor-pointer"
+            >
+              <X className="w-5 h-5 sm:w-6 sm:h-6" />
+            </button>
+          </div>
         </div>
 
         {/* ── Body: biography, responsibilities, links ─────────────────────── */}
         <div
-          className={`flex-1 space-y-7 overflow-y-auto p-6 text-sm leading-relaxed ${PALETTE.bodyText} sm:p-8 sm:text-base`}
+          className={`flex-1 space-y-6 sm:space-y-7 overflow-y-auto no-scrollbar p-5 sm:p-8 text-sm leading-relaxed ${PALETTE.bodyText} sm:text-base overscroll-contain`}
+          style={{ WebkitOverflowScrolling: 'touch' }}
         >
           <div className="space-y-4">
-            {bioParagraphs.map((paragraph, index) => (
+            {bioParagraphs.map((paragraph: string, index: number) => (
               <p key={index} className={`leading-relaxed ${PALETTE.bodyText}`}>
                 {paragraph}
               </p>
@@ -201,7 +185,7 @@ export function InnovatorDetails({ member, onClose }: InnovatorDetailsProps) {
           </div>
 
           {member.responsibilities.length > 0 && (
-            <div>
+            <div className="bg-slate-50 border border-slate-200/80 rounded-2xl p-4 sm:p-6">
               <h4
                 className={`mb-3 text-xs font-extrabold uppercase tracking-widest ${PALETTE.headingText}`}
               >
@@ -261,7 +245,6 @@ export function InnovatorDetails({ member, onClose }: InnovatorDetailsProps) {
                   <ProfileLink
                     href={member.social.orcid}
                     label="ORCID"
-                    /* ORCID URLs end in the identifier itself, e.g. .../0009-0006-2781-6693 */
                     value={member.social.orcid.split('/').pop() ?? member.social.orcid}
                   />
                 )}
@@ -276,6 +259,18 @@ export function InnovatorDetails({ member, onClose }: InnovatorDetailsProps) {
               </div>
             </div>
           )}
+
+          {/* Bottom Dismiss / Back Button */}
+          <div className="pt-6 border-t border-slate-100 flex items-center justify-between">
+            <button
+              onClick={handleClose}
+              type="button"
+              className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-6 py-3 rounded-2xl bg-blue-50 hover:bg-blue-100 text-blue-800 border border-blue-200/90 font-bold text-sm transition-all active:scale-95 cursor-pointer shadow-xs"
+            >
+              <ArrowLeft className="w-4 h-4" />
+              <span>Back to Innovators</span>
+            </button>
+          </div>
         </div>
       </motion.div>
     </>
@@ -315,11 +310,11 @@ function ProfileLink({
       href={href}
       // Only http(s) links open in a new tab; a mailto: would open a blank one.
       {...(isExternal ? { target: '_blank', rel: 'noopener noreferrer' } : {})}
-      className="flex items-center gap-2 text-sm transition-colors hover:opacity-85"
+      className="flex items-center gap-2 text-sm transition-colors hover:opacity-85 p-2 rounded-xl bg-slate-50 border border-slate-100 hover:bg-blue-50/50 hover:border-blue-200"
     >
       <Icon className={`h-4 w-4 shrink-0 ${PALETTE.accentText}`} />
       <span className={`font-bold ${PALETTE.labelText}`}>{label}:</span>
-      <span className={`${PALETTE.accentText} hover:underline`}>{value}</span>
+      <span className={`${PALETTE.accentText} truncate hover:underline`}>{value}</span>
     </Link>
   )
 }
