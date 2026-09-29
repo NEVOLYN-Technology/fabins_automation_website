@@ -5,6 +5,9 @@ const nextConfig = {
    * development. Has no effect on the production build.
    */
   reactStrictMode: true,
+  experimental: {
+    scrollRestoration: true,
+  },
 
   /**
    * Emits `.next/standalone`, a self-contained server bundling only the

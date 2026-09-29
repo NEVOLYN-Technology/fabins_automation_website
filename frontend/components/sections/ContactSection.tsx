@@ -145,7 +145,7 @@ export const ContactSection = () => {
                       title="Visit NEVOLYN Technology"
                       className="text-sm font-bold tracking-tight text-ink hover:text-accent transition-colors"
                     >
-                      NEVOLYN Technology
+                      NEVOLYN
                     </a>
                   </div>
 

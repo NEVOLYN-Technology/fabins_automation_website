@@ -27,37 +27,54 @@
 :root {
   /* ── Surfaces, back to front ──
      canvas sits behind everything; panel is a card on top of it. */
-  --canvas: #f4f6fa;          /* Page background */
-  --canvas-alt: #eaeef6;      /* Alternating section background */
-  --panel: #ffffff;           /* Card and navbar background */
-  --panel-2: #f1f4f9;         /* Recessed areas: inputs, icon tiles */
+  --canvas: #f4f6fa;
+  /* Page background */
+  --canvas-alt: #eaeef6;
+  /* Alternating section background */
+  --panel: #ffffff;
+  /* Card and navbar background */
+  --panel-2: #f1f4f9;
+  /* Recessed areas: inputs, icon tiles */
 
   /* ── Borders ── */
-  --line: #dfe5ef;            /* Default hairline */
-  --line-strong: #c4d0e0;     /* Emphasised border, e.g. on hover */
+  --line: #dfe5ef;
+  /* Default hairline */
+  --line-strong: #c4d0e0;
+  /* Emphasised border, e.g. on hover */
 
   /* ── Text, darkest to lightest ── */
-  --ink: #080d16;             /* Headings and primary copy */
-  --ink-muted: #4b5a70;       /* Body copy and descriptions */
-  --ink-soft: #7a889d;        /* Captions, labels, metadata */
+  --ink: #080d16;
+  /* Headings and primary copy */
+  --ink-muted: #4b5a70;
+  /* Body copy and descriptions */
+  --ink-soft: #7a889d;
+  /* Captions, labels, metadata */
 
   /* ── Brand accent ──
      The teal that identifies FABINS. Used for links, icons, and highlights. */
   --accent: #0e7490;
-  --accent-bright: #0891b2;   /* Hover state — one step lighter */
-  --accent-quiet: rgba(8, 145, 178, 0.1); /* Tinted background wash */
+  --accent-bright: #0891b2;
+  /* Hover state — one step lighter */
+  --accent-quiet: rgba(8, 145, 178, 0.1);
+  /* Tinted background wash */
 
   /* ── Buttons ──
      Primary buttons use a left-to-right gradient from `from` to `to`. */
-  --btn-ink: #ffffff;         /* Label colour on a primary button */
-  --btn-from: #0891b2;        /* Gradient start (cyan) */
-  --btn-to: #2563eb;          /* Gradient end (blue) */
+  --btn-ink: #ffffff;
+  /* Label colour on a primary button */
+  --btn-from: #0891b2;
+  /* Gradient start (cyan) */
+  --btn-to: #2563eb;
+  /* Gradient end (blue) */
 
   /* ── Ambient decoration ──
      Used by the fixed background layers in `PageShell`. */
-  --grid-line: rgba(10, 20, 36, 0.045);      /* Engineering grid */
-  --glow-a: rgba(8, 145, 178, 0.16);         /* Cyan wash, top */
-  --glow-b: rgba(37, 99, 235, 0.12);         /* Blue wash, bottom-right */
+  --grid-line: rgba(10, 20, 36, 0.045);
+  /* Engineering grid */
+  --glow-a: rgba(8, 145, 178, 0.16);
+  /* Cyan wash, top */
+  --glow-b: rgba(37, 99, 235, 0.12);
+  /* Blue wash, bottom-right */
 
   /* ── Elevation ──
      Two-layer shadows: a tight contact shadow plus a wide soft one. */
@@ -108,7 +125,6 @@
   }
 
   html {
-    scroll-behavior: smooth;
     -webkit-text-size-adjust: 100%;
 
     /* Stops a section heading landing under the fixed navbar when an anchor
@@ -324,6 +340,7 @@
   .no-scrollbar::-webkit-scrollbar {
     display: none;
   }
+
   .no-scrollbar {
     -ms-overflow-style: none;
     scrollbar-width: none;
