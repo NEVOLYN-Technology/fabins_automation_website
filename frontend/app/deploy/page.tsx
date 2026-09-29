@@ -1,6 +1,7 @@
 'use client'
 
 import { useState } from 'react'
+import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { motion, AnimatePresence } from 'framer-motion'
 import {
@@ -103,6 +104,7 @@ const COMMON_DEFECTS = [
 ]
 
 export default function DeployPage() {
+  const router = useRouter()
   const [status, setStatus] = useState<FormStatus>('editing')
   const [errorMessage, setErrorMessage] = useState<string | null>(null)
   const [formData, setFormData] = useState<DeploymentRequest>(EMPTY_FORM)
@@ -237,13 +239,13 @@ export default function DeployPage() {
         <div className="pointer-events-none absolute -top-40 left-1/2 -translate-x-1/2 h-[500px] w-[800px] rounded-full bg-accent/10 blur-[120px]" />
 
         <div className="mx-auto max-w-5xl px-4 sm:px-6 lg:px-8 relative z-10">
-          <Link
-            href="/"
-            className="inline-flex items-center gap-2.5 rounded-full border border-line-strong/60 bg-panel px-5 py-2.5 text-sm font-bold text-ink transition-all duration-300 hover:border-accent hover:text-accent hover:shadow-md mb-8 group"
+          <button
+            onClick={() => router.back()}
+            className="inline-flex items-center gap-2.5 rounded-full border border-line-strong/60 bg-panel px-5 py-2.5 text-sm font-bold text-ink transition-all duration-300 hover:border-accent hover:text-accent hover:shadow-md mb-8 group cursor-pointer"
           >
             <ArrowLeft className="h-4 w-4 transition-transform group-hover:-translate-x-1" />
-            <span>Back to Home</span>
-          </Link>
+            <span>Go Back</span>
+          </button>
 
           {/* Page Banner Header */}
           <div className="text-center max-w-2xl mx-auto mb-10">
