@@ -179,7 +179,7 @@ export const FABINS_SYSTEM_DATA = {
       id: 'manual',
       title: 'Manual, Person-Dependent',
       description:
-        "Grading still relies on an inspector's eye at the frame - not on installed machine capacity.",
+        "Grading still relies on an inspector's eye at the frame and not on installed machine capacity.",
       iconName: 'UserX',
     },
     {
