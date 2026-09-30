@@ -51,7 +51,7 @@ function renderInlineLinks(text: string): (string | JSX.Element)[] {
         <a
           key={idx}
           href={`mailto:${part}`}
-          className="inline-flex items-center gap-1 font-bold text-emerald-600 hover:text-emerald-800 underline underline-offset-2 transition-colors"
+          className="inline-flex items-center gap-1 font-bold text-emerald-600 hover:text-emerald-800 underline underline-offset-2 transition-colors break-all"
         >
           <Mail size={12} className="shrink-0" />
           <span>{part}</span>
@@ -156,7 +156,7 @@ export function NewsDetailModal({ item, isOpen, onClose }: NewsDetailModalProps)
             </div>
 
             {/* Scrollable Content Container */}
-            <div className="overflow-y-auto no-scrollbar flex-1 overscroll-contain" style={{ WebkitOverflowScrolling: 'touch' }}>
+            <div className="overflow-y-auto overflow-x-hidden no-scrollbar flex-1 overscroll-contain" style={{ WebkitOverflowScrolling: 'touch' }}>
               {/* Hero Banner Header */}
               {item.image && (
                 <div className={`relative w-full overflow-hidden ${isPortrait ? 'h-60 sm:h-72 bg-gradient-to-br from-slate-900 via-slate-800 to-sky-950' : 'h-52 sm:h-72 bg-slate-900'}`}>
@@ -184,7 +184,7 @@ export function NewsDetailModal({ item, isOpen, onClose }: NewsDetailModalProps)
               )}
 
               {/* Main Body Content */}
-              <div className="p-5 sm:p-8">
+              <div className="p-4 sm:p-8">
                 {/* Meta details */}
                 <div className="flex items-center gap-2 text-xs sm:text-sm text-slate-500 font-semibold mb-3">
                   <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-slate-100 text-slate-600 border border-slate-200">
@@ -216,35 +216,37 @@ export function NewsDetailModal({ item, isOpen, onClose }: NewsDetailModalProps)
                       return (
                         <div
                           key={index}
-                          className="rounded-2xl border border-sky-200/90 bg-gradient-to-br from-sky-50/80 via-white to-indigo-50/60 p-4 sm:p-5 shadow-xs transition-all hover:shadow-md hover:border-sky-300"
+                          className="rounded-2xl border border-sky-200/90 bg-gradient-to-br from-sky-50/80 via-white to-indigo-50/60 p-3 sm:p-5 shadow-xs transition-all hover:shadow-md hover:border-sky-300 w-full overflow-hidden"
                         >
-                          <div className="flex items-center gap-2 mb-3">
-                            <div className="w-2.5 h-2.5 rounded-full bg-sky-500 animate-pulse" />
-                            <h4 className="font-extrabold text-slate-900 text-sm sm:text-base tracking-tight">
+                          <div className="flex items-center gap-2 mb-2.5 sm:mb-3">
+                            <div className="w-2.5 h-2.5 rounded-full bg-sky-500 animate-pulse shrink-0" />
+                            <h4 className="font-extrabold text-slate-900 text-xs sm:text-base tracking-tight truncate">
                               {contact.name}
                             </h4>
                           </div>
 
-                          <div className="flex flex-wrap items-center gap-2.5">
+                          <div className={`grid gap-1.5 sm:gap-2.5 w-full ${contact.website && contact.email ? 'grid-cols-2' : 'grid-cols-1'}`}>
                             {contact.website && (
                               <a
                                 href={contact.website}
                                 target="_blank"
                                 rel="noopener noreferrer"
-                                className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-white border border-sky-200/90 text-sky-700 hover:text-white hover:bg-sky-600 hover:border-transparent font-bold text-xs sm:text-sm shadow-xs transition-all duration-200 active:scale-95 group"
+                                title={contact.website}
+                                className="min-w-0 w-full flex items-center justify-center gap-1 sm:gap-1.5 px-1.5 sm:px-3 py-2 rounded-xl bg-white border border-sky-200/90 text-sky-700 hover:text-white hover:bg-sky-600 hover:border-transparent font-bold text-[10px] min-[360px]:text-[11px] sm:text-xs md:text-sm shadow-xs transition-all duration-200 active:scale-95 group overflow-hidden"
                               >
-                                <Globe size={15} className="text-sky-500 group-hover:text-white transition-colors" />
-                                <span>{contact.website.replace(/^https?:\/\//, '')}</span>
-                                <ExternalLink size={13} className="opacity-70 group-hover:text-white" />
+                                <Globe className="w-3.5 h-3.5 sm:w-4 sm:h-4 shrink-0 text-sky-500 group-hover:text-white transition-colors" />
+                                <span className="truncate">{contact.website.replace(/^https?:\/\//, '')}</span>
+                                <ExternalLink className="w-3 h-3 shrink-0 opacity-70 group-hover:text-white hidden min-[440px]:inline-block sm:inline-block" />
                               </a>
                             )}
                             {contact.email && (
                               <a
                                 href={`mailto:${contact.email}`}
-                                className="inline-flex items-center gap-2 px-3.5 py-2 rounded-xl bg-white border border-emerald-200/90 text-emerald-700 hover:text-white hover:bg-emerald-600 hover:border-transparent font-bold text-xs sm:text-sm shadow-xs transition-all duration-200 active:scale-95 group"
+                                title={contact.email}
+                                className="min-w-0 w-full flex items-center justify-center gap-1 sm:gap-1.5 px-1.5 sm:px-3 py-2 rounded-xl bg-white border border-emerald-200/90 text-emerald-700 hover:text-white hover:bg-emerald-600 hover:border-transparent font-bold text-[10px] min-[360px]:text-[11px] sm:text-xs md:text-sm shadow-xs transition-all duration-200 active:scale-95 group overflow-hidden"
                               >
-                                <Mail size={15} className="text-emerald-500 group-hover:text-white transition-colors" />
-                                <span>{contact.email}</span>
+                                <Mail className="w-3.5 h-3.5 sm:w-4 sm:h-4 shrink-0 text-emerald-500 group-hover:text-white transition-colors" />
+                                <span className="truncate">{contact.email}</span>
                               </a>
                             )}
                           </div>
