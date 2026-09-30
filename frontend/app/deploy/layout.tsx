@@ -2,7 +2,7 @@ import type { Metadata } from 'next'
 import { SEO_CONFIG } from '@/lib/seo/config'
 
 export const metadata: Metadata = {
-  title: `Factory Assessment & Deployment Request | ${SEO_CONFIG.brandName}`,
+  title: 'FABINS Deployment',
   description:
     'Submit RMG factory specifications and request a tailored deployment assessment for FABINS AI-powered fabric inspection automation.',
   alternates: {

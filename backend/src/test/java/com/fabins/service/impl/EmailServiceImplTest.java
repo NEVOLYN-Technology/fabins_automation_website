@@ -176,7 +176,7 @@ class EmailServiceImplTest {
                         "[Acknowledged] FABINS Deployment Request — Ref: %s"),
                 backendUrl);
 
-        return new EmailServiceImpl(provider, properties, new ObjectMapper());
+        return new EmailServiceImpl(provider, properties, new ObjectMapper(), new PdfGenerationServiceImpl());
     }
 
     private static DeploymentRequest requestWithId() {

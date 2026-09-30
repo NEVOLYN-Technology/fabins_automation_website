@@ -21,20 +21,27 @@ import { cn } from '@/lib/utils'
  * does too but with different padding and hover treatment.
  */
 
-/** Per-size classes. Keeping both variants adjacent makes them easy to compare. */
+/** Per-size classes. Keeping variants adjacent makes them easy to compare. */
 const SIZES = {
+  xs: {
+    logo: 'h-8 w-8 shrink-0 sm:h-10 sm:w-10',
+    name: 'text-[14px] sm:text-[17px]',
+    tagline: 'text-[7.5px] sm:text-[9.5px]',
+  },
   sm: {
     logo: 'h-11 w-11 shrink-0 sm:h-12 sm:w-12',
     name: 'text-[17px]',
+    tagline: 'text-[10px]',
   },
   md: {
     logo: 'h-12 w-12',
     name: 'text-xl',
+    tagline: 'text-[10px]',
   },
 } as const
 
 interface WordmarkProps {
-  /** `sm` for the navbar pill, `md` for the footer. Defaults to `sm`. */
+  /** `xs` for mobile brand badges, `sm` for the navbar pill, `md` for the footer. Defaults to `sm`. */
   size?: keyof typeof SIZES
   /** Extra classes for the wrapper. */
   className?: string
@@ -44,7 +51,7 @@ export function Wordmark({ size = 'sm', className }: WordmarkProps) {
   const sizing = SIZES[size]
 
   return (
-    <span className={cn('flex items-center gap-2', className)}>
+    <span className={cn('flex items-center gap-1.5 sm:gap-2', className)}>
       <FabinsLogo className={sizing.logo} />
 
       {/* `leading-none` keeps the name and tagline tight against each other. */}
@@ -53,7 +60,12 @@ export function Wordmark({ size = 'sm', className }: WordmarkProps) {
           {/* The accent split is the brand's signature — always FAB + INS. */}
           FAB<span className="text-accent">INS</span>
         </span>
-        <span className="mt-1 block font-mono text-[10px] uppercase tracking-[0.14em] text-ink-soft">
+        <span
+          className={cn(
+            'mt-0.5 sm:mt-1 block font-mono uppercase tracking-[0.10em] sm:tracking-[0.14em] text-ink-soft whitespace-nowrap',
+            sizing.tagline
+          )}
+        >
           Fabric Inspection Automation
         </span>
       </span>

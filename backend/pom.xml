@@ -87,6 +87,13 @@
       <version>${springdoc.version}</version>
     </dependency>
 
+    <!-- OpenPDF for generating deployment assessment PDF attachments -->
+    <dependency>
+      <groupId>com.github.librepdf</groupId>
+      <artifactId>openpdf</artifactId>
+      <version>2.0.3</version>
+    </dependency>
+
     <!-- Dev database. `runtime` so it is never importable from main code. -->
     <dependency>
       <groupId>com.h2database</groupId>

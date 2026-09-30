@@ -4,17 +4,22 @@ import com.fabins.config.ApiProperties;
 import com.fabins.entity.ContactInquiry;
 import com.fabins.entity.DeploymentRequest;
 import com.fabins.service.EmailService;
+import com.fabins.service.PdfGenerationService;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ArrayNode;
 import com.fasterxml.jackson.databind.node.ObjectNode;
 import jakarta.mail.internet.MimeMessage;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.ObjectProvider;
+import org.springframework.core.io.ByteArrayResource;
 import org.springframework.core.io.ClassPathResource;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
+
+import java.util.Base64;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -87,6 +92,7 @@ public class EmailServiceImpl implements EmailService {
 
     private final ApiProperties properties;
     private final ObjectMapper objectMapper;
+    private final PdfGenerationService pdfGenerationService;
 
     /**
      * Shared across sends. {@link HttpClient} is immutable and thread-safe, and
@@ -105,20 +111,25 @@ public class EmailServiceImpl implements EmailService {
      * @param objectMapper       Spring's configured mapper, used to build the Brevo
      *                           request body so that quotes, newlines, and non-ASCII
      *                           characters in a template are escaped correctly
+     * @param pdfGenerationService generates styled PDF assessment reports for enquiries
      */
     public EmailServiceImpl(ObjectProvider<JavaMailSender> mailSenderProvider,
                             ApiProperties properties,
-                            ObjectMapper objectMapper) {
+                            ObjectMapper objectMapper,
+                            PdfGenerationService pdfGenerationService) {
         this.mailSender = mailSenderProvider.getIfAvailable();
         this.properties = properties;
         this.objectMapper = objectMapper;
+        this.pdfGenerationService = pdfGenerationService;
         this.httpClient = HttpClient.newBuilder()
                 .connectTimeout(HTTP_TIMEOUT)
                 .build();
     }
 
     /**
-     * Notifies the R&D team of a new enquiry and confirms receipt to the mill.
+     * Notifies the engineering team at fabins@nevolyn.com of a new enquiry and confirms
+     * receipt to the applicant. Generates an official assessment PDF report and attaches
+     * it to both dispatches.
      *
      * <p>The two sends are independent: a failure of the first must not suppress
      * the second, so each is dispatched separately.
@@ -131,8 +142,16 @@ public class EmailServiceImpl implements EmailService {
         log.info("Dispatching deployment request notifications for id {} [Ref: {}]",
                 request.getId(), request.getReferenceCode());
 
-        sendAdminNotification(request);
-        sendSenderConfirmation(request);
+        byte[] pdfBytes = null;
+        try {
+            pdfBytes = pdfGenerationService.generateDeploymentAssessmentPdf(request);
+        } catch (Exception e) {
+            log.error("Failed to generate PDF for deployment request id {}", request.getId(), e);
+        }
+        String attachmentFilename = "FABINS-Assessment-" + request.getReferenceCode() + ".pdf";
+
+        sendAdminNotification(request, attachmentFilename, pdfBytes);
+        sendSenderConfirmation(request, attachmentFilename, pdfBytes);
     }
 
     /**
@@ -289,7 +308,7 @@ public class EmailServiceImpl implements EmailService {
      * <p>{@code Reply-To} is set to the mill's address so that replying from the
      * inbox reaches the enquirer directly rather than the shared sender account.
      */
-    private void sendAdminNotification(DeploymentRequest request) {
+    private void sendAdminNotification(DeploymentRequest request, String attachmentFilename, byte[] attachmentBytes) {
         ApiProperties.Mail mail = properties.mail();
         String reference = request.getReferenceCode();
 
@@ -318,11 +337,13 @@ public class EmailServiceImpl implements EmailService {
         dispatch(mail.adminAddress(),
                 String.format(mail.adminSubject(), request.getMillName()),
                 body,
-                request.getEmail());
+                request.getEmail(),
+                attachmentFilename,
+                attachmentBytes);
     }
 
-    /** Sends the "we have your enquiry" receipt to the mill contact. */
-    private void sendSenderConfirmation(DeploymentRequest request) {
+    /** Sends the "we have your enquiry" receipt with the PDF attachment to the mill contact. */
+    private void sendSenderConfirmation(DeploymentRequest request, String attachmentFilename, byte[] attachmentBytes) {
         ApiProperties.Mail mail = properties.mail();
         String reference = request.getReferenceCode();
 
@@ -336,7 +357,9 @@ public class EmailServiceImpl implements EmailService {
         dispatch(request.getEmail(),
                 String.format(mail.senderSubject(), reference),
                 body,
-                mail.adminAddress());
+                mail.adminAddress(),
+                attachmentFilename,
+                attachmentBytes);
     }
 
     /**
@@ -397,6 +420,11 @@ public class EmailServiceImpl implements EmailService {
      * @param replyTo address a reply should go to, which is rarely the sender
      */
     private void dispatch(String to, String subject, String html, String replyTo) {
+        dispatch(to, subject, html, replyTo, null, null);
+    }
+
+    private void dispatch(String to, String subject, String html, String replyTo,
+                         String attachmentFilename, byte[] attachmentBytes) {
         String apiKey = properties.mail().apiKey();
 
         // No credential anywhere — `fabins.mail.api-key` falls back to the SMTP
@@ -404,24 +432,24 @@ public class EmailServiceImpl implements EmailService {
         // attempting SMTP here would fail on authentication and bury a
         // developer's console in stack traces on every form submission.
         if (apiKey == null || apiKey.isBlank()) {
-            log.info("[MAIL SIMULATED] To: {} | Subject: '{}' — set SPRING_MAIL_PASSWORD to send for real",
-                    to, subject);
+            log.info("[MAIL SIMULATED] To: {} | Subject: '{}' | Attachment: {} — set SPRING_MAIL_PASSWORD to send for real",
+                    to, subject, attachmentFilename != null ? attachmentFilename : "None");
             return;
         }
 
         String trimmedKey = apiKey.trim();
         boolean isBrevoKey = trimmedKey.startsWith(BREVO_KEY_PREFIX_SMTP) || trimmedKey.startsWith(BREVO_KEY_PREFIX_REST);
 
-        if (isBrevoKey && sendViaBrevoApi(to, subject, html, replyTo, trimmedKey)) {
+        if (isBrevoKey && sendViaBrevoApi(to, subject, html, replyTo, trimmedKey, attachmentFilename, attachmentBytes)) {
             return;
         }
 
         // Engine 2 — SMTPS.
-        sendViaSmtp(to, subject, html, replyTo);
+        sendViaSmtp(to, subject, html, replyTo, attachmentFilename, attachmentBytes);
     }
 
     /**
-     * Posts the message to Brevo's transactional email API.
+     * Posts the message to Brevo's transactional email API, optionally with an attachment.
      *
      * <p>The body is assembled as a Jackson {@link ObjectNode} rather than by
      * string formatting: an email body is arbitrary HTML containing quotes and
@@ -432,7 +460,8 @@ public class EmailServiceImpl implements EmailService {
      * @return {@code true} when Brevo accepted the message; {@code false} on any
      *         failure, having logged the cause, so the caller can fall back
      */
-    private boolean sendViaBrevoApi(String to, String subject, String html, String replyTo, String apiKey) {
+    private boolean sendViaBrevoApi(String to, String subject, String html, String replyTo, String apiKey,
+                                    String attachmentFilename, byte[] attachmentBytes) {
         try {
             ObjectNode payload = objectMapper.createObjectNode();
             payload.putObject("sender")
@@ -442,6 +471,13 @@ public class EmailServiceImpl implements EmailService {
             payload.putObject("replyTo").put("email", replyTo != null ? replyTo : properties.mail().fromAddress());
             payload.put("subject", subject);
             payload.put("htmlContent", html);
+
+            if (attachmentBytes != null && attachmentBytes.length > 0 && attachmentFilename != null) {
+                ArrayNode attachments = payload.putArray("attachment");
+                ObjectNode att = attachments.addObject();
+                att.put("name", attachmentFilename);
+                att.put("content", Base64.getEncoder().encodeToString(attachmentBytes));
+            }
 
             HttpRequest httpRequest = HttpRequest.newBuilder(BREVO_ENDPOINT)
                     .timeout(HTTP_TIMEOUT)
@@ -456,7 +492,8 @@ public class EmailServiceImpl implements EmailService {
 
             HttpResponse<String> response = httpClient.send(httpRequest, HttpResponse.BodyHandlers.ofString());
             if (response.statusCode() >= 200 && response.statusCode() < 300) {
-                log.info("Email delivered to {} via Brevo REST API [HTTP {}]", to, response.statusCode());
+                log.info("Email delivered to {} via Brevo REST API [HTTP {}] with attachment {}",
+                        to, response.statusCode(), attachmentFilename != null ? attachmentFilename : "none");
                 return true;
             }
 
@@ -476,13 +513,14 @@ public class EmailServiceImpl implements EmailService {
     }
 
     /**
-     * Delivers the message with JavaMail over the configured SMTP transport.
+     * Delivers the message with JavaMail over the configured SMTP transport, optionally with an attachment.
      *
      * <p>Reached only when the REST engine was skipped or failed. The bean is
      * absent when {@code spring.mail.host} is unset, which is not the case in
      * any shipped profile but is cheap to guard against.
      */
-    private void sendViaSmtp(String to, String subject, String html, String replyTo) {
+    private void sendViaSmtp(String to, String subject, String html, String replyTo,
+                             String attachmentFilename, byte[] attachmentBytes) {
         if (mailSender == null) {
             log.error("Cannot send to {}: no mail host is configured (spring.mail.host)", to);
             return;
@@ -490,7 +528,7 @@ public class EmailServiceImpl implements EmailService {
 
         try {
             MimeMessage message = mailSender.createMimeMessage();
-            // multipart=true is required for an HTML body; UTF-8 keeps the
+            // multipart=true is required for an HTML body and attachments; UTF-8 keeps the
             // reference codes and any non-ASCII mill name intact.
             MimeMessageHelper helper = new MimeMessageHelper(message, true, StandardCharsets.UTF_8.name());
 
@@ -502,8 +540,13 @@ public class EmailServiceImpl implements EmailService {
                 helper.setReplyTo(replyTo);
             }
 
+            if (attachmentBytes != null && attachmentBytes.length > 0 && attachmentFilename != null) {
+                helper.addAttachment(attachmentFilename, new ByteArrayResource(attachmentBytes));
+            }
+
             mailSender.send(message);
-            log.info("Email delivered to {} via SMTP", to);
+            log.info("Email delivered to {} via SMTP with attachment {}",
+                    to, attachmentFilename != null ? attachmentFilename : "none");
         } catch (Exception e) {
             // Terminal: both engines are exhausted. Logged with the stack trace
             // because the cause is usually a connect timeout (a blocked port) or

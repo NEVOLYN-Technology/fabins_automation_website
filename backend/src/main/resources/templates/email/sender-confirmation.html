@@ -3,7 +3,7 @@
 
 <head>
   <meta charset="UTF-8">
-  <title>FABINS Deployment Assessment Request Received</title>
+  <title>FABINS Deployment Assessment Request Confirmation - NEVOLYN Technology</title>
   <style>
     body {
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
@@ -15,7 +15,7 @@
     }
 
     .wrapper {
-      max-width: 620px;
+      max-width: 640px;
       margin: 0 auto;
       background: #ffffff;
       border-radius: 12px;
@@ -25,9 +25,10 @@
     }
 
     .header {
-      background-color: #0e7490;
-      padding: 32px;
+      background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+      padding: 30px 32px;
       color: #ffffff;
+      border-bottom: 3px solid #0ea5e9;
     }
 
     .brand-title {
@@ -35,10 +36,11 @@
       font-weight: 700;
       margin: 0 0 4px 0;
       color: #ffffff;
+      letter-spacing: -0.5px;
     }
 
     .brand-sub {
-      color: #cff4fc;
+      color: #38bdf8;
       font-size: 13px;
       font-weight: 600;
       letter-spacing: 0.5px;
@@ -56,18 +58,18 @@
     }
 
     .status-card {
-      background-color: #ecfeff;
-      border: 1px solid #a5f3fc;
-      border-left: 4px solid #0891b2;
+      background-color: #f0fdf4;
+      border: 1px solid #bbf7d0;
+      border-left: 4px solid #16a34a;
       padding: 18px 20px;
-      border-radius: 6px;
+      border-radius: 8px;
       margin: 24px 0;
     }
 
     .status-title {
       font-size: 14px;
       font-weight: 700;
-      color: #0e7490;
+      color: #15803d;
       margin: 0 0 6px 0;
       display: flex;
       align-items: center;
@@ -75,13 +77,24 @@
 
     .ref-pill {
       display: inline-block;
-      background-color: #080d16;
+      background-color: #0f172a;
       color: #38bdf8;
       font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
       font-size: 13px;
       font-weight: 700;
       padding: 3px 10px;
       border-radius: 4px;
+    }
+
+    .pdf-box {
+      background-color: #f0f9ff;
+      border: 1px solid #bae6fd;
+      border-radius: 8px;
+      padding: 16px;
+      margin: 20px 0;
+      display: flex;
+      align-items: center;
+      gap: 12px;
     }
 
     .footer {
@@ -100,8 +113,8 @@
       <table cellpadding="0" cellspacing="0" border="0" style="width: 100%; border-collapse: collapse;">
         <tr>
           <td style="vertical-align: middle; text-align: left;">
-            <h1 class="brand-title">Saturn Textiles Limited</h1>
-            <div class="brand-sub">Research &amp; Development Division — FABINS Automation Systems</div>
+            <h1 class="brand-title">NEVOLYN</h1>
+            <div class="brand-sub">FABINS Automation</div>
           </td>
         </tr>
       </table>
@@ -111,34 +124,48 @@
       <div class="greeting">Dear {{contactName}},</div>
 
       <p style="margin-top: 0; font-size: 15px; color: #334155;">
-        Thank you for your interest upgrading your fabric inspection system with <strong>FABINS</strong>.
+        Thank you for submitting your factory deployment assessment for <strong>{{millName}}</strong>.
       </p>
 
       <div class="status-card">
-        <div class="status-title">📥 Request Registered in R&amp;D Queue</div>
-        <p style="margin: 0; font-size: 14px; color: #78350f;">
-          Your deployment assessment enquiry has been logged under Tracking Reference: <span
+        <div class="status-title">&#10003; Assessment Received &amp; Registered</div>
+        <p style="margin: 0; font-size: 14px; color: #166534;">
+          Your deployment assessment application has been logged under Tracking Reference: <span
             class="ref-pill">{{requestId}}</span>.
         </p>
       </div>
 
+      <div class="pdf-box">
+        <div style="font-size: 24px;">&#128196;</div>
+        <div>
+          <strong style="color: #0369a1; font-size: 14px;">Official PDF Assessment Copy Attached</strong>
+          <p style="margin: 2px 0 0 0; font-size: 13px; color: #475569;">
+            A complete PDF copy containing your submitted mill credentials, machine configuration, and technical
+            specifications has been generated and attached to this email for your records. A duplicate copy has also
+            been routed to <strong>{{adminEmail}}</strong>.
+          </p>
+        </div>
+      </div>
+
       <p style="font-size: 14px; color: #475569;">
         <strong>What happens next?</strong><br />
-        Our team is currently analyzing your submitted mill requirements. As soon as an engineer reviews your frame
-        specifications, you will receive an official acknowledgment and direct contact follow-up.
+        Our engineering team is analyzing your submitted mill requirements. An automation engineer will review your
+        frame specifications and reach out directly to discuss retrofit feasibility, camera positioning, and deployment
+        timeline.
       </p>
 
       <p style="font-size: 14px; color: #475569;">
-        If you have urgent questions or additional technical specifications to add, feel free to reply directly to this
-        email or reach us at <a href="mailto:{{adminEmail}}" style="color: #d97706;">{{adminEmail}}</a>.
+        If you have questions or additional technical specifications to add, simply reply directly to this email or
+        contact us at <a href="mailto:{{adminEmail}}" style="color: #0284c7; font-weight: 600;">{{adminEmail}}</a>.
       </p>
     </div>
 
     <div class="footer">
       Warm regards,<br />
-      <strong style="color: #334155;">R&amp;D Department</strong><br />
-      Saturn Textiles Limited<br />
-      <span style="font-size: 12px; color: #94a3b8;">Automated Fabric Inspection System (FABINS)</span>
+      <strong style="color: #334155;">NEVOLYN Technology — Engineering Desk</strong><br />
+      FABINS Vision AI Automated Inspection<br />
+      Official Mail: <a href="mailto:{{adminEmail}}" style="color: #0284c7;">{{adminEmail}}</a> &bull; <a
+        href="https://nevolyn.com" style="color: #0284c7;">nevolyn.com</a>
     </div>
   </div>
 </body>

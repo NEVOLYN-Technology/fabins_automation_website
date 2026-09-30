@@ -173,13 +173,13 @@ fabins:
 
   mail:
     # Internal recipient — where new-enquiry alerts land.
-    admin-address: ${FABINS_ADMIN_ADDRESS:saturn.rnd.innovation@gmail.com}
+    admin-address: ${FABINS_ADMIN_ADDRESS:fabins@nevolyn.com}
     # Envelope sender. MUST be a verified sender in the Brevo account, otherwise
     # the REST API answers HTTP 400 and SMTP answers 550.
-    from-address: ${SPRING_MAIL_FROM:saturn.rnd.innovation@gmail.com}
+    from-address: ${SPRING_MAIL_FROM:fabins@nevolyn.com}
     # Display name shown beside the address in the recipient's inbox, i.e.
-    # "Saturn Textiles R&D <saturn.rnd.innovation@gmail.com>".
-    sender-name: ${FABINS_MAIL_SENDER_NAME:Saturn Textiles R&D}
+    # "NEVOLYN FABINS <fabins@nevolyn.com>".
+    sender-name: ${FABINS_MAIL_SENDER_NAME:NEVOLYN FABINS}
     # Credential for the primary (HTTPS REST) engine. A Brevo key starts with
     # `xsmtpsib-`; anything else — or blank — makes EmailServiceImpl skip the
     # REST engine and use SMTP. Defaults to the SMTP password because Brevo

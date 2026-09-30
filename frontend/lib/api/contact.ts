@@ -48,6 +48,8 @@ export interface DeploymentRequest {
   phone?: string
   /** Factory location (e.g. Gazipur, Dhaka, Bangladesh). Optional. */
   location?: string
+  /** Inspection machine or frame manufacturer brand (e.g. Bianco, Lafer). Optional. */
+  machineBrand?: string
   /** Type of factory (e.g. Knit Fabric Mill, Woven Mill, Denim). Optional. */
   factoryType?: string
   /** Number of inspection frames to upgrade/retrofit (e.g. 1-2, 3-5, 6+). Optional. */
