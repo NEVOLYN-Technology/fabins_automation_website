@@ -206,7 +206,7 @@ export const SystemSection = () => {
                     </h3>
 
                     {/* min-height keeps every card the same height regardless of copy length. */}
-                    <p className="min-h-[48px] text-sm font-normal leading-relaxed text-ink-muted">
+                    <p className="min-h-[48px] text-sm font-normal leading-relaxed text-ink-muted text-justify">
                       {step.description}
                     </p>
                   </div>
@@ -248,7 +248,7 @@ export const SystemSection = () => {
       <div className="mt-20">
         <motion.h3
           {...fadeUpProps(0.05)}
-          className="text-sm font-semibold uppercase tracking-[0.16em] text-ink-soft"
+          className="text-[11px] min-[360px]:text-xs sm:text-sm font-semibold uppercase tracking-[0.05em] sm:tracking-[0.16em] text-ink-soft whitespace-nowrap"
         >
           Built on catalogue industrial hardware
         </motion.h3>

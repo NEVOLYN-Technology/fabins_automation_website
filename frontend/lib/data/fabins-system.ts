@@ -179,28 +179,28 @@ export const FABINS_SYSTEM_DATA = {
       id: 'manual',
       title: 'Manual, Person-Dependent',
       description:
-        "Grading still relies on an inspector's eye at the frame — not on installed machine capacity.",
+        "Grading still relies on an inspector's eye at the frame - not on installed machine capacity.",
       iconName: 'UserX',
     },
     {
       id: 'fatigue',
       title: 'Fatigue & Monotony',
       description:
-        'Long shifts watching moving cloth degrade attention — a physiological limit, not a discipline issue.',
+        'Long shifts watching moving cloth degrade attention which is a physiological limit, not a discipline issue.',
       iconName: 'Clock',
     },
     {
       id: 'inconsistent',
       title: 'Inconsistent Quality',
       description:
-        'Two inspectors grade the same roll differently — human error is unavoidable, not occasional.',
+        'Two or more inspectors grade the same roll differently where human error is unavoidable.',
       iconName: 'BarChart2',
     },
     {
       id: 'no-data',
       title: 'Almost No Usable Data',
       description:
-        'A tally sheet, not a defect map — nothing to trace faults back to a machine or batch.',
+        'A tally sheet, not a defect map which is nothing to trace faults back to a machine or batch.',
       iconName: 'Database',
     },
   ] as ProblemItem[],
@@ -286,7 +286,7 @@ export const FABINS_SYSTEM_DATA = {
     {
       stepNumber: 1,
       title: 'Camera Captures',
-      description: 'High-speed line-scan camera captures the full fabric width as it moves.',
+      description: 'High-speed industrial camera captures the full fabric width as it moves.',
     },
     {
       stepNumber: 2,
@@ -327,11 +327,11 @@ export const FABINS_SYSTEM_DATA = {
   hardwarePillars: [
     {
       id: 'camera',
-      title: 'Line-Scan Camera',
-      headline: '8192px Industrial Color Sensor',
-      spec: '8192px Line Rate',
+      title: 'Industrial Camera',
+      headline: 'High-Resolution Color Sensor',
+      spec: 'Industrial Grade',
       description:
-        'Industrial high-resolution line-scan camera capturing the full fabric width with sub-millimeter optical clarity per line.',
+        'Industrial high-resolution camera capturing the full fabric width with precise optical clarity.',
     },
     {
       id: 'encoder',
@@ -339,7 +339,7 @@ export const FABINS_SYSTEM_DATA = {
       headline: 'Encoder-Triggered Sync',
       spec: 'Rotary Hardware Pulse',
       description:
-        'Calibrated optics paired with a rotary hardware encoder, locking capture geometry to actual fabric speed regardless of conveyor variance.',
+        'Calibrated optics and rotary hardware encoder synchronized to real-time fabric roll speed.',
     },
     {
       id: 'lighting',
@@ -347,15 +347,15 @@ export const FABINS_SYSTEM_DATA = {
       headline: 'Controlled Illumination Rig',
       spec: 'Uniform High-CRI LED',
       description:
-        'Custom-designed uniform lighting assembly over a continuous-motion fabric transport rig, eliminating shadow artifacts.',
+        'Uniform high-CRI lighting assembly over a continuous fabric transport rig, eliminating shadows.',
     },
     {
       id: 'software',
       title: 'AI Software & Dashboard',
       headline: 'Browser Operator Interface',
-      spec: 'Real-Time Edge Pipeline',
+      spec: 'Real-Time Pipeline',
       description:
-        'Detection, grading, and reporting pipeline with an intuitive browser-based operator dashboard for live feeds and report downloads.',
+        'Real-time defect scoring and digital audit reporting with live operator dashboards.',
     },
   ] as SystemHardwarePillar[],
 

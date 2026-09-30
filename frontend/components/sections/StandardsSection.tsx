@@ -2,7 +2,7 @@
 
 import { useState } from 'react'
 import { motion } from 'framer-motion'
-import { Calculator, Info, Layers } from 'lucide-react'
+import { Calculator, CheckCircle2, Info, Layers } from 'lucide-react'
 import { FABINS_SYSTEM_DATA, type Tone, type CalculationRow } from '@/lib/data/fabins-system'
 import { Section } from '@/components/ui/Section'
 import { SectionHeader } from '@/components/ui/SectionHeader'
@@ -77,9 +77,9 @@ export const StandardsSection = () => {
 
       {/* ── 1. Penalty bands ───────────────────────────────────────────── */}
       <div className="mb-14">
-        <h3 className="mb-4 flex items-center gap-2 font-mono text-xs font-bold uppercase tracking-[0.14em] text-ink-soft">
-          <Calculator className="h-4 w-4 text-accent" />
-          1. The ASTM D5430 Four-Point Penalty Rules
+        <h3 className="mb-4 flex items-center gap-1.5 sm:gap-2 font-mono text-[9.5px] min-[360px]:text-[10px] min-[390px]:text-[11px] sm:text-xs font-bold uppercase tracking-[0.03em] sm:tracking-[0.14em] text-ink-soft whitespace-nowrap">
+          <Calculator className="h-3.5 w-3.5 sm:h-4 sm:w-4 text-accent shrink-0" />
+          <span>1. The ASTM D5430 Four-Point Penalty Rules</span>
         </h3>
 
         <motion.div
@@ -109,17 +109,17 @@ export const StandardsSection = () => {
       <div className="grid grid-cols-1 gap-8 lg:grid-cols-12">
         {/* ── 2. Interactive defect list ───────────────────────────────── */}
         <motion.div {...fadeUpProps(0.24)} className="flex flex-col lg:col-span-6">
-          <div className="card flex h-full flex-col justify-between border-line bg-panel !p-6 sm:!p-8">
+          <div className="card flex h-full flex-col justify-between border-line bg-panel !p-3.5 sm:!p-8">
             <div>
-              <div className="mb-4 flex items-center gap-2 border-b border-line pb-4">
-                <Layers className="h-5 w-5 text-accent" />
+              <div className="mb-3.5 sm:mb-4 flex items-center gap-2 border-b border-line pb-3 sm:pb-4">
+                <Layers className="h-4 w-4 sm:h-5 sm:w-5 text-accent" />
                 <div>
-                  <h3 className="text-base font-bold text-ink">2. Common Fabric Defects</h3>
-                  <p className="font-mono text-xs text-ink-soft">ASTM D5430 Defect Taxonomy</p>
+                  <h3 className="text-sm sm:text-base font-bold text-ink">2. Common Fabric Defects</h3>
+                  <p className="font-mono text-[10.5px] sm:text-xs text-ink-soft">ASTM D5430 Defect Taxonomy</p>
                 </div>
               </div>
 
-              <div className="space-y-3">
+              <div className="space-y-2 sm:space-y-3">
                 {FABINS_SYSTEM_DATA.standardsDefects.map((defect) => {
                   const isSelected = activeDefectId === defect.id
 
@@ -129,17 +129,17 @@ export const StandardsSection = () => {
                       onClick={() => setActiveDefectId(defect.id)}
                       aria-expanded={isSelected}
                       className={cn(
-                        'w-full cursor-pointer rounded-2xl border p-4 text-left transition-all duration-200',
+                        'w-full cursor-pointer rounded-xl sm:rounded-2xl border p-2.5 sm:p-4 text-left transition-all duration-200',
                         isSelected
                           ? 'translate-x-1 border-accent bg-panel-2 shadow-sm shadow-accent/10'
                           : 'border-line/70 bg-panel-2/40 hover:border-line-strong hover:bg-panel-2'
                       )}
                     >
-                      <div className="flex items-center justify-between">
-                        <h4 className="text-sm font-bold text-ink">{defect.name}</h4>
+                      <div className="flex items-center justify-between gap-2">
+                        <h4 className="text-[11px] sm:text-sm font-bold text-ink shrink-0">{defect.name}</h4>
                         <span
                           className={cn(
-                            'rounded-full border px-2.5 py-0.5 font-mono text-[11px] font-bold',
+                            'rounded-full border px-1.5 py-0.5 sm:px-2.5 font-mono text-[9px] sm:text-[11px] font-bold shrink-0 whitespace-nowrap',
                             TONE_CLASSES[defect.tone]
                           )}
                         >
@@ -147,8 +147,8 @@ export const StandardsSection = () => {
                         </span>
                       </div>
 
-                      <div className="mt-2.5 space-y-1.5 text-xs">
-                        <p className="text-ink-muted">
+                      <div className="mt-1.5 space-y-1 sm:mt-2.5 sm:space-y-1.5 text-xs">
+                        <p className="text-ink-muted text-[10px] sm:text-xs leading-relaxed">
                           <strong className="font-semibold text-ink">What it is: </strong>
                           {defect.whatIsIt}
                         </p>
@@ -158,7 +158,7 @@ export const StandardsSection = () => {
                           <motion.p
                             initial={{ opacity: 0, height: 0 }}
                             animate={{ opacity: 1, height: 'auto' }}
-                            className="pt-1 leading-relaxed text-accent"
+                            className="pt-0.5 leading-relaxed text-accent text-[10px] sm:text-xs"
                           >
                             <strong className="font-semibold">How scored: </strong>
                             {defect.howCalculated}
@@ -175,45 +175,40 @@ export const StandardsSection = () => {
 
         {/* ── 3. Roll-level formula, example, and acceptance scale ─────── */}
         <motion.div {...fadeUpProps(0.28)} className="flex flex-col lg:col-span-6">
-          <div className="card flex h-full flex-col justify-between border-accent/20 bg-panel !p-6 sm:!p-8">
+          <div className="card flex h-full flex-col justify-between border-accent/20 bg-panel !p-3.5 sm:!p-8">
             <div>
-              <div className="mb-4 flex items-center gap-2 border-b border-line pb-4">
-                <Calculator className="h-5 w-5 text-accent" />
+              <div className="mb-3.5 sm:mb-4 flex items-center gap-2 border-b border-line pb-3 sm:pb-4">
+                <Calculator className="h-4 w-4 sm:h-5 sm:w-5 text-accent" />
                 <div>
-                  <h3 className="text-base font-bold text-ink">
+                  <h3 className="text-sm sm:text-base font-bold text-ink">
                     3. How Total Roll Grade is Calculated
                   </h3>
-                  <p className="font-mono text-xs text-ink-soft">ASTM D5430 Standard Formula</p>
+                  <p className="font-mono text-[10.5px] sm:text-xs text-ink-soft">ASTM D5430 Standard Formula</p>
                 </div>
               </div>
-
-              <p className="mt-4 text-xs leading-relaxed text-ink-muted">
-                After inspecting a fabric roll, total penalty points are normalized per 100 square
-                yards to determine if the roll passes export quality standards.
-              </p>
 
               {/*
                 The formula stays as markup rather than moving into the data
                 file because the numerator and denominator are colour-coded,
                 which a plain string cannot express.
               */}
-              <div className="my-4 rounded-2xl border border-accent/30 bg-accent-quiet/40 p-4 text-center">
-                <span className="mb-1.5 block font-mono text-[10px] font-bold uppercase tracking-wider text-accent">
+              <div className="my-2 sm:my-4 rounded-xl sm:rounded-2xl border border-accent/30 bg-accent-quiet/40 px-1.5 py-2 sm:p-4 text-center">
+                <span className="mb-0.5 block font-mono text-[8px] sm:text-[10px] font-bold uppercase tracking-wider text-accent">
                   Official Four-Point Formula
                 </span>
-                <div className="py-1 font-mono text-xs font-bold text-ink sm:text-sm">
+                <div className="py-0.5 font-mono text-[7px] min-[360px]:text-[7.5px] min-[390px]:text-[8px] sm:text-sm font-bold text-ink tracking-tighter sm:tracking-normal whitespace-nowrap">
                   Points / 100 yd² = <span className="text-accent">(Total Points × 3,600)</span> ÷{' '}
                   <span className="text-ink-muted">(Yards × Width Ins)</span>
                 </div>
               </div>
 
               {/* Worked example. The final row drops the separator to read as a conclusion. */}
-              <div className="space-y-2 rounded-2xl border border-line bg-panel-2 p-4 text-xs">
-                <h4 className="text-[11px] font-bold uppercase tracking-wider text-ink">
+              <div className="space-y-1.5 sm:space-y-2 rounded-xl sm:rounded-2xl border border-line bg-panel-2 p-2 sm:p-4 text-xs">
+                <h4 className="text-[9px] sm:text-[11px] font-bold uppercase tracking-wider text-ink">
                   Example Roll Calculation:
                 </h4>
 
-                <div className="space-y-1.5 text-ink-muted">
+                <div className="space-y-1 sm:space-y-1.5 text-ink-muted">
                   {FABINS_SYSTEM_DATA.rollCalculation.map((row, index) => {
                     const isLast = index === FABINS_SYSTEM_DATA.rollCalculation.length - 1
 
@@ -221,12 +216,12 @@ export const StandardsSection = () => {
                       <div
                         key={row.label}
                         className={cn(
-                          'flex justify-between',
-                          isLast ? 'pt-1' : 'border-b border-line/60 pb-1.5'
+                          'flex items-center justify-between gap-1.5 sm:gap-2',
+                          isLast ? 'pt-1' : 'border-b border-line/60 pb-1'
                         )}
                       >
-                        <span>{row.label}</span>
-                        <span className={cn('font-mono', CALCULATION_TONES[row.emphasis])}>
+                        <span className="text-ink-muted shrink-0 text-[8.5px] min-[360px]:text-[9px] sm:text-xs">{row.label}</span>
+                        <span className={cn('font-mono font-semibold text-right text-[8px] min-[360px]:text-[8.5px] min-[390px]:text-[9.5px] sm:text-xs tracking-tight min-w-0', CALCULATION_TONES[row.emphasis])}>
                           {row.value}
                         </span>
                       </div>
@@ -236,23 +231,56 @@ export const StandardsSection = () => {
               </div>
 
               {/* Buyer acceptance scale. Laid out for exactly three bands. */}
-              <div className="mt-4 space-y-2 rounded-2xl border border-line p-4">
-                <span className="block font-mono text-[10px] font-bold uppercase tracking-wider text-ink-soft">
+              <div className="mt-2.5 sm:mt-4 space-y-1.5 sm:space-y-2 rounded-xl sm:rounded-2xl border border-line p-2.5 sm:p-4">
+                <span className="block font-mono text-[8.5px] sm:text-[10px] font-bold uppercase tracking-wider text-ink-soft">
                   Standard Buyer Acceptance Thresholds
                 </span>
-                <div className="grid grid-cols-3 gap-2 text-center font-mono text-[11px]">
+                <div className="grid grid-cols-3 gap-1.5 sm:gap-2 text-center font-mono">
                   {FABINS_SYSTEM_DATA.gradeThresholds.map((threshold) => (
                     <div
                       key={threshold.range}
-                      className={cn('rounded-xl border p-2', TONE_CLASSES[threshold.tone])}
+                      className={cn('rounded-lg sm:rounded-xl border p-1 sm:p-2', TONE_CLASSES[threshold.tone])}
                     >
-                      <span className="block font-bold">{threshold.range}</span>
-                      <span className="text-[10px] opacity-80">{threshold.label}</span>
+                      <span className="block text-[9.5px] sm:text-[11px] font-bold">{threshold.range}</span>
+                      <span className="block text-[8px] sm:text-[10px] opacity-80 whitespace-nowrap">{threshold.label}</span>
                     </div>
                   ))}
                 </div>
               </div>
-            </div>
+
+              {/* Key ASTM D5430 Inspection Principles */}
+              <div className="mt-2.5 sm:mt-4 space-y-1.5 sm:space-y-2 rounded-xl sm:rounded-2xl border border-line bg-panel-2 p-2.5 sm:p-4 text-xs">
+                <div className="flex items-center justify-between">
+                  <span className="font-mono text-[8.5px] sm:text-[10px] font-bold uppercase tracking-wider text-ink-soft">
+                    Essential ASTM D5430 Rules
+                  </span>
+                  <span className="rounded-full border border-accent/30 bg-accent-quiet px-1.5 py-0.5 font-mono text-[8.5px] sm:text-[10px] font-bold text-accent">
+                    Factory QA Standards
+                  </span>
+                </div>
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-1.5 sm:gap-2 text-[10px] sm:text-[11px] text-ink-muted pt-0.5">
+                  <div className="flex items-start gap-1.5 sm:gap-2 rounded-lg sm:rounded-xl border border-line/60 bg-panel p-2 sm:p-2.5">
+                    <CheckCircle2 className="h-3 w-3 sm:h-3.5 sm:w-3.5 text-accent shrink-0 mt-0.5" />
+                    <div>
+                      <span className="font-bold text-ink block text-[10px] sm:text-xs">Max 4 Pts / Yard</span>
+                      <span className="text-[9px] sm:text-[10.5px] leading-tight block text-ink-soft">
+                        No single linear yard can receive over 4 penalty points.
+                      </span>
+                    </div>
+                  </div>
+                  <div className="flex items-start gap-1.5 sm:gap-2 rounded-lg sm:rounded-xl border border-line/60 bg-panel p-2 sm:p-2.5">
+                    <CheckCircle2 className="h-3 w-3 sm:h-3.5 sm:w-3.5 text-accent shrink-0 mt-0.5" />
+                    <div>
+                      <span className="font-bold text-ink block text-[10px] sm:text-xs">Continuous Faults</span>
+                      <span className="text-[9px] sm:text-[10.5px] leading-tight block text-ink-soft">
+                        Defects longer than 36&quot; score 4 points per yard automatically.
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              </div>
 
             <div className="mt-5 flex items-center gap-2 border-t border-line pt-4 text-[11px] text-ink-soft">
               <Info className="h-4 w-4 shrink-0 text-accent" />

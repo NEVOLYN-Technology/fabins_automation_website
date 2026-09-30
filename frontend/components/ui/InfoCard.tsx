@@ -79,7 +79,7 @@ export function InfoCard({
       )}
 
       {/* Sits closer to the title when there is no headline between them. */}
-      <p className={cn('text-sm leading-relaxed text-ink-muted', headline ? 'mt-3' : 'mt-2')}>
+      <p className={cn('text-sm leading-relaxed text-ink-muted text-justify', headline ? 'mt-3' : 'mt-2')}>
         {description}
       </p>
     </motion.div>

@@ -5,10 +5,10 @@
  * Rendered in the 3D horizontal carousel within `LatestNewsSection.tsx`.
  *
  * Chronological order (latest first):
- * 1. Bangladesh Innovation Fair 2026 — Award / Prize (2026-09-14)
- * 2. Bangladesh Innovation Fair 2026 — Top 50 / Selection (2026-09-10)
- * 3. Strategic Partnership with Saturn R&D (2026-07-01)
- * 4. First POC Demonstration at Saturn (2026-06-28)
+ * 1. Bangladesh Innovation Fair 2026 - Award & Prize Recognition (2026-09-14)
+ * 2. Strategic NDA Signed with Axentec PLC (A Robi Axiata Company) (2026-09-09)
+ * 3. First FABINS Prototype Showcased at BUET IRAB (2026-07-21)
+ * 4. Strategic Partnership with Saturn Textiles & Saturn R&D (2026-07-01)
  *
  * @module lib/data/featured-milestones
  */
@@ -40,7 +40,7 @@ export interface FeaturedMilestone {
 export const featuredMilestones: FeaturedMilestone[] = [
   {
     id: 'milestone-fair-award',
-    title: 'Bangladesh Innovation Fair 2026 — Award & Prize Recognition',
+    title: 'Bangladesh Innovation Fair 2026 - Award & Prize Recognition',
     description:
       'FABINS was selected among the Top 50 Innovations out of 950+ innovations and celebrated at the official award-giving ceremony with prize recognition.',
     content:
@@ -48,25 +48,42 @@ export const featuredMilestones: FeaturedMilestone[] = [
     category: 'Award & Prize',
     date: '2026-09-14',
     image: '/news_fabinsXfair02.jpg',
-    linkedinUrl: 'https://www.linkedin.com/posts/nevolyn_fabins-nevolyn-bangladeshinnovationfair2026-activity-7508553026446512128-zo3h',
-    facebookUrl: 'https://www.facebook.com/fabinsautomation/',
+    linkedinUrl:
+      'https://www.linkedin.com/posts/fabinsautomation_fabins-nevolyn-bangladeshinnovationfair2026-activity-7508526922117861377-vQti?utm_source=social_share_send&utm_medium=member_desktop_web&rcm=ACoAADz_70oBqriO2ZWG-YtRkXzgRBDHA7NFaTk',
+    facebookUrl: 'https://www.facebook.com/share/p/1EsgpSB4Vo/',
   },
   {
-    id: 'milestone-fair-selection',
-    title: 'Bangladesh Innovation Fair 2026 — Top 50 Selection',
+    id: 'milestone-axentec-nda',
+    title: 'Strategic NDA Signed with Axentec PLC (A Robi Axiata Company)',
     description:
-      'FABINS was selected among the Top 50 innovations out of 950+ submissions to showcase at the national innovation platform at Novo Theatre, Dhaka.',
+      'Axentec PLC signed an NDA with FABINS, opening discussions with senior technical leadership including CTOs for future collaboration.',
     content:
-      'We are honored to share that FABINS Automation has been selected to showcase at the Bangladesh Innovation Fair 2026 - a national platform for innovation organized under the ICT Division and Science Ministry.\n\nBeing selected for this national platform is a meaningful milestone for our team. We’re proud to represent Bangladeshi innovation through FABINS and take another step toward turning our technology into real-world impact.\n\n📍 Location: Novo Theatre, Dhaka\n📅 Dates: 12–14 September 2026\n\nFABINS - Fabric Inspection Automation\nWebsite: https://fabins.nevolyn.com\nEmail: fabins@nevolyn.com\n\nNEVOLYN Technology\nWebsite: https://nevolyn.com\nEmail: info@nevolyn.com',
-    category: 'Top 50 Selection',
-    date: '2026-09-10',
-    image: '/news_fabinsXfair01.jpg',
-    linkedinUrl: 'https://www.linkedin.com/company/fabinsautomation/',
-    facebookUrl: 'https://www.facebook.com/fabinsautomation/',
+      'A New Step Toward Collaboration with Axentec PLC\n\nWe’re pleased to share that Axentec PLC, a Robi Axiata company, has signed a Non-Disclosure Agreement (NDA) with FABINS, opening the way for further discussions and potential future collaboration.\n\nWe had the opportunity to meet with the senior technical and business leadership teams of Robi and Axentec, including their CTOs, to discuss FABINS, its technology, and possible areas of collaboration.\n\nWe are especially grateful to Md. Adil Hossain Noble, Managing Director & CEO of Axentec PLC, for the referral and for helping connect us with the right team.\n\nFABINS - Fabric Inspection Automation\nWebsite: https://fabins.nevolyn.com\nEmail: fabins@nevolyn.com\n\nNEVOLYN Technology\nWebsite: https://nevolyn.com\nEmail: info@nevolyn.com',
+    category: 'Corporate Partnership',
+    date: '2026-09-09',
+    image: '/news_fabinsXexentec.jpg',
+    linkedinUrl:
+      'https://www.linkedin.com/posts/fabinsautomation_nevolyn-fabins-fabricinspection-activity-7508459042906894336-r-Z4?utm_source=social_share_send&utm_medium=member_desktop_web&rcm=ACoAADz_70oBqriO2ZWG-YtRkXzgRBDHA7NFaTk',
+    facebookUrl: 'https://www.facebook.com/share/p/1MgvnDq9Ds/',
+  },
+  {
+    id: 'milestone-buet-irab',
+    title: 'First FABINS Prototype Showcased at BUET IRAB',
+    description:
+      'First FABINS prototype provided to IRAB BUET for an exclusive one-week project showcase following request from Department of EEE, BUET.',
+    content:
+      'Our first FABINS prototype was provided to IRAB (Institution of Robotics and Automation, BUET) for project showcasing, following a request from the Department of EEE, BUET.\n\nThe prototype was showcased for one week, marking another meaningful step in our journey.\n\nFABINS - Fabric Inspection Automation\nWebsite: https://fabins.nevolyn.com\nEmail: fabins@nevolyn.com\n\nNEVOLYN Technology\nWebsite: https://nevolyn.com\nEmail: info@nevolyn.com',
+    category: 'Academic Showcase',
+    date: '2026-07-21',
+    image: '/news_fabinsXbuet.jpg',
+    linkedinUrl:
+      'https://www.linkedin.com/posts/fabinsautomation_fabins-nevolyn-fabricinspection-activity-7508456367041675264-bXI_?utm_source=social_share_send&utm_medium=member_desktop_web&rcm=ACoAADz_70oBqriO2ZWG-YtRkXzgRBDHA7NFaTk',
+    facebookUrl:
+      'https://www.facebook.com/fabinsautomation/posts/pfbid0aUqUDspmqSjXBWjurfCpXvUAEE7et8spKwSSTSFidqK9PWHi7CjWbsiM6kTw73bsl',
   },
   {
     id: 'milestone-saturn-partnership',
-    title: 'Strategic Partnership with Saturn R&D',
+    title: 'Strategic Partnership with Saturn Textiles & Saturn R&D',
     description:
       'FABINS officially established a strategic partnership with Saturn R&D as our first client and collaborator to advance from prototype to production.',
     content:
@@ -74,20 +91,8 @@ export const featuredMilestones: FeaturedMilestone[] = [
     category: 'Strategic Partnership',
     date: '2026-07-01',
     image: '/news_fabinsXsaturn.jpg',
-    linkedinUrl: 'https://www.linkedin.com/company/fabinsautomation/',
-    facebookUrl: 'https://www.facebook.com/nevolyn/',
-  },
-  {
-    id: 'milestone-saturn-poc',
-    title: 'First POC Demonstration at Saturn',
-    description:
-      'FABINS successfully completed and demonstrated its first Proof of Concept (POC) as a working industrial fabric inspection system at Saturn.',
-    content:
-      'A Big Milestone for FABINS!\n\nWe’re excited to share that we have successfully completed the first POC (Proof of Concept) of FABINS.\n\nWith our first prototype, we were able to prove the core concept and demonstrate FABINS as a working solution directly on industrial inspection frames at Saturn Textiles.\n\nThis is an important first step for us, and we’re now focused on improving the system and taking FABINS closer to a production-ready solution for the RMG industry.\n\nFABINS is the first product of NEVOLYN Technology, built to deliver smart automation solutions for a better future.\n\nFABINS - Fabric Inspection Automation\nWebsite: https://fabins.nevolyn.com\nEmail: fabins@nevolyn.com\n\nNEVOLYN Technology\nWebsite: https://nevolyn.com\nEmail: info@nevolyn.com',
-    category: 'POC Demonstration',
-    date: '2026-06-28',
-    image: '/news_poc_1.jpg',
-    linkedinUrl: 'https://www.linkedin.com/company/fabinsautomation/',
-    facebookUrl: 'https://www.facebook.com/fabinsautomation/',
+    linkedinUrl:
+      'https://www.linkedin.com/posts/fabinsautomation_fabins-nevolyn-fabricinspection-activity-7508454084585336832-npGm?utm_source=social_share_send&utm_medium=member_desktop_web&rcm=ACoAADz_70oBqriO2ZWG-YtRkXzgRBDHA7NFaTk',
+    facebookUrl: 'https://www.facebook.com/share/p/1E3tTbM17b/',
   },
 ]

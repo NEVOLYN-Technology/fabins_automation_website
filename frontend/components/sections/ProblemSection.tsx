@@ -44,7 +44,7 @@ export const ProblemSection = () => (
           <span className="text-accent">EVERY FABRIC ROLL</span>
         </>
       }
-      description="Bangladesh RMG is a national export pillar, yet quality control at the frame is still one inspector, one pair of eyes, one tally sheet — while competing manufacturing hubs have already automated it."
+      description="Bangladesh RMG is a national export pillar, yet quality control at the frame is still one inspector, one pair of eyes, one tally sheet, while competing manufacturing hubs have already automated it."
     />
 
     {/* Card grid. Sized for four items per row on large screens. */}

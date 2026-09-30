@@ -13,11 +13,7 @@
  * 6. 2026-07-28 — Exploring New Possibilities with Ontik Technology Leadership
  * 7. 2026-07-21 — First FABINS Prototype Showcased at BUET IRAB
  * 8. 2026-07-01 — Strategic Partnership with Saturn Textiles & Saturn R&D
- * 9. 2026-07-01 — Mohammad Ninad Mahmud Nobo Appointed Lead AI Software Engineer
- * 10. 2026-07-01 — Md Rahinur Rahman Appointed Lead AI Systems Engineer
- * 11. 2026-06-28 — First Working POC of FABINS Successfully Completed at Saturn
- * 12. 2026-02-24 — FABINS Project Funding & Development Capital Approved
- * 13. 2026-01-15 — FABINS AI Vision Initiative Approved & Launched
+ * 9. 2026-06-28 — First Working POC of FABINS Successfully Completed at Saturn
  *
  * @module lib/data/latest-news
  */
@@ -49,7 +45,7 @@ export interface NewsItem {
 export const news: NewsItem[] = [
   {
     id: 'news-fair-award-top50',
-    title: 'Bangladesh Innovation Fair 2026 — Award & Prize Recognition',
+    title: 'Bangladesh Innovation Fair 2026 - Award & Prize Recognition',
     description:
       'FABINS was selected among the Top 50 Innovations out of 950+ innovations and celebrated at the official award-giving ceremony with prize recognition.',
     content:
@@ -57,8 +53,9 @@ export const news: NewsItem[] = [
     category: 'Award & Prize',
     date: '2026-09-14',
     image: '/news_fabinsXfair02.jpg',
-    linkedinUrl: 'https://www.linkedin.com/posts/nevolyn_fabins-nevolyn-bangladeshinnovationfair2026-activity-7508553026446512128-zo3h',
-    facebookUrl: 'https://www.facebook.com/fabinsautomation/',
+    linkedinUrl:
+      'https://www.linkedin.com/posts/fabinsautomation_fabins-nevolyn-bangladeshinnovationfair2026-activity-7508526922117861377-vQti?utm_source=social_share_send&utm_medium=member_desktop_web&rcm=ACoAADz_70oBqriO2ZWG-YtRkXzgRBDHA7NFaTk',
+    facebookUrl: 'https://www.facebook.com/share/p/1EsgpSB4Vo/',
   },
   {
     id: 'news-pm-visit-stall-15',
@@ -70,12 +67,13 @@ export const news: NewsItem[] = [
     category: 'VIP Exhibition',
     date: '2026-09-12',
     image: '/news_fabinsXfair03.jpg',
-    linkedinUrl: 'https://www.linkedin.com/company/fabinsautomation/',
-    facebookUrl: 'https://www.facebook.com/nevolyn/posts/pfbid026g26dBiiZdigVc8PNq1ck3XnzwfpCc2dDjLtoSzZnJxo44hrhWBERdSviNsSNU6cl',
+    linkedinUrl:
+      'https://www.linkedin.com/posts/fabinsautomation_fabins-nevolyn-bangladeshinnovationfair2026-activity-7508526235631644674-8fQG?utm_source=social_share_send&utm_medium=member_desktop_web&rcm=ACoAADz_70oBqriO2ZWG-YtRkXzgRBDHA7NFaTk',
+    facebookUrl: 'https://www.facebook.com/share/p/1Dq8Li6t5H/',
   },
   {
     id: 'news-fair-selection-top50',
-    title: 'Bangladesh Innovation Fair 2026 — Top 50 Selection & Showcase',
+    title: 'Bangladesh Innovation Fair 2026 - Top 50 Selection & Showcase',
     description:
       'FABINS was selected among the Top 50 innovations out of 950+ submissions to showcase at the national innovation platform at Novo Theatre, Dhaka.',
     content:
@@ -83,8 +81,9 @@ export const news: NewsItem[] = [
     category: 'Top 50 Selection',
     date: '2026-09-10',
     image: '/news_fabinsXfair01.jpg',
-    linkedinUrl: 'https://www.linkedin.com/company/fabinsautomation/',
-    facebookUrl: 'https://www.facebook.com/fabinsautomation/',
+    linkedinUrl:
+      'https://www.linkedin.com/posts/fabinsautomation_fabins-nevolyn-bangladeshinnovationfair2026-activity-7508502179536773120-l79M?utm_source=social_share_send&utm_medium=member_desktop_web&rcm=ACoAADz_70oBqriO2ZWG-YtRkXzgRBDHA7NFaTk',
+    facebookUrl: 'https://www.facebook.com/share/p/1F985fryaC/',
   },
   {
     id: 'news-axentec-nda',
@@ -96,8 +95,9 @@ export const news: NewsItem[] = [
     category: 'Corporate Partnership',
     date: '2026-09-09',
     image: '/news_fabinsXexentec.jpg',
-    linkedinUrl: 'https://www.linkedin.com/company/fabinsautomation/',
-    facebookUrl: 'https://www.facebook.com/fabinsautomation/',
+    linkedinUrl:
+      'https://www.linkedin.com/posts/fabinsautomation_nevolyn-fabins-fabricinspection-activity-7508459042906894336-r-Z4?utm_source=social_share_send&utm_medium=member_desktop_web&rcm=ACoAADz_70oBqriO2ZWG-YtRkXzgRBDHA7NFaTk',
+    facebookUrl: 'https://www.facebook.com/share/p/1MgvnDq9Ds/',
   },
   {
     id: 'news-nsu-startups-next',
@@ -109,8 +109,9 @@ export const news: NewsItem[] = [
     category: 'Accelerator Program',
     date: '2026-08-28',
     image: '/news_fabinsXnsu.jpg',
-    linkedinUrl: 'https://www.linkedin.com/company/fabinsautomation/',
-    facebookUrl: 'https://www.facebook.com/fabinsautomation/',
+    linkedinUrl:
+      'https://www.linkedin.com/posts/fabinsautomation_nevolyn-fabins-nsu-activity-7508458223008399360-9Y6j?utm_source=social_share_send&utm_medium=member_desktop_web&rcm=ACoAADz_70oBqriO2ZWG-YtRkXzgRBDHA7NFaTk',
+    facebookUrl: 'https://www.facebook.com/share/p/1Bar7mazn8/',
   },
   {
     id: 'news-ontik-technology',
@@ -122,8 +123,9 @@ export const news: NewsItem[] = [
     category: 'Industry Dialogue',
     date: '2026-07-28',
     image: '/news_fabinsXontik.jpg',
-    linkedinUrl: 'https://www.linkedin.com/company/fabinsautomation/',
-    facebookUrl: 'https://www.facebook.com/fabinsautomation/',
+    linkedinUrl:
+      'https://www.linkedin.com/posts/fabinsautomation_fabins-nevolyn-fabricinspection-activity-7508457337649680385-se3J?utm_source=social_share_send&utm_medium=member_desktop_web&rcm=ACoAADz_70oBqriO2ZWG-YtRkXzgRBDHA7NFaTk',
+    facebookUrl: 'https://www.facebook.com/share/p/1DjzwWEEtX/',
   },
   {
     id: 'news-buet-irab-showcase',
@@ -135,8 +137,10 @@ export const news: NewsItem[] = [
     category: 'Academic Showcase',
     date: '2026-07-21',
     image: '/news_fabinsXbuet.jpg',
-    linkedinUrl: 'https://www.linkedin.com/company/fabinsautomation/',
-    facebookUrl: 'https://www.facebook.com/fabinsautomation/',
+    linkedinUrl:
+      'https://www.linkedin.com/posts/fabinsautomation_fabins-nevolyn-fabricinspection-activity-7508456367041675264-bXI_?utm_source=social_share_send&utm_medium=member_desktop_web&rcm=ACoAADz_70oBqriO2ZWG-YtRkXzgRBDHA7NFaTk',
+    facebookUrl:
+      'https://www.facebook.com/fabinsautomation/posts/pfbid0aUqUDspmqSjXBWjurfCpXvUAEE7et8spKwSSTSFidqK9PWHi7CjWbsiM6kTw73bsl',
   },
   {
     id: 'news-saturn-partnership',
@@ -148,34 +152,9 @@ export const news: NewsItem[] = [
     category: 'Strategic Partnership',
     date: '2026-07-01',
     image: '/news_fabinsXsaturn.jpg',
-    linkedinUrl: 'https://www.linkedin.com/company/fabinsautomation/',
-    facebookUrl: 'https://www.facebook.com/nevolyn/',
-  },
-  {
-    id: 'news-nobo-appointment',
-    title: 'Mohammad Ninad Mahmud Nobo Appointed as Lead AI Software Engineer',
-    description:
-      'NEVOLYN Technology officially appointed Mohammad Ninad Mahmud Nobo as Lead AI Software Engineer to lead core software execution and industrial AI vision deployment.',
-    content:
-      'Leadership Appointment at NEVOLYN Technology\n\nNEVOLYN Technology expanded its engineering leadership through the official appointment of Mohammad Ninad Mahmud Nobo as Lead AI Software Engineer.\n\nIn this role, Mohammad Ninad Mahmud Nobo leads the technical software execution, edge inference pipelines, camera synchronization, and deep learning model deployment for FABINS. His leadership on the ground has been instrumental in taking FABINS from an experimental concept to live factory inspection frames and national recognition at the Bangladesh Innovation Fair 2026.\n\nNEVOLYN Technology\nWebsite: https://nevolyn.com\nEmail: info@nevolyn.com',
-    category: 'Leadership Appointment',
-    date: '2026-07-01',
-    image: '/ninad-photo.png',
-    linkedinUrl: 'https://www.linkedin.com/company/nevolyn/',
-    facebookUrl: 'https://www.facebook.com/nevolyn/',
-  },
-  {
-    id: 'news-rahin-appointment',
-    title: 'Md Rahinur Rahman Appointed as Lead AI Systems Engineer',
-    description:
-      'NEVOLYN Technology officially appointed Md Rahinur Rahman as Lead AI Systems Engineer to guide intelligent architecture, hardware-software integration, and R&D.',
-    content:
-      'Leadership Appointment at NEVOLYN Technology\n\nNEVOLYN Technology expanded its technical architecture leadership with the official appointment of Md Rahinur Rahman as Lead AI Systems Engineer.\n\nAs co-founder and systems architect, Md Rahinur Rahman spearheads overall intelligent systems architecture, deep learning algorithms, optical sensor hardware design, and institutional R&D. His technical guidance has set the foundation for NEVOLYN’s proprietary automated fabric defect detection platform.\n\nNEVOLYN Technology\nWebsite: https://nevolyn.com\nEmail: info@nevolyn.com',
-    category: 'Leadership Appointment',
-    date: '2026-07-01',
-    image: '/rahin-photo.png',
-    linkedinUrl: 'https://www.linkedin.com/company/nevolyn/',
-    facebookUrl: 'https://www.facebook.com/nevolyn/',
+    linkedinUrl:
+      'https://www.linkedin.com/posts/fabinsautomation_fabins-nevolyn-fabricinspection-activity-7508454084585336832-npGm?utm_source=social_share_send&utm_medium=member_desktop_web&rcm=ACoAADz_70oBqriO2ZWG-YtRkXzgRBDHA7NFaTk',
+    facebookUrl: 'https://www.facebook.com/share/p/1E3tTbM17b/',
   },
   {
     id: 'news-saturn-poc',
@@ -187,33 +166,9 @@ export const news: NewsItem[] = [
     category: 'POC Demonstration',
     date: '2026-06-28',
     image: '/news_poc_1.jpg',
-    linkedinUrl: 'https://www.linkedin.com/company/fabinsautomation/',
-    facebookUrl: 'https://www.facebook.com/fabinsautomation/',
-  },
-  {
-    id: 'news-funding-approved',
-    title: 'FABINS Project Funding & Development Capital Approved',
-    description:
-      'Executive leadership approved full financial allocation, enabling NEVOLYN to initiate hardware assembly and software platform development.',
-    content:
-      'NEVOLYN Technology officially approved and signed the funding allocation for the FABINS project.\n\nWith the required financial and organizational support in place, the engineering team formally commenced development of the AI-powered fabric inspection platform.',
-    category: 'Project Funding',
-    date: '2026-02-24',
-    image: '/news_poc_2.jpg',
-    linkedinUrl: 'https://www.linkedin.com/company/nevolyn/',
-    facebookUrl: 'https://www.facebook.com/nevolyn/',
-  },
-  {
-    id: 'news-vision-launched',
-    title: 'FABINS AI Vision Initiative Approved & Launched',
-    description:
-      'Md Rahinur Rahman presented the FABINS concept to Managing Director Amanullah Chagla, securing formal executive approval to launch the AI inspection initiative.',
-    content:
-      'Md Rahinur Rahman presented the FABINS concept to Managing Director Amanullah Chagla.\n\nFollowing executive approval, NEVOLYN Technology officially launched the industrial AI initiative to modernize fabric quality inspection using computer vision.',
-    category: 'Strategic Vision',
-    date: '2026-01-15',
-    image: '/news_fabinsXfair04.jpg',
-    linkedinUrl: 'https://www.linkedin.com/company/nevolyn/',
-    facebookUrl: 'https://www.facebook.com/nevolyn/',
+    linkedinUrl:
+      'https://www.linkedin.com/posts/fabinsautomation_fabins-nevolyn-fabricinspection-activity-7508411693127917568-C5T-?utm_source=social_share_send&utm_medium=member_desktop_web&rcm=ACoAADz_70oBqriO2ZWG-YtRkXzgRBDHA7NFaTk',
+    facebookUrl:
+      'https://www.facebook.com/fabinsautomation/posts/pfbid0385P2nBjkbziAuSd8CcJx4dz7Vd3rQxNDHfWdr5vwfhhbUWbzRjmoy4UZiSvdVjxvl',
   },
 ]

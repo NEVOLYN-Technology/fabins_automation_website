@@ -26,8 +26,10 @@ export const metadata: Metadata = {
 
 const schemaGraph = buildSchemaGraph()
 
-/** Tints the mobile browser chrome to match `--canvas` in globals.css. */
+/** Viewport configuration ensures mobile devices render at native scale and tints chrome. */
 export const viewport: Viewport = {
+  width: 'device-width',
+  initialScale: 1,
   themeColor: '#f4f6fa',
 }
 

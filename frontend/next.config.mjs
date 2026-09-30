@@ -30,7 +30,14 @@ const nextConfig = {
    * macOS/Linux), or delete the option entirely if you only ever use localhost.
    * It is a development-only setting and is ignored in production.
    */
-  allowedDevOrigins: ['192.168.68.103', '192.168.68.103:3000'],
+  allowedDevOrigins: [
+    'localhost',
+    'localhost:3000',
+    '192.168.0.104',
+    '192.168.0.104:3000',
+    '192.168.68.103',
+    '192.168.68.103:3000',
+  ],
   async rewrites() {
     return [
       {

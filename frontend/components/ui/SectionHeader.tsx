@@ -127,7 +127,7 @@ export function SectionHeader({
         {description && (
           <motion.p
             {...fadeUpProps(DELAY_DESCRIPTION)}
-            className={cn('max-w-md leading-relaxed text-ink-muted', descriptionClassName)}
+            className={cn('max-w-md leading-relaxed text-ink-muted text-justify', descriptionClassName)}
           >
             {description}
           </motion.p>
@@ -144,7 +144,7 @@ export function SectionHeader({
       {description && (
         <motion.p
           {...fadeUpProps(DELAY_DESCRIPTION)}
-          className={cn('mt-5 leading-relaxed text-ink-muted', descriptionClassName)}
+          className={cn('mt-5 leading-relaxed text-ink-muted text-justify', descriptionClassName)}
         >
           {description}
         </motion.p>
