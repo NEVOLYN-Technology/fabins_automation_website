@@ -107,7 +107,7 @@ export const Navbar = () => {
                 href={isDeployPage ? '/#contact' : '#contact'}
                 onClick={(e) => !isDeployPage && handleNavigate(e, 'contact')}
                 className={cn(
-                  'relative hidden !px-5 !py-2.5 text-[13px] sm:inline-flex items-center gap-1.5 rounded-full font-semibold transition-all duration-200 hover:-translate-y-0.5',
+                  'relative hidden !px-5 !py-2.5 text-[13px] lg:inline-flex items-center gap-1.5 rounded-full font-semibold transition-all duration-200 hover:-translate-y-0.5',
                   isContactActive
                     ? 'text-[var(--btn-ink)]'
                     : 'border border-blue-500 text-blue-600 hover:bg-blue-50 hover:text-blue-700'

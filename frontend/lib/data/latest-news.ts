@@ -1,5 +1,5 @@
 /**
- * Recent News & Updates Data Store — NEVOLYN Technology & FABINS.
+ * Recent News & Updates Data Store — NEVOLYN.
  *
  * Single source of truth for chronological news timeline updates.
  * Rendered in the "Latest News" section within `LatestNewsSection.tsx`.
@@ -33,6 +33,10 @@ export interface NewsItem {
   date: string
   /** Exact path to image asset in `/public`. */
   image: string
+  /** Optional secondary image shown in detail view. */
+  secondaryImage?: string
+  /** Optional list of all media gallery images for detail view. */
+  images?: string[]
   /** Direct link to LinkedIn post or page. */
   linkedinUrl: string
   /** Direct link to Facebook post or page. */
@@ -40,7 +44,7 @@ export interface NewsItem {
 }
 
 /**
- * Chronological news update feed ordered newest-first with exact matching images from `/public`.
+ * Chronological news update feed ordered newest-first with verified NEVOLYN official links.
  */
 export const news: NewsItem[] = [
   {
@@ -53,6 +57,8 @@ export const news: NewsItem[] = [
     category: 'Award & Prize',
     date: '2026-09-14',
     image: '/news_fabinsXfair02.jpg',
+    secondaryImage: '/news_fabinsXfair03.jpg',
+    images: ['/news_fabinsXfair02.jpg', '/news_fabinsXfair03.jpg'],
     linkedinUrl:
       'https://www.linkedin.com/posts/fabinsautomation_fabins-nevolyn-bangladeshinnovationfair2026-activity-7508526922117861377-vQti?utm_source=social_share_send&utm_medium=member_desktop_web&rcm=ACoAADz_70oBqriO2ZWG-YtRkXzgRBDHA7NFaTk',
     facebookUrl: 'https://www.facebook.com/share/p/1EsgpSB4Vo/',
@@ -66,7 +72,14 @@ export const news: NewsItem[] = [
       'A Proud Moment at Bangladesh Innovation Fair 2026\n\nA truly proud moment for FABINS Automation and NEVOLYN Technology as the Honorable Prime Minister visited our Stall No. 15, at Bangladesh Innovation Fair 2026.\n\nWe had the pleasure of showcasing FABINS and engaging in an insightful conversation about our technology, innovation, and vision for smarter manufacturing. We missed our very own co-founder Rahin Rahman. Unfortunately he could not attend the fair due to medical emergency. We are very thankful to him for the immense support and instruction.\n\nBeing able to present our work at such a national innovation platform and receive this valuable attention is a meaningful achievement for our entire team. We are proud to see FABINS representing Bangladeshi innovation and taking another step forward.\n\n📍 Innovation Hub - Booth No. 15 | Novo Theatre, Dhaka\n📅 12–14 September 2026\n\nFABINS - Fabric Inspection Automation\nWebsite: https://fabins.nevolyn.com\nEmail: fabins@nevolyn.com\n\nNEVOLYN Technology\nWebsite: https://nevolyn.com\nEmail: info@nevolyn.com',
     category: 'VIP Exhibition',
     date: '2026-09-12',
-    image: '/news_fabinsXfair03.jpg',
+    image: '/news_fabinsXfair04.jpg',
+    secondaryImage: '/news_fabinsXfair05.jpg',
+    images: [
+      '/news_fabinsXfair04.jpg',
+      '/news_fabinsXfair05.jpg',
+      '/news_fabinsXfair06.jpg',
+      '/news_fabinsXfair07.jpg',
+    ],
     linkedinUrl:
       'https://www.linkedin.com/posts/fabinsautomation_fabins-nevolyn-bangladeshinnovationfair2026-activity-7508526235631644674-8fQG?utm_source=social_share_send&utm_medium=member_desktop_web&rcm=ACoAADz_70oBqriO2ZWG-YtRkXzgRBDHA7NFaTk',
     facebookUrl: 'https://www.facebook.com/share/p/1Dq8Li6t5H/',
