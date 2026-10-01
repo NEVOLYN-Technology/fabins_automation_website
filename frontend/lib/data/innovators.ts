@@ -52,15 +52,15 @@ export const fabinsInnovators: InnovatorMember[] = [
     name: 'Md Rahinur Rahman',
     title: 'AI Systems Engineer',
     shortRole: 'AI Systems Engineer · EEE, BUET',
-    bio: 'Design and development of industrial automation and AI systems at NEVOLYN Technology.',
+    bio: 'Design and development of industrial automation and AI systems for FABINS at NEVOLYN.',
     extendedBio: [
-      'Rahin leads the design and development of AI-powered industrial automation solutions at NEVOLYN Technology, specializing in computer vision, intelligent manufacturing systems, and production-ready AI technologies.',
+      'Design and development of AI-powered industrial automation solutions at NEVOLYN, specializing in computer vision, intelligent manufacturing systems, and production-ready AI technologies.',
       'He graduated in Electrical and Electronic Engineering (EEE) from Bangladesh University of Engineering and Technology (BUET), one of Bangladesh\'s top engineering schools, with a specialization in Communication and Signal Processing (CSP). His academic foundation provided a solid basis in digital signal processing, mathematical modeling, and pattern recognition, bridging deep engineering theory with practical AI systems.',
       'Throughout his academic and research work, he explored advanced signal analysis, embedded systems, and computer vision algorithms for real-world problems. His hands-on research in hardware-software co-design and intelligent imaging built the technical foundation for his current work in industrial automation, edge AI, and real-time inspection systems.'
     ],
     email: 'rahin.rahman11@gmail.com',
     responsibilities: [
-      'Lead AI architecture and industrial automation initiatives',
+      'AI architecture and industrial automation initiatives',
       'Computer vision and deep learning model development for FABINS',
       'Industrial camera integration & zero-latency trigger pipelines',
       'Industrial imaging systems and smart manufacturing transformation at NEVOLYN Technology'
@@ -78,15 +78,15 @@ export const fabinsInnovators: InnovatorMember[] = [
     name: 'Mohammad Ninad Mahmud Nobo',
     title: 'AI Software Engineer',
     shortRole: 'AI Software Engineer · CSE, BUET',
-    bio: 'Full-stack web development and machine learning model integration at NEVOLYN Technology.',
+    bio: 'Full-stack web development and machine learning model integration for FABINS at NEVOLYN.',
     extendedBio: [
-      'Ninad leads full-stack web application development, production deployment, and machine learning model contributions for FABINS (Fabric Inspection System) at NEVOLYN Technology. His work integrates computer vision pipelines, interactive web dashboards, industrial camera controls, and scalable REST API architectures to modernize textile manufacturing.',
+      'Full-stack web application development, production deployment, and machine learning model contributions for FABINS (Fabric Inspection System) at NEVOLYN Technology. His work integrates computer vision pipelines, interactive web dashboards, industrial camera controls, and scalable REST API architectures to modernize textile manufacturing.',
       'He graduated in Computer Science and Engineering from Bangladesh University of Engineering and Technology (BUET), one of Bangladesh\'s top engineering schools. There, he explored how AI could tackle complex, real-world challenges, from automated software testing to medical image analysis to Bangla speech processing. That foundation of rigorous research and hands-on building led him to industrial AI, where the software challenges are just as demanding, but the impact is immediate and visible on the factory floor.',
       'His research includes AutoTestGenX, a multi-agent system that writes and executes software tests autonomously, and MedCAR, which resolves conflicting AI readings of chest X-rays. Beyond FABINS, he has built impactful AI applications including MindTrace, providing caregivers simple tools for dementia support, and GemmaVetCare, delivering edge AI livestock health guidance for low-connectivity environments.'
     ],
     email: 'mninadmnobo@gmail.com',
     responsibilities: [
-      'Full-stack development of NEVOLYN Technology platforms & FABINS web applications',
+      'Full-stack development of NEVOLYN & FABINS web applications',
       'Image processing, computer vision model training for FABINS',
       'ML pipeline architecture & production deployment',
       'API design, software quality standards, & DevOps automation'

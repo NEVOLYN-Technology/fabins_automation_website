@@ -146,6 +146,7 @@ pnpm dev
 This repository was specifically built as an **international educational reference** for developers learning full-stack web and backend architecture:
 
 * 📖 **[Frontend Architecture Guide](docs/FRONTEND_ARCHITECTURE_GUIDE.md)**: Teaches clean 3-layer React architecture, route composition (`/deploy`), state management, and custom design primitives.
+* 📱 **[Smooth Modal & Lightbox Transitions Guide](docs/SMOOTH_MODAL_AND_LIGHTBOX_TRANSITIONS_GUIDE.md)**: Production implementation guide for mobile web, iPad (portrait & landscape), and desktop card modals with zero-lag fullscreen picture lightboxes.
 * ☕ **[Spring Boot Learning Guide](docs/BACKEND_LEARNING_GUIDE.md)**: Line-by-line explanation of Spring Boot annotations, Flyway migrations, DTO mapping, and RFC 9457 error handling.
 * 🚀 **[CI/CD & Deployment Guide](docs/CICD_AND_DEPLOYMENT.md)**: Production topology, GitHub Actions, custom domain setup (DNS, CORS, SPF/DKIM/DMARC), and PaaS deployment troubleshooting.
 
