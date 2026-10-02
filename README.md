@@ -168,8 +168,8 @@ This repository was specifically built as an **international educational referen
 
 Developed by **Saturn Textiles Limited — Research & Development Department**:
 
-* **Md. Rahinur Rahman** — Lead AI Systems Engineer (*EEE, BUET Graduate*)
-* **Mohammad Ninad Mahmud Nobo** — Lead AI Software Engineer (*CSE, BUET Graduate*)
+* **Md. Rahinur Rahman** — AI Systems Engineer (*EEE, BUET*)
+* **Mohammad Ninad Mahmud Nobo** — AI Software Engineer (*CSE, BUET*)
 
 ---
 

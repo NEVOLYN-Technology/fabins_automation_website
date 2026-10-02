@@ -91,10 +91,10 @@ export const InnovatorsSection = () => {
           <motion.article
             key={member.id}
             {...fadeUpProps(index * 0.1)}
-            className="card card-hover group flex flex-col items-center text-center !p-6 sm:!p-7 h-full"
+            className="card card-hover group flex flex-col items-center text-center !p-4 min-[360px]:!p-5 sm:!p-7 h-full w-full"
           >
             {/* Person circular portrait with glowing accent ring */}
-            <div className="relative mx-auto flex h-32 w-32 sm:h-36 sm:w-36 shrink-0 items-center justify-center rounded-full p-1 border-2 border-accent/80 shadow-[0_0_20px_rgba(14,116,144,0.2)] bg-panel transition-transform duration-500 group-hover:scale-[1.03]">
+            <div className="relative mx-auto flex h-28 w-28 min-[360px]:h-32 min-[360px]:w-32 sm:h-36 sm:w-36 shrink-0 items-center justify-center rounded-full p-1 border-2 border-accent/80 shadow-[0_0_20px_rgba(14,116,144,0.2)] bg-panel transition-transform duration-500 group-hover:scale-[1.03]">
               <div className="relative h-full w-full overflow-hidden rounded-full bg-panel-2">
                 {member.image ? (
                   /* eslint-disable-next-line @next/next/no-img-element -- see note in README on image optimisation */
@@ -113,7 +113,7 @@ export const InnovatorsSection = () => {
             </div>
 
             {/* Name & Title with consistent heights across cards */}
-            <h3 className="mt-5 text-lg sm:text-xl font-bold tracking-tight text-ink leading-snug min-h-[1.75rem] flex items-center justify-center">
+            <h3 className="mt-4 sm:mt-5 text-[13px] min-[350px]:text-[14px] min-[380px]:text-[15.5px] min-[420px]:text-base sm:text-base md:text-[17px] lg:text-xl font-bold tracking-tight text-ink leading-snug min-h-[1.75rem] flex items-center justify-center whitespace-nowrap">
               {member.name}
             </h3>
             <p className="mt-1.5 text-xs sm:text-sm font-semibold text-accent min-h-[1.25rem] flex items-center justify-center">

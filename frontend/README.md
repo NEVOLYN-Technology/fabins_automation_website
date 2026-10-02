@@ -258,7 +258,7 @@ Not defects, but worth doing before this is considered finished:
 
 ## Team
 
-- **Md. Rahinur Rahman** — Lead AI Systems Engineer · EEE, BUET
-- **Mohammad Ninad Mahmud Nobo** — Lead AI Software Engineer · CSE, BUET
+- **Md. Rahinur Rahman** — AI Systems Engineer · EEE, BUET
+- **Mohammad Ninad Mahmud Nobo** — AI Software Engineer · CSE, BUET
 
 Saturn Textiles Limited, Research & Development · Dhaka, Bangladesh

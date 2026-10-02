@@ -268,6 +268,203 @@ On the bottom action bar (`CarouselCard.tsx`):
 | **Event Gallery Grid** | 2 columns (`grid-cols-2`) | 2–4 columns | 4 columns (`grid-cols-4`) |
 | **Contact Block** | 2 columns (Email Left, Web Right) | 2 columns (Email Left, Web Right) | 2 columns (Email Left, Web Right) |
 | **Lightbox Backdrop** | Solid `bg-black/92` | Solid `bg-black/92` | Solid `bg-black/92` |
-| **Lightbox State** | Pure React (`NO pushState`) | Pure React (`NO pushState`) | Pure React (`NO pushState`) |
+| **Lightbox State** | `useModalHistory` (`image-lightbox`) + 0ms `handleClose` | `useModalHistory` (`image-lightbox`) + 0ms `handleClose` | `useModalHistory` (`image-lightbox`) + 0ms `handleClose` |
 | **Lightbox Arrows** | Visible (`absolute left-2`) | Visible (`absolute left-3`) | Visible (`absolute left-4`) |
 | **Back Button Action** | Closes modal via `popstate` / `history.back()` | Closes modal via `popstate` / `history.back()` | Closes modal via on-screen button / `Esc` |
+
+---
+
+## 8. Leadership & Team Profile Cards (Single-Line Full Name Guarantee)
+
+### The Single-Line Full Name Requirement
+Names of all lengths (including long names up to 30 characters such as **`Mohammad Ninad Mahmud Nobo`**) must **always remain in a single horizontal line** (`whitespace-nowrap`) and **100% visible** without any truncation (`...`) or multi-line wrapping across all mobile device viewports (from 320px ultra-compact phones to 430px+ modern displays).
+
+### Card Shell Dimensions & Responsive Typography
+- **Container Padding Optimization**:
+  - Mobile: `p-4 min-[360px]:p-5 sm:p-7`
+  - *Rationale*: Standard 24px padding (`p-6`) consumes 48px of width, leaving too little room on 360px mobile screens. Reducing mobile padding to `p-4` or `p-5` expands the inner text width to 288px+, easily accommodating long names.
+- **Card Headline Typography**:
+  ```tsx
+  <h3 className="text-[13px] min-[360px]:text-[14px] min-[390px]:text-[15.5px] sm:text-lg md:text-xl font-bold text-slate-900 mb-1.5 min-h-[2.25rem] sm:min-h-[3rem] flex items-center justify-center leading-tight whitespace-nowrap tracking-tight">
+    {member.name}
+  </h3>
+  ```
+- **Proportional Avatar**:
+  - `w-24 h-24 sm:w-28 sm:h-28` to maintain balanced visual hierarchy alongside the responsive title.
+
+---
+
+## 9. Leader & Member Profile Modal Header (`LeaderDetails.tsx`)
+
+### Fullscreen Modal Header Sizing
+The sticky top navigation bar of member profile modals must accommodate long full names in **one single line** without text truncation:
+- **Header Container**:
+  ```tsx
+  <div className="flex shrink-0 items-center justify-between gap-2.5 sm:gap-4 lg:gap-6 border-b border-slate-100 bg-white p-3 sm:p-5 lg:p-6 lg:px-8 z-10">
+  ```
+- **Avatar in Header**:
+  ```tsx
+  <div className="relative flex h-11 w-11 sm:h-16 sm:w-16 lg:h-20 lg:w-20 shrink-0 items-center justify-center rounded-full bg-white p-0.5 lg:p-1 ring-2">
+  ```
+- **Header Name Typography**:
+  ```tsx
+  <h3
+    id={headingId}
+    className="text-[13px] min-[360px]:text-[14.5px] min-[390px]:text-base sm:text-xl lg:text-2xl font-extrabold tracking-tight text-slate-900 whitespace-nowrap leading-tight"
+  >
+    {member.name}
+  </h3>
+  ```
+- **Critical Rule**: **Never** add `truncate` to the member's name in this header. Use `whitespace-nowrap` paired with responsive font clamps so the full name is always 100% visible on mobile.
+
+---
+
+## 10. Modal Dismissal Touch Ergonomics (`pointer-events-none` & Zero Inactivity)
+
+### The Problem
+When a modal unmounts via Framer Motion, standard spring transitions (`damping: 30, stiffness: 350`) hold the fixed backdrop in the DOM for ~450ms. If `pointer-events: auto` remains active, user touches intended for the landing page are intercepted by the fading modal, causing noticeable touch lag or inactivity on mobile.
+
+### The Standard Implementation
+1. **Disable Touch Interception on Exit**:
+   ```tsx
+   {/* Backdrop Overlay */}
+   <motion.div
+     initial={{ opacity: 0 }}
+     animate={{ opacity: 1 }}
+     exit={{ opacity: 0, pointerEvents: 'none' }}
+     transition={{ duration: 0.12, ease: 'easeOut' }}
+     onClick={handleClose}
+     className="fixed inset-0 z-50 bg-slate-950/65 backdrop-blur-sm sm:backdrop-blur-md cursor-pointer"
+   />
+
+   {/* Modal Dialog Panel */}
+   <motion.div
+     role="dialog"
+     initial={{ opacity: 0, scale: 0.96, y: 15 }}
+     animate={{ opacity: 1, scale: 1, y: 0 }}
+     exit={{ opacity: 0, scale: 0.97, pointerEvents: 'none' }}
+     transition={{ duration: 0.12, ease: 'easeOut' }}
+     className="fixed inset-0 ... z-50"
+   />
+   ```
+2. **Instant Scroll & Touch Unlock (0ms)**:
+   In `useModalHistory.ts`, unlock body styles immediately inside `handleClose()` and `handlePopState()`:
+   ```typescript
+   if (typeof document !== 'undefined') {
+     const activeModals = document.querySelectorAll('[role="dialog"]')
+     if (activeModals.length <= 1) {
+       document.body.style.overflow = ''
+       document.body.style.touchAction = ''
+     }
+   }
+   ```
+   *Result*: The user can scroll or tap the webpage the exact millisecond they tap Close, with 0ms dead time.
+
+---
+
+## 11. Root Viewport Canvas Background Token
+
+To eliminate white screen flashes when unmounting full-screen overlays on mobile GPUs:
+- Both `<html>` and `<body>` must explicitly declare `background-color: var(--background)` in `globals.css`:
+  ```css
+  html {
+    background-color: var(--background);
+    -webkit-text-size-adjust: 100%;
+    scroll-padding-top: 6rem;
+  }
+
+  body {
+    @apply bg-background text-foreground overflow-x-hidden;
+    background-color: var(--background);
+  }
+  ```
+- `app/layout.tsx` must declare `style={{ backgroundColor: '#eef1f5' }}` directly on both tags to guarantee the browser window canvas matches the page background prior to CSS hydration.
+
+---
+
+## 12. Fullscreen Photo Lightbox Specification (`ImageLightboxModal.tsx`)
+
+### 1. Close & Dismissal Ergonomics (Instant 0ms on Mobile)
+- **Top-Right Close ("X") Button**:
+  - Must include **Safe-Area Insets**:
+    ```tsx
+    <div className="absolute top-0 right-0 p-3 sm:p-5 z-40 pt-[max(0.75rem,env(safe-area-inset-top))] pr-[max(0.75rem,env(safe-area-inset-right))]">
+    ```
+  - Must have a minimum **44–48px touch target**:
+    ```tsx
+    <button
+      type="button"
+      onClick={(e) => {
+        e.stopPropagation()
+        handleClose()
+      }}
+      aria-label="Close photo lightbox"
+      className="w-11 h-11 sm:w-12 sm:h-12 flex items-center justify-center rounded-full text-slate-300 hover:text-white bg-black/60 hover:bg-black/90 border border-white/20 transition-all active:scale-95 cursor-pointer shadow-lg touch-manipulation"
+    >
+      <X className="w-5 h-5 sm:w-6 sm:h-6" strokeWidth={2.2} />
+    </button>
+    ```
+- **Backdrop Click vs. Swipe Drag Detection**:
+  - Differentiate finger swipes from quick taps using elapsed duration (`Date.now() - startTime`) and displacement threshold (`dx > 20px || dy > 20px`).
+  - Do NOT swallow taps if `elapsed < 250ms`:
+    ```tsx
+    const handleBackdropClick = (e: React.MouseEvent) => {
+      if ((e.target as HTMLElement).closest('[data-lightbox-photo]')) return
+      const elapsed = Date.now() - pointerStartRef.current.time
+      if (isDraggingRef.current && elapsed > 250) {
+        isDraggingRef.current = false
+        return
+      }
+      isDraggingRef.current = false
+      handleClose()
+    }
+    ```
+- **Hardware / Gesture Back Button Handling**:
+  - Plug `ImageLightboxModal` into `useModalHistory({ isOpen, onClose, modalId: 'image-lightbox' })`.
+  - When the user swipes back from the phone's edge or taps the Android back button, the modal dismisses smoothly in place at 0ms without triggering Next.js route transitions or page reloads.
+
+### 2. High-Performance Horizontal Swiping
+- **Native CSS Scroll Snapping**:
+  ```tsx
+  <div
+    ref={scrollRef}
+    onScroll={handleScroll}
+    className="relative w-full h-full flex overflow-x-auto overflow-y-hidden snap-x snap-mandatory no-scrollbar touch-pan-x overscroll-x-contain cursor-pointer"
+  >
+  ```
+- **CRITICAL**: Do **NOT** add `scroll-smooth` to the class list of the touch container. `scroll-smooth` causes mobile touch drag momentum to clash with browser easing physics. Programmatic smooth scrolling should only be used via `el.scrollTo({ left, behavior: 'smooth' })` on arrow and dot clicks.
+- **Decouple Hidden Background Hero Scrolling**:
+  - When opening the lightbox from `NewsDetailModal`, do **NOT** smooth-scroll the hidden hero banner behind the lightbox on every swipe step.
+  - Track the active index in a lightweight ref (`lightboxIndexRef.current = newIdx`) during swipe.
+  - When the lightbox closes, instantly sync the hero banner:
+    ```tsx
+    const handleClosePhoto = useCallback(() => {
+      setIsPhotoOpen(false)
+      const targetIdx = lightboxIndexRef.current
+      setActiveImageIndex(targetIdx)
+      if (heroScrollRef.current) {
+        heroScrollRef.current.scrollLeft = targetIdx * heroScrollRef.current.clientWidth
+      }
+    }, [])
+    ```
+
+---
+
+## 13. Strict Engineering Guardrails (DOs & DON'Ts)
+
+### ❌ What NEVER to Do
+1. **NEVER** use `window.history.pushState` directly without `useModalHistory`'s capture-phase `e.stopImmediatePropagation()`. Doing raw `pushState` in Next.js App Router triggers route revalidation and severe 200–400ms mobile UI freezes.
+2. **NEVER** add `backdrop-filter: blur(...)` to fullscreen photo lightboxes. Mobile tile-based GPUs drop frame rates from 60–120 FPS down to 15 FPS. Use solid `bg-black/92`.
+3. **NEVER** use `scroll-smooth` in CSS on native touch containers (`touch-pan-x` + `snap-x`).
+4. **NEVER** smooth-scroll hidden background elements while a foreground modal is actively being swiped.
+5. **NEVER** add `truncate` or `line-clamp` to leadership member names. Full names (e.g. `Mohammad Ninad Mahmud Nobo`) must remain on one single line (`whitespace-nowrap`).
+6. **NEVER** leave exit animations without `pointerEvents: 'none'`. Failing to add this causes 300–500ms of dead touch time on mobile.
+7. **NEVER** wrap a modal in outer `<AnimatePresence>` if the modal internally contains its own `<AnimatePresence>`. Double presence contexts break exit animations.
+
+### ✅ What ALWAYS to Do
+1. **ALWAYS** use `h-[100dvh]` on mobile sheets instead of `100vh`.
+2. **ALWAYS** provide safe-area padding (`pt-[max(0.75rem,env(safe-area-inset-top))]`) and at least 44–48px touch targets for mobile close buttons.
+3. **ALWAYS** clear `document.body.style.overflow = ''` and `touchAction = ''` at 0ms in `handleClose()` and `handlePopState()`.
+4. **ALWAYS** set explicit background colors on `<html>` and `<body>` to prevent GPU white flashes upon modal unmounting.
+5. **ALWAYS** use `touch-action: manipulation` on buttons and interactive cards to eliminate the 300ms mobile tap delay.
+

@@ -103,12 +103,12 @@ export function InnovatorDetails({ member, onClose }: InnovatorDetailsProps) {
 
         {/* ── Fixed Header: portrait, name, title, close button ─────────────────── */}
         <div
-          className={`flex shrink-0 items-center justify-between gap-3 sm:gap-4 border-b ${PALETTE.hairline} ${PALETTE.panel} p-3.5 sm:p-6 md:px-8 bg-white z-10`}
+          className={`flex shrink-0 items-center justify-between gap-2.5 sm:gap-4 border-b ${PALETTE.hairline} ${PALETTE.panel} p-3 min-[360px]:p-3.5 sm:p-6 md:px-8 bg-white z-10`}
         >
-          <div className="flex items-center gap-3 sm:gap-6 min-w-0">
+          <div className="flex items-center gap-2.5 min-[360px]:gap-3.5 sm:gap-6 min-w-0 flex-1">
             {/* Portrait avatar */}
             <div
-              className={`relative flex h-12 w-12 sm:h-20 sm:w-20 shrink-0 items-center justify-center rounded-full bg-white p-0.5 sm:p-1 shadow-sm ring-2 ${PALETTE.ring}`}
+              className={`relative flex h-10 w-10 min-[360px]:h-12 min-[360px]:w-12 sm:h-20 sm:w-20 shrink-0 items-center justify-center rounded-full bg-white p-0.5 sm:p-1 shadow-sm ring-2 ${PALETTE.ring}`}
             >
               {member.image ? (
                 /* eslint-disable-next-line @next/next/no-img-element -- see note in README on image optimisation */
@@ -126,28 +126,28 @@ export function InnovatorDetails({ member, onClose }: InnovatorDetailsProps) {
             </div>
 
             {/* Name & Title */}
-            <div className="min-w-0">
+            <div className="min-w-0 flex-1">
               <h3
                 id={headingId}
-                className={`text-lg sm:text-2xl md:text-3xl font-extrabold tracking-tight ${PALETTE.headingText} truncate`}
+                className={`text-[12px] min-[350px]:text-[13.5px] min-[375px]:text-[14.5px] min-[400px]:text-[15.5px] min-[440px]:text-base sm:text-2xl md:text-3xl font-extrabold tracking-tight ${PALETTE.headingText} whitespace-nowrap leading-tight`}
               >
                 {member.name}
               </h3>
-              <p className={`mt-0.5 sm:mt-1 text-xs sm:text-base font-semibold ${PALETTE.accentText} truncate`}>
+              <p className={`mt-0.5 sm:mt-1 text-[11px] min-[360px]:text-xs sm:text-base font-semibold ${PALETTE.accentText} truncate leading-tight`}>
                 {member.title}
               </p>
             </div>
           </div>
 
           {/* Top Right Close Action */}
-          <div className="flex items-center shrink-0">
+          <div className="flex items-center shrink-0 ml-1">
             <button
               onClick={handleClose}
               type="button"
               aria-label="Close profile"
               className="p-1.5 sm:p-2 rounded-full text-slate-400 hover:text-slate-900 hover:bg-slate-100 transition-all duration-200 active:scale-95 cursor-pointer"
             >
-              <X className="w-6 h-6 sm:w-7 sm:h-7" strokeWidth={2.2} />
+              <X className="w-5 h-5 sm:w-7 sm:h-7" strokeWidth={2.2} />
             </button>
           </div>
         </div>
