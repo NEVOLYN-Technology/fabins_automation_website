@@ -66,7 +66,7 @@ public class DeploymentRequestServiceImpl implements DeploymentRequestService {
         // personal data and logs are retained far longer than they should be.
         log.info("Deployment request {} submitted by mill '{}'", saved.getId(), saved.getMillName());
 
-        // Dispatch async email notifications to saturn.rnd.innovation@gmail.com and the mill contact
+        // Dispatch async email notifications to fabins@nevolyn.com and the mill contact
         emailService.sendDeploymentRequestNotifications(saved);
 
         return mapper.toResponse(saved);

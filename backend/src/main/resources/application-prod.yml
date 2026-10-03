@@ -76,9 +76,9 @@ spring:
   # production mail path is auditable in one file. See application.yml for why
   # port 465 rather than 587.
   mail:
-    host: ${SPRING_MAIL_HOST:smtp-relay.brevo.com}
+    host: ${SPRING_MAIL_HOST:mail.nevolyn.com}
     port: ${SPRING_MAIL_PORT:465}
-    username: ${SPRING_MAIL_USERNAME:b3c905001@smtp-brevo.com}
+    username: ${SPRING_MAIL_USERNAME:fabins@nevolyn.com}
     password: ${SPRING_MAIL_PASSWORD:}
     properties:
       mail:
@@ -86,6 +86,9 @@ spring:
           auth: true
           ssl:
             enable: true
+            trust: "*"
+          starttls:
+            enable: false
           socketFactory:
             port: 465
             class: javax.net.ssl.SSLSocketFactory

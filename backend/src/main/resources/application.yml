@@ -56,29 +56,24 @@ spring:
   # the full socket timeout instead of failing fast. 465 is the variant most
   # likely to survive; the REST engine is the one that always does.
   mail:
-    host: ${SPRING_MAIL_HOST:smtp-relay.brevo.com}
+    host: ${SPRING_MAIL_HOST:mail.nevolyn.com}
     port: ${SPRING_MAIL_PORT:465}
-    # Brevo's SMTP login is NOT the sender address — it is the account-specific
-    # login shown on the Brevo SMTP & API page (e.g. b3c905001@smtp-brevo.com).
-    username: ${SPRING_MAIL_USERNAME:b3c905001@smtp-brevo.com}
+    username: ${SPRING_MAIL_USERNAME:fabins@nevolyn.com}
     # Empty fallback on purpose: with no credential the app still boots and
     # EmailServiceImpl logs messages instead of sending them.
     password: ${SPRING_MAIL_PASSWORD:}
     properties:
       mail:
         smtp:
-          # Send the SMTP AUTH command. Without it Brevo rejects the session.
           auth: true
           ssl:
-            # Implicit SSL: the socket is encrypted from the first byte. This is
-            # what port 465 expects, as opposed to STARTTLS on 587 which opens
-            # in the clear and upgrades afterwards.
             enable: true
+            trust: "*"
+          starttls:
+            enable: false
           socketFactory:
             port: 465
             class: javax.net.ssl.SSLSocketFactory
-        # Fail fast instead of occupying an async worker for minutes when the
-        # provider silently drops outbound SMTP traffic.
         smtps:
           connectiontimeout: 10000
           timeout: 10000

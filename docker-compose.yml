@@ -63,10 +63,11 @@ services:
       # 465 (implicit SSL), matching application.yml. The REST engine takes over
       # whenever SPRING_MAIL_PASSWORD is a Brevo key; blank means emails are
       # logged rather than sent, which is the default here.
-      SPRING_MAIL_HOST: ${SPRING_MAIL_HOST:-smtp-relay.brevo.com}
+      SPRING_MAIL_HOST: ${SPRING_MAIL_HOST:-mail.nevolyn.com}
       SPRING_MAIL_PORT: ${SPRING_MAIL_PORT:-465}
-      SPRING_MAIL_USERNAME: ${SPRING_MAIL_USERNAME:-b3c905001@smtp-brevo.com}
+      SPRING_MAIL_USERNAME: ${SPRING_MAIL_USERNAME:-fabins@nevolyn.com}
       SPRING_MAIL_PASSWORD: ${SPRING_MAIL_PASSWORD:-}
+      SPRING_MAIL_FROM: ${SPRING_MAIL_FROM:-fabins@nevolyn.com}
     ports:
       - "8080:8080"
     healthcheck:

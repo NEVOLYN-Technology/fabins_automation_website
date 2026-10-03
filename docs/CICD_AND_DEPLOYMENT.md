@@ -442,7 +442,7 @@ Then:
 
 1. Click **Verify** in Brevo. Propagation is usually under an hour; a stale TTL
    can make it longer.
-2. Set `SPRING_MAIL_FROM=noreply@fabins.com` on Render and redeploy.
+2. Set `SPRING_MAIL_FROM=fabins@nevolyn.com` on Render and redeploy.
 3. Send a test through the live form and check the received headers for
    `spf=pass`, `dkim=pass`, `dmarc=pass`. In Gmail: **Show original**.
 4. Score the setup at [mail-tester.com](https://www.mail-tester.com) — aim for
@@ -580,10 +580,10 @@ or you will get duplicate builds for every push.
 | `FABINS_ALLOWED_ORIGIN` | yes | `https://fabins.com` | Exact site origin — §4.3 |
 | `FABINS_BACKEND_URL` | yes | `https://api.fabins.com` | This service's own origin, for email links |
 | `SPRING_MAIL_PASSWORD` | yes | `xsmtpsib-…` | Brevo key; drives both engines |
-| `SPRING_MAIL_FROM` | no | `noreply@fabins.com` | Must be a verified Brevo sender |
-| `SPRING_MAIL_USERNAME` | no | `b3c905001@smtp-brevo.com` | SMTP fallback login, not the sender |
+| `SPRING_MAIL_FROM` | no | `fabins@nevolyn.com` | Must be a verified Brevo sender |
+| `SPRING_MAIL_USERNAME` | no | `fabins@nevolyn.com` | Webmail username (full email address) |
 | `BREVO_API_KEY` | no | `xsmtpsib-…` | Only if the REST key differs from the SMTP password |
-| `FABINS_ADMIN_ADDRESS` | no | `rnd@fabins.com` | Where new-enquiry alerts land |
+| `FABINS_ADMIN_ADDRESS` | no | `fabins@nevolyn.com` | Where new-enquiry alerts land |
 | `FABINS_MAIL_SENDER_NAME` | no | `Saturn Textiles R&D` | Display name in the recipient's inbox |
 
 ### Vercel — frontend project
