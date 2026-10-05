@@ -1,10 +1,51 @@
+<!--
+================================================================================
+EMAIL TEMPLATE: Deployment Assessment — Applicant Receipt & PDF Delivery
+FILE: templates/email/deployment-sender-confirmation-mail.html
+--------------------------------------------------------------------------------
+WHEN IT IS USED:
+  Sent automatically to the applicant (mill owner / factory representative)
+  immediately after they submit the technical assessment form on the /deploy page.
+  It acts as an official confirmation of receipt and delivers the generated
+  engineering assessment report PDF directly into their inbox.
+
+RECIPIENT:
+  Applicant's Work Email Address (entered in the form)
+
+SENDER:
+  FABINS@NEVOLYN <fabins@nevolyn.com>
+
+SUBJECT LINE:
+  [FABINS] Deployment Assessment Received: {{millName}} [{{requestId}}]
+
+ATTACHMENTS:
+  FABINS-Assessment-{{requestId}}.pdf (generated technical assessment report)
+
+SUPPORTED PLACEHOLDERS:
+  - {{contactName}}             : Contact Representative's Full Name
+  - {{millName}}                : Factory / Mill Name
+  - {{requestId}}               : Tracking Reference Code (e.g. FAB-2026-XXXXXXXX)
+  - {{adminEmail}}              : Official Support & Engineering Email (fabins@nevolyn.com)
+================================================================================
+-->
 <!DOCTYPE html>
 <html lang="en">
 
 <head>
   <meta charset="UTF-8">
-  <title>FABINS Deployment Assessment Request Confirmation - NEVOLYN Technology</title>
+  <meta name="color-scheme" content="light">
+  <meta name="supported-color-schemes" content="light">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FABINS — Deployment Assessment Confirmation — NEVOLYN</title>
   <style>
+    :root {
+      color-scheme: light;
+      supported-color-schemes: light;
+    }
+    body, table, td, p, a, li {
+      -webkit-text-size-adjust: 100%;
+      -ms-text-size-adjust: 100%;
+    }
     body {
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
       line-height: 1.6;
@@ -107,14 +148,29 @@
   </style>
 </head>
 
-<body>
-  <div class="wrapper">
-    <div class="header">
+<body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; line-height: 1.6; color: #1e293b; background-color: #f8fafc; margin: 0; padding: 30px 15px;">
+  <!-- Hidden Preheader -->
+  <div style="display:none;font-size:1px;color:#ffffff;line-height:1px;max-height:0px;max-width:0px;opacity:0;overflow:hidden;">
+    Your factory deployment assessment for {{millName}} has been received [Tracking ID: {{requestId}}].
+  </div>
+
+  <div class="wrapper" style="max-width: 640px; margin: 0 auto; background: #ffffff; border-radius: 12px; overflow: hidden; border: 1px solid #e2e8f0;">
+    <div class="header" style="background: #0f172a; padding: 24px 32px; border-bottom: 3px solid #0ea5e9;">
       <table cellpadding="0" cellspacing="0" border="0" style="width: 100%; border-collapse: collapse;">
         <tr>
+          <td style="width: 52px; vertical-align: middle; padding-right: 14px;">
+            <table cellpadding="0" cellspacing="0" border="0" style="border-collapse: collapse;">
+              <tr>
+                <td style="background-color: #ffffff; width: 44px; height: 44px; border-radius: 10px; text-align: center; vertical-align: middle; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25); border: 1px solid rgba(255, 255, 255, 0.15);">
+                  <img src="cid:fabinsLogo" alt="FABINS Logo" width="36" height="36"
+                    style="display: block; margin: 0 auto; width: 36px; height: 36px; border: 0; outline: none;" />
+                </td>
+              </tr>
+            </table>
+          </td>
           <td style="vertical-align: middle; text-align: left;">
-            <h1 class="brand-title">NEVOLYN</h1>
-            <div class="brand-sub">FABINS Automation</div>
+            <h1 class="brand-title">FABINS</h1>
+            <div class="brand-sub">NEVOLYN</div>
           </td>
         </tr>
       </table>
@@ -162,10 +218,10 @@
 
     <div class="footer">
       Warm regards,<br />
-      <strong style="color: #334155;">NEVOLYN Technology — Engineering Desk</strong><br />
-      FABINS Vision AI Automated Inspection<br />
+      <strong style="color: #334155;">NEVOLYN — Engineering Desk</strong><br />
+      FABINS Automated Fabric Inspection<br />
       Official Mail: <a href="mailto:{{adminEmail}}" style="color: #0284c7;">{{adminEmail}}</a> &bull; <a
-        href="https://nevolyn.com" style="color: #0284c7;">nevolyn.com</a>
+        href="https://fabins.nevolyn.com" style="color: #0284c7;">fabins.nevolyn.com</a>
     </div>
   </div>
 </body>

@@ -164,19 +164,7 @@ export default function DeployPage() {
     setErrorMessage(null)
     setStatus('sending')
 
-    const finalMessage = [
-      formData.machineBrand ? `Machine / Frame Brand: ${formData.machineBrand}` : '',
-      formData.message,
-    ]
-      .filter(Boolean)
-      .join(' | ')
-
-    const payload: DeploymentRequest = {
-      ...formData,
-      message: finalMessage,
-    }
-
-    const result = await submitDeploymentRequest(payload)
+    const result = await submitDeploymentRequest(formData)
 
     if (result.ok) {
       setReferenceCode(

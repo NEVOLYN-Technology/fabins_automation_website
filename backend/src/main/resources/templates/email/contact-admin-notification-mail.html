@@ -1,0 +1,290 @@
+<!--
+================================================================================
+EMAIL TEMPLATE: Contact Inquiry — Internal Admin Alert
+FILE: templates/email/contact-admin-notification-mail.html
+--------------------------------------------------------------------------------
+WHEN IT IS USED:
+  Sent automatically to the internal team immediately after a visitor or
+  prospective client submits a message via the general contact form.
+  Contains complete sender details, their message, and an action button to
+  formally acknowledge and trigger the receipt email back to the visitor.
+
+RECIPIENT:
+  Internal Engineering Team (fabins@nevolyn.com)
+
+SENDER:
+  FABINS@NEVOLYN <fabins@nevolyn.com>
+  (Reply-To is automatically set to the visitor's email address)
+
+SUBJECT LINE:
+  [FABINS Contact] New Inquiry: {{subject}} [{{referenceCode}}]
+
+ATTACHMENTS:
+  None
+
+SUPPORTED PLACEHOLDERS:
+  - {{acknowledgeUrl}}          : Secure URL to the 1-click confirmation page
+  - {{referenceCode}}           : Unique Tracking Code (e.g. INQ-2026-XXXXXXXX)
+  - {{name}}                    : Visitor / Representative Full Name
+  - {{email}}                   : Visitor's Contact Email Address
+  - {{subject}}                 : Inquiry Subject / Topic
+  - {{submittedAt}}             : Submission Date & Time (UTC)
+  - {{message}}                 : Visitor's Message Content
+================================================================================
+-->
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="color-scheme" content="light">
+  <meta name="supported-color-schemes" content="light">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>FABINS — New Contact Inquiry — NEVOLYN</title>
+  <style>
+    :root {
+      color-scheme: light;
+      supported-color-schemes: light;
+    }
+    body, table, td, p, a, li {
+      -webkit-text-size-adjust: 100%;
+      -ms-text-size-adjust: 100%;
+    }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      line-height: 1.6;
+      color: #1e293b;
+      background-color: #f8fafc;
+      margin: 0;
+      padding: 30px 15px;
+    }
+
+    .wrapper {
+      max-width: 620px;
+      margin: 0 auto;
+      background: #ffffff;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -2px rgba(0, 0, 0, 0.02);
+      border: 1px solid #e2e8f0;
+    }
+
+    .header {
+      background: #0f172a;
+      padding: 28px 32px;
+      color: #ffffff;
+      border-bottom: 3px solid #0ea5e9;
+    }
+
+    .brand-title {
+      font-size: 22px;
+      font-weight: 700;
+      margin: 0 0 4px 0;
+      color: #ffffff;
+      letter-spacing: -0.5px;
+    }
+
+    .brand-sub {
+      color: #38bdf8;
+      font-size: 13px;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+    }
+
+    .badge {
+      display: inline-block;
+      background: #e0f2fe;
+      color: #0369a1;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      padding: 3px 10px;
+      border-radius: 999px;
+      margin-top: 10px;
+    }
+
+    .body-content {
+      padding: 32px;
+    }
+
+    .ref-badge {
+      display: inline-block;
+      background-color: #e0f2fe;
+      color: #0369a1;
+      font-size: 13px;
+      font-weight: 700;
+      padding: 4px 12px;
+      border-radius: 20px;
+      margin-bottom: 20px;
+    }
+
+    .info-grid {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 20px;
+    }
+
+    .info-grid td {
+      padding: 10px 12px;
+      border-bottom: 1px solid #f1f5f9;
+      font-size: 14px;
+    }
+
+    .info-grid td.label {
+      font-weight: 600;
+      color: #64748b;
+      width: 35%;
+      background-color: #fafafa;
+    }
+
+    .message-box {
+      background-color: #f8fafc;
+      border-left: 4px solid #0ea5e9;
+      padding: 16px 20px;
+      border-radius: 0 8px 8px 0;
+      font-size: 14px;
+      color: #334155;
+      margin: 15px 0 25px 0;
+      white-space: pre-wrap;
+      word-break: break-word;
+    }
+
+    .cta-container {
+      text-align: center;
+      margin: 32px 0 20px 0;
+    }
+
+    .btn-acknowledge {
+      display: inline-block;
+      background: #0284c7;
+      color: #ffffff !important;
+      font-weight: 700;
+      font-size: 15px;
+      padding: 14px 28px;
+      text-decoration: none;
+      border-radius: 8px;
+      box-shadow: 0 4px 12px rgba(2, 132, 199, 0.35);
+    }
+
+    .footer {
+      background-color: #f8fafc;
+      padding: 20px 32px;
+      border-top: 1px solid #e2e8f0;
+      font-size: 12px;
+      color: #64748b;
+      text-align: center;
+    }
+  </style>
+</head>
+
+<body
+  style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; line-height: 1.6; color: #1e293b; background-color: #f8fafc; margin: 0; padding: 30px 15px;">
+  <!-- Hidden Preheader -->
+  <div
+    style="display:none;font-size:1px;color:#ffffff;line-height:1px;max-height:0px;max-width:0px;opacity:0;overflow:hidden;">
+    New contact inquiry from {{name}} regarding "{{subject}}" [Ref: {{referenceCode}}].
+  </div>
+
+  <div class="wrapper"
+    style="max-width: 620px; margin: 0 auto; background: #ffffff; border-radius: 12px; overflow: hidden; border: 1px solid #e2e8f0;">
+    <div class="header" style="background: #0f172a; padding: 24px 32px; border-bottom: 3px solid #0ea5e9;">
+      <table cellpadding="0" cellspacing="0" border="0" style="width:100%; border-collapse:collapse;">
+        <tr>
+          <td style="width: 52px; vertical-align: middle; padding-right: 14px;">
+            <table cellpadding="0" cellspacing="0" border="0" style="border-collapse: collapse;">
+              <tr>
+                <td style="background-color: #ffffff; width: 44px; height: 44px; border-radius: 10px; text-align: center; vertical-align: middle; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25); border: 1px solid rgba(255, 255, 255, 0.15);">
+                  <img src="cid:fabinsLogo" alt="FABINS Logo" width="36" height="36"
+                    style="display: block; margin: 0 auto; width: 36px; height: 36px; border: 0; outline: none;" />
+                </td>
+              </tr>
+            </table>
+          </td>
+          <td style="vertical-align:middle; text-align:left;">
+            <h1 class="brand-title"
+              style="font-size: 22px; font-weight: 700; margin: 0 0 4px 0; color: #ffffff; letter-spacing: -0.5px;">
+              FABINS</h1>
+            <div class="brand-sub" style="color: #38bdf8; font-size: 13px; font-weight: 600; letter-spacing: 0.5px;">
+              NEVOLYN</div>
+            <span class="badge"
+              style="display: inline-block; background: #e0f2fe; color: #0369a1; font-size: 11px; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; padding: 3px 10px; border-radius: 999px; margin-top: 10px;">New
+              Contact Inquiry</span>
+          </td>
+        </tr>
+      </table>
+    </div>
+
+    <div class="body-content" style="padding: 32px;">
+      <div class="ref-badge"
+        style="display: inline-block; background-color: #e0f2fe; color: #0369a1; font-size: 13px; font-weight: 700; padding: 4px 12px; border-radius: 20px; margin-bottom: 20px;">
+        Reference: {{referenceCode}}
+      </div>
+
+      <p style="margin-top:0; font-size:15px; color:#334155;">
+        A visitor has submitted a general inquiry via the FABINS homepage contact form.
+        Reply directly to this email to reach them, or click the button below to
+        formally acknowledge the inquiry — this will notify the visitor and mark the
+        inquiry as replied.
+      </p>
+
+      <div
+        style="font-size:13px; font-weight:700; color:#64748b; text-transform:uppercase; letter-spacing:0.5px; margin:24px 0 12px; border-bottom:1px solid #f1f5f9; padding-bottom:6px;">
+        Visitor Details
+      </div>
+      <table class="info-grid" style="width: 100%; border-collapse: collapse; margin-bottom: 20px;">
+        <tr>
+          <td class="label"
+            style="font-weight: 600; color: #64748b; width: 35%; background-color: #fafafa; padding: 10px 12px; border-bottom: 1px solid #f1f5f9; font-size: 14px;">
+            Name</td>
+          <td style="padding: 10px 12px; border-bottom: 1px solid #f1f5f9; font-size: 14px;"><strong>{{name}}</strong>
+          </td>
+        </tr>
+        <tr>
+          <td class="label"
+            style="font-weight: 600; color: #64748b; width: 35%; background-color: #fafafa; padding: 10px 12px; border-bottom: 1px solid #f1f5f9; font-size: 14px;">
+            Email</td>
+          <td style="padding: 10px 12px; border-bottom: 1px solid #f1f5f9; font-size: 14px;"><a href="mailto:{{email}}"
+              style="color:#0284c7; font-weight: 600;">{{email}}</a></td>
+        </tr>
+        <tr>
+          <td class="label"
+            style="font-weight: 600; color: #64748b; width: 35%; background-color: #fafafa; padding: 10px 12px; border-bottom: 1px solid #f1f5f9; font-size: 14px;">
+            Subject</td>
+          <td style="padding: 10px 12px; border-bottom: 1px solid #f1f5f9; font-size: 14px;">{{subject}}</td>
+        </tr>
+        <tr>
+          <td class="label"
+            style="font-weight: 600; color: #64748b; width: 35%; background-color: #fafafa; padding: 10px 12px; border-bottom: 1px solid #f1f5f9; font-size: 14px;">
+            Submitted At</td>
+          <td style="padding: 10px 12px; border-bottom: 1px solid #f1f5f9; font-size: 14px;">{{submittedAt}}</td>
+        </tr>
+      </table>
+
+      <div
+        style="font-size:13px; font-weight:700; color:#64748b; text-transform:uppercase; letter-spacing:0.5px; margin:20px 0 10px; border-bottom:1px solid #f1f5f9; padding-bottom:6px;">
+        Message
+      </div>
+      <div class="message-box"
+        style="background-color: #f8fafc; border-left: 4px solid #0ea5e9; padding: 16px 20px; border-radius: 0 8px 8px 0; font-size: 14px; color: #334155; margin: 15px 0 25px 0; white-space: pre-wrap; word-break: break-word;">
+        {{message}}
+      </div>
+
+      <div class="cta-container" style="text-align: center; margin: 32px 0 20px 0;">
+        <a href="{{acknowledgeUrl}}" class="btn-acknowledge"
+          style="display: inline-block; background: #0284c7; color: #ffffff !important; font-weight: 700; font-size: 15px; padding: 14px 28px; text-decoration: none; border-radius: 8px; box-shadow: 0 4px 12px rgba(2, 132, 199, 0.35);">
+          &#10003; Acknowledge Inquiry
+        </a>
+      </div>
+    </div>
+
+    <div class="footer"
+      style="background-color: #f8fafc; padding: 20px 32px; border-top: 1px solid #e2e8f0; font-size: 12px; color: #64748b; text-align: center;">
+      <strong style="color:#334155;">NEVOLYN — Engineering Desk</strong><br />
+      <span style="font-size:11px; color:#94a3b8;">FABINS Automated Fabric Inspection &bull; Official Mail:
+        fabins@nevolyn.com &bull; <a href="https://fabins.nevolyn.com" style="color: #0284c7; text-decoration: none;">fabins.nevolyn.com</a></span>
+    </div>
+  </div>
+</body>
+
+</html>

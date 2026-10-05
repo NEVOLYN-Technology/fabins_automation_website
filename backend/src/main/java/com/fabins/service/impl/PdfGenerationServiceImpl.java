@@ -6,6 +6,7 @@ import com.lowagie.text.Document;
 import com.lowagie.text.DocumentException;
 import com.lowagie.text.Element;
 import com.lowagie.text.Font;
+import com.lowagie.text.Image;
 import com.lowagie.text.PageSize;
 import com.lowagie.text.Paragraph;
 import com.lowagie.text.Phrase;
@@ -15,28 +16,31 @@ import com.lowagie.text.pdf.PdfPTable;
 import com.lowagie.text.pdf.PdfWriter;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.stereotype.Service;
 
 import java.awt.Color;
 import java.io.ByteArrayOutputStream;
+import java.io.InputStream;
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
-import java.util.Objects;
 
 /**
- * Generates an official, publication-quality PDF assessment report for FABINS deployment enquiries.
- * Attached to automated email dispatches sent to both fabins@nevolyn.com and the client applicant.
+ * Generates an official, publication-quality PDF assessment report for FABINS
+ * deployment enquiries.
+ * Formatted and attached to automated email dispatches sent to both the
+ * engineering desk and client applicant.
  */
 @Service
 public class PdfGenerationServiceImpl implements PdfGenerationService {
 
     private static final Logger log = LoggerFactory.getLogger(PdfGenerationServiceImpl.class);
 
-    private static final Color COLOR_PRIMARY = new Color(15, 23, 42);      // Slate 900
-    private static final Color COLOR_ACCENT = new Color(14, 165, 233);     // Cyan / Sky 500
+    private static final Color COLOR_PRIMARY = new Color(15, 23, 42); // Slate 900
+    private static final Color COLOR_ACCENT = new Color(14, 165, 233); // Cyan / Sky 500
     private static final Color COLOR_HEADER_BG = new Color(241, 245, 249); // Slate 100
-    private static final Color COLOR_BORDER = new Color(203, 213, 225);    // Slate 300
-    private static final Color COLOR_LABEL_BG = new Color(248, 250, 252);  // Slate 50
+    private static final Color COLOR_BORDER = new Color(203, 213, 225); // Slate 300
+    private static final Color COLOR_LABEL_BG = new Color(248, 250, 252); // Slate 50
     private static final Color COLOR_TEXT_MUTED = new Color(100, 116, 139); // Slate 500
 
     private static final DateTimeFormatter DATE_FORMATTER = DateTimeFormatter
@@ -62,13 +66,9 @@ public class PdfGenerationServiceImpl implements PdfGenerationService {
             addSectionHeader(document, "1. MILL & FACILITY PROFILE");
             addFacilityTable(document, request);
 
-            // Section 2: Contact Representative Information
-            addSectionHeader(document, "2. REPRESENTATIVE & COMMUNICATIONS");
+            // Section 2: Contact Representative & Machine Parameters
+            addSectionHeader(document, "2. TECHNICAL REPRESENTATIVE & SPECIFICATIONS");
             addContactTable(document, request);
-
-            // Section 3: Technical Specifications & Retrofit Scope
-            addSectionHeader(document, "3. TECHNICAL RETROFIT & OPERATION SCOPE");
-            addTechnicalTable(document, request);
 
             // Security, NDA & Verification Footer
             addFooterNotice(document, request);
@@ -82,35 +82,53 @@ public class PdfGenerationServiceImpl implements PdfGenerationService {
     }
 
     private void addHeader(Document document, DeploymentRequest request) throws DocumentException {
-        PdfPTable headerTable = new PdfPTable(2);
+        PdfPTable headerTable = new PdfPTable(3);
         headerTable.setWidthPercentage(100);
-        headerTable.setWidths(new float[]{65f, 35f});
+        headerTable.setWidths(new float[] { 11f, 54f, 35f });
         headerTable.setSpacingAfter(10f);
 
+        // Logo cell on the left
+        PdfPCell logoCell = new PdfPCell();
+        logoCell.setBorder(Rectangle.NO_BORDER);
+        logoCell.setVerticalAlignment(Element.ALIGN_MIDDLE);
+        logoCell.setPaddingRight(6f);
+        try {
+            ClassPathResource logoRes = new ClassPathResource("static/fabins-logo.png");
+            if (logoRes.exists()) {
+                try (InputStream is = logoRes.getInputStream()) {
+                    Image logoImg = Image.getInstance(is.readAllBytes());
+                    logoImg.scaleToFit(38f, 38f);
+                    logoCell.addElement(logoImg);
+                }
+            }
+        } catch (Exception e) {
+            log.warn("Could not embed logo in PDF header: {}", e.getMessage());
+        }
+        headerTable.addCell(logoCell);
+
         // Company & Product Title
-        Font titleFont = new Font(Font.HELVETICA, 16, Font.BOLD, COLOR_PRIMARY);
-        Font subTitleFont = new Font(Font.HELVETICA, 9, Font.BOLD, COLOR_ACCENT);
+        Font titleFont = new Font(Font.HELVETICA, 15, Font.BOLD, COLOR_PRIMARY);
+        Font subTitleFont = new Font(Font.HELVETICA, 8.5f, Font.BOLD, COLOR_ACCENT);
         Font orgFont = new Font(Font.HELVETICA, 8, Font.NORMAL, COLOR_TEXT_MUTED);
 
         Paragraph leftPara = new Paragraph();
-        leftPara.add(new Phrase("NEVOLYN TECHNOLOGY\n", orgFont));
+        leftPara.add(new Phrase("NEVOLYN\n", orgFont));
         leftPara.add(new Phrase("FABINS Vision AI Retrofit Assessment\n", titleFont));
         leftPara.add(new Phrase("AUTOMATED FABRIC DEFECT DETECTION & CLASSIFICATION\n", subTitleFont));
 
         PdfPCell leftCell = new PdfPCell(leftPara);
         leftCell.setBorder(Rectangle.NO_BORDER);
-        leftCell.setPaddingBottom(6f);
+        leftCell.setVerticalAlignment(Element.ALIGN_MIDDLE);
         headerTable.addCell(leftCell);
 
         // Official Reference Badge on Right
-        Font badgeFont = new Font(Font.HELVETICA, 9, Font.BOLD, COLOR_PRIMARY);
-        Font badgeSub = new Font(Font.HELVETICA, 7, Font.NORMAL, COLOR_TEXT_MUTED);
+        Font badgeFont = new Font(Font.HELVETICA, 8.5f, Font.BOLD, COLOR_PRIMARY);
+        Font badgeSub = new Font(Font.HELVETICA, 7.5f, Font.NORMAL, COLOR_TEXT_MUTED);
 
         Paragraph rightPara = new Paragraph();
         rightPara.setAlignment(Element.ALIGN_RIGHT);
         rightPara.add(new Phrase("OFFICIAL ASSESSMENT COPY\n", badgeFont));
         rightPara.add(new Phrase("DISPATCH TO: fabins@nevolyn.com\n", badgeSub));
-        rightPara.add(new Phrase("WEB: nevolyn.com\n", badgeSub));
 
         PdfPCell rightCell = new PdfPCell(rightPara);
         rightCell.setBorder(Rectangle.NO_BORDER);
@@ -123,10 +141,10 @@ public class PdfGenerationServiceImpl implements PdfGenerationService {
     private void addMetadataBar(Document document, DeploymentRequest request) throws DocumentException {
         PdfPTable metaTable = new PdfPTable(3);
         metaTable.setWidthPercentage(100);
-        metaTable.setWidths(new float[]{35f, 40f, 25f});
+        metaTable.setWidths(new float[] { 35f, 40f, 25f });
         metaTable.setSpacingAfter(15f);
 
-        Font labelFont = new Font(Font.HELVETICA, 7, Font.BOLD, COLOR_TEXT_MUTED);
+        Font labelFont = new Font(Font.HELVETICA, 7.5f, Font.BOLD, COLOR_TEXT_MUTED);
         Font valFont = new Font(Font.HELVETICA, 9, Font.BOLD, COLOR_PRIMARY);
 
         String refCode = request.getReferenceCode();
@@ -135,7 +153,7 @@ public class PdfGenerationServiceImpl implements PdfGenerationService {
                 : DATE_FORMATTER.format(java.time.Instant.now());
 
         // Cell 1: Reference Code
-        PdfPCell cell1 = createMetaCell("APPLICATION REFERENCE ID", refCode, labelFont, valFont);
+        PdfPCell cell1 = createMetaCell("REFERENCE CODE", refCode, labelFont, valFont);
         // Cell 2: Submission Timestamp
         PdfPCell cell2 = createMetaCell("SUBMISSION TIMESTAMP (UTC)", dateStr, labelFont, valFont);
         // Cell 3: Verification Status
@@ -171,15 +189,13 @@ public class PdfGenerationServiceImpl implements PdfGenerationService {
     private void addFacilityTable(Document document, DeploymentRequest request) throws DocumentException {
         PdfPTable table = new PdfPTable(4);
         table.setWidthPercentage(100);
-        table.setWidths(new float[]{22f, 28f, 22f, 28f});
+        table.setWidths(new float[] { 22f, 28f, 22f, 28f });
         table.setSpacingAfter(10f);
 
-        String extractedBrand = extractMachineBrand(request);
-
         addKeyValueRow(table, "Mill / Factory Name", valueOrNA(request.getMillName()),
-                              "Machine / Frame Brand", valueOrNA(extractedBrand));
+                              "Machine / Frame Brand", valueOrNA(request.getMachineBrand()));
         addKeyValueRow(table, "Factory Location / Zone", valueOrNA(request.getLocation()),
-                              "Industry Sector", valueOrNA(request.getFactoryType()));
+                              "Operation / Sector Type", valueOrNA(request.getFactoryType()));
 
         document.add(table);
     }
@@ -187,48 +203,13 @@ public class PdfGenerationServiceImpl implements PdfGenerationService {
     private void addContactTable(Document document, DeploymentRequest request) throws DocumentException {
         PdfPTable table = new PdfPTable(4);
         table.setWidthPercentage(100);
-        table.setWidths(new float[]{22f, 28f, 22f, 28f});
-        table.setSpacingAfter(10f);
-
-        addKeyValueRow(table, "Representative Name", valueOrNA(request.getContactName()),
-                              "Job Title / Designation", valueOrNA(request.getDesignation()));
-        addKeyValueRow(table, "Work Email Address", valueOrNA(request.getEmail()),
-                              "Phone / WhatsApp", valueOrNA(request.getPhone()));
-
-        document.add(table);
-    }
-
-    private void addTechnicalTable(Document document, DeploymentRequest request) throws DocumentException {
-        PdfPTable table = new PdfPTable(4);
-        table.setWidthPercentage(100);
-        table.setWidths(new float[]{22f, 28f, 22f, 28f});
+        table.setWidths(new float[] { 22f, 28f, 22f, 28f });
         table.setSpacingAfter(12f);
 
-        addKeyValueRow(table, "Roll / Table Width", valueOrNA(request.getRollWidth()),
-                              "Inspection Frames", valueOrNA(request.getInspectionFramesCount()));
-        addKeyValueRow(table, "Fabric Types Handled", valueOrNA(request.getFabricTypes()),
-                              "Daily Production Vol.", valueOrNA(request.getDailyProductionVolume()));
-        addKeyValueRow(table, "Target Inspection Speed", valueOrNA(request.getInspectionSpeed()),
-                              "Target Timeline", valueOrNA(request.getTargetTimeline()));
-
-        // Add special technical requirements if present
-        if (request.getMessage() != null && !request.getMessage().isBlank()) {
-            Font labelFont = new Font(Font.HELVETICA, 8, Font.BOLD, COLOR_TEXT_MUTED);
-            Font valFont = new Font(Font.HELVETICA, 8, Font.NORMAL, COLOR_PRIMARY);
-
-            PdfPCell labelCell = new PdfPCell(new Phrase("Additional Notes & Specs", labelFont));
-            labelCell.setBackgroundColor(COLOR_LABEL_BG);
-            labelCell.setBorderColor(COLOR_BORDER);
-            labelCell.setPadding(5f);
-
-            PdfPCell valCell = new PdfPCell(new Phrase(request.getMessage(), valFont));
-            valCell.setColspan(3);
-            valCell.setBorderColor(COLOR_BORDER);
-            valCell.setPadding(5f);
-
-            table.addCell(labelCell);
-            table.addCell(valCell);
-        }
+        addKeyValueRow(table, "Technical Representative", valueOrNA(request.getContactName()),
+                              "Work Email Address", valueOrNA(request.getEmail()));
+        addKeyValueRow(table, "Phone / WhatsApp", valueOrNA(request.getPhone()),
+                              "Roll / Table Width", valueOrNA(request.getRollWidth()));
 
         document.add(table);
     }
@@ -264,19 +245,18 @@ public class PdfGenerationServiceImpl implements PdfGenerationService {
     private void addFooterNotice(Document document, DeploymentRequest request) throws DocumentException {
         PdfPTable footerTable = new PdfPTable(1);
         footerTable.setWidthPercentage(100);
-        footerTable.setSpacingBefore(10f);
+        footerTable.setSpacingBefore(12f);
 
-        Font noticeTitleFont = new Font(Font.HELVETICA, 7, Font.BOLD, COLOR_PRIMARY);
+        Font noticeHeaderFont = new Font(Font.HELVETICA, 8, Font.BOLD, COLOR_PRIMARY);
         Font noticeBodyFont = new Font(Font.HELVETICA, 7, Font.NORMAL, COLOR_TEXT_MUTED);
 
         Paragraph p = new Paragraph();
-        p.add(new Phrase("MUTUAL CONFIDENTIALITY & ENGINEERING ASSESSMENT NOTICE\n", noticeTitleFont));
+        p.add(new Phrase("INDUSTRIAL VERIFICATION & MUTUAL NON-DISCLOSURE GUARANTEE\n", noticeHeaderFont));
         p.add(new Phrase(
-                "This document is an official assessment record submitted to NEVOLYN Technology for FABINS AI retrofitting. " +
-                "All mill specifications and contact credentials provided herein are protected under strict Non-Disclosure terms. " +
-                "Direct inquiries regarding this assessment may be addressed to: fabins@nevolyn.com | Official Domain: nevolyn.com\n" +
-                "A verified digital copy of this report has been simultaneously delivered to both the NEVOLYN engineering desk and " +
-                request.getEmail() + ".",
+                "This technical assessment document is automatically compiled by NEVOLYN on behalf of " +
+                valueOrNA(request.getMillName()) + " under mutual industrial non-disclosure terms. Machine parameters " +
+                "and roll dimensions are retained securely for AI model architecture configuration and edge camera retrofit planning. " +
+                "For technical verifications, contact the engineering desk at fabins@nevolyn.com.",
                 noticeBodyFont
         ));
 
@@ -287,21 +267,6 @@ public class PdfGenerationServiceImpl implements PdfGenerationService {
         footerTable.addCell(cell);
 
         document.add(footerTable);
-    }
-
-    private String extractMachineBrand(DeploymentRequest request) {
-        if (request.getMessage() != null && request.getMessage().contains("Machine / Frame Brand:")) {
-            try {
-                String sub = request.getMessage().substring(request.getMessage().indexOf("Machine / Frame Brand:") + 22).trim();
-                if (sub.contains("|")) {
-                    return sub.substring(0, sub.indexOf("|")).trim();
-                }
-                return sub;
-            } catch (Exception e) {
-                // Fallback
-            }
-        }
-        return "Specified in Application";
     }
 
     private String valueOrNA(String val) {

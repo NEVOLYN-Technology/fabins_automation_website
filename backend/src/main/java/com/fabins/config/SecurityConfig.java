@@ -74,6 +74,8 @@ public class SecurityConfig {
                 .authorizeHttpRequests(auth -> auth
                         // Public: the website's deployment form and the homepage contact form.
                         .requestMatchers(HttpMethod.POST, "/api/v1/deployment-requests").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/v1/deployment-requests/preview-pdf").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/v1/deployment-requests/*/pdf").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/v1/contact-inquiries").permitAll()
                         // One-click acknowledge links sent in admin notification emails — public
                         // because the UUID in the URL acts as the bearer token.

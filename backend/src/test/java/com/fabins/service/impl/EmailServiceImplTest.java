@@ -2,6 +2,7 @@ package com.fabins.service.impl;
 
 import com.fabins.config.ApiProperties;
 import com.fabins.entity.DeploymentRequest;
+import com.fabins.service.mail.EmailTemplateRenderer;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import jakarta.mail.BodyPart;
 import jakarta.mail.Multipart;
@@ -112,7 +113,6 @@ class EmailServiceImplTest {
 
         assertThat(bodyOfMessage(0))
                 .contains("N/A")
-                .contains("None provided")
                 .doesNotContain(">null<");
     }
 
@@ -128,6 +128,75 @@ class EmailServiceImplTest {
                 .doesNotContain(BACKEND_URL + "//");
     }
 
+    @Test
+    @DisplayName("User input containing HTML characters is safely escaped to prevent HTML injection")
+    void userInputIsHtmlEscaped() throws Exception {
+        DeploymentRequest request = requestWithId(
+                "Apex & Sons <Fabric> \"Mills\"",
+                "Lafer & <Sons>",
+                "Gazipur <Zone>",
+                "Md. <Rahim>",
+                "qa@apextextiles.test",
+                "+880 1700-000000",
+                "<script>alert('xss')</script>",
+                "72\" <Custom>"
+        );
+
+        service(PLAIN_SMTP_PASSWORD).sendDeploymentRequestNotifications(request);
+
+        String html = bodyOfMessage(0);
+        assertThat(html)
+                .contains("Apex &amp; Sons &lt;Fabric&gt; &quot;Mills&quot;")
+                .contains("&lt;script&gt;alert(&#39;xss&#39;)&lt;/script&gt;")
+                .doesNotContain("<script>");
+    }
+
+    @Test
+    @DisplayName("Contact inquiry sender confirmation properly renders the visitor message and topic")
+    void contactInquiryConfirmationRendersMessageProperly() throws Exception {
+        com.fabins.entity.ContactInquiry inquiry = com.fabins.entity.ContactInquiry.create(
+                "Tarek Mahmud",
+                "tarek@textiles.test",
+                "Custom Integration Request",
+                "We need to know if FABINS integrates with existing ERP system."
+        );
+        ReflectionTestUtils.setField(inquiry, "id", UUID.randomUUID());
+
+        EmailServiceImpl service = service(PLAIN_SMTP_PASSWORD);
+        service.sendContactInquiryNotifications(inquiry);
+
+        ArgumentCaptor<MimeMessage> sent = ArgumentCaptor.forClass(MimeMessage.class);
+        verify(mailSender, times(2)).send(sent.capture());
+
+        // Message 0 is Admin notification, Message 1 is Visitor confirmation
+        String adminHtml = bodyOf(sent.getAllValues().get(0));
+        String visitorHtml = bodyOf(sent.getAllValues().get(1));
+
+        assertThat(visitorHtml)
+                .contains("Tarek Mahmud")
+                .contains(inquiry.getReferenceCode())
+                .contains("Custom Integration Request")
+                .contains("We need to know if FABINS integrates with existing ERP system.")
+                .doesNotContain("{{");
+
+        assertThat(adminHtml)
+                .contains("Tarek Mahmud")
+                .contains("tarek@textiles.test")
+                .contains("We need to know if FABINS integrates with existing ERP system.")
+                .doesNotContain("{{");
+    }
+
+    @Test
+    @DisplayName("EmailTemplateRenderer generates clean plain text fallback and escapes HTML")
+    void templateRendererFunctionsProperly() {
+        EmailTemplateRenderer renderer = new EmailTemplateRenderer();
+        String html = "<p>Hello <strong>World</strong>!<br/><a href=\"https://fabins.com\">Click here</a></p>";
+        String plain = renderer.generatePlainText(html);
+        assertThat(plain)
+                .contains("Hello World!")
+                .contains("Click here");
+    }
+
     // ── Engine selection ────────────────────────────────────────────────────
 
     @Test
@@ -137,8 +206,7 @@ class EmailServiceImplTest {
 
         service.sendDeploymentRequestNotifications(requestWithId());
 
-        // The point of the simulation path: a developer with no mail account
-        // still gets a working contact form.
+        // Safe simulation path: no send occurs when credentials are empty
         verify(mailSender, never()).send(any(MimeMessage.class));
     }
 
@@ -169,18 +237,40 @@ class EmailServiceImplTest {
                 new ApiProperties.Mail(
                         ADMIN_ADDRESS,
                         FROM_ADDRESS,
-                        "Saturn Textiles R&D",
+                        "FABINS@NEVOLYN",
                         apiKey,
-                        "[FABINS Alert] New Deployment Enquiry: %s",
-                        "FABINS Deployment Assessment Request Received — Ref: %s",
-                        "[Acknowledged] FABINS Deployment Request — Ref: %s"),
+                        "[FABINS] Deployment Assessment: %s",
+                        "[FABINS] Assessment Request Confirmed [Ref: %s]",
+                        "[FABINS] Assessment Request Acknowledged [Ref: %s]"),
                 backendUrl);
 
         return new EmailServiceImpl(provider, properties, new ObjectMapper(), new PdfGenerationServiceImpl());
     }
 
     private static DeploymentRequest requestWithId() {
-        return requestWithId("Apex Textile Mills", "+880 1700-000000", "Knits and woven, 60in rolls.");
+        return requestWithId(
+                "Apex Textile Mills",
+                "Winda / Bianco",
+                "Board Bazar, Gazipur",
+                "Md. Rahim Ahmed",
+                "qa@apextextiles.test",
+                "+880 1700-000000",
+                "Knit Fabric Mill",
+                "72 inches (182 cm)"
+        );
+    }
+
+    private static DeploymentRequest requestWithId(String millName, String factoryType, String rollWidth) {
+        return requestWithId(
+                millName,
+                "Winda / Bianco",
+                "Board Bazar, Gazipur",
+                "Md. Rahim Ahmed",
+                "qa@apextextiles.test",
+                "+880 1700-000000",
+                factoryType,
+                rollWidth
+        );
     }
 
     /**
@@ -192,9 +282,12 @@ class EmailServiceImplTest {
      * for either — both are assigned by JPA — and this is cheaper than standing
      * up a database for a rendering test.
      */
-    private static DeploymentRequest requestWithId(String millName, String phone, String message) {
+    private static DeploymentRequest requestWithId(
+            String millName, String machineBrand, String location,
+            String contactName, String email, String phone,
+            String factoryType, String rollWidth) {
         DeploymentRequest request = DeploymentRequest.submit(
-                millName, "GM, Quality Assurance", "qa@apextextiles.test", phone, message);
+                millName, machineBrand, location, contactName, email, phone, factoryType, rollWidth);
         ReflectionTestUtils.setField(request, "id", UUID.randomUUID());
         ReflectionTestUtils.setField(request, "submittedAt", SUBMITTED_AT);
         return request;

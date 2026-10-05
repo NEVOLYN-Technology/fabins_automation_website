@@ -7,54 +7,33 @@ import java.time.Instant;
 import java.util.UUID;
 
 /**
- * What the API returns for a deployment request.
- *
- * <p>Separate from the {@code DeploymentRequest} entity on purpose. The entity
- * is free to grow internal fields — sales notes, an assigned engineer, a lead
- * score — without any risk of them appearing in a response. Anything a client
- * should see has to be added here deliberately.
- *
- * <p>Conversion from the entity lives in {@code DeploymentRequestMapper}, not
- * here, so this stays a pure data carrier with no knowledge of persistence.
+ * Public response returned by the API for a deployment request.
  */
-@Schema(description = "A submitted deployment request")
+@Schema(description = "Assessment response for a submitted deployment request")
 public record DeploymentRequestResponse(
 
-        @Schema(description = "Server-generated identifier")
+        @Schema(description = "Unique request identifier")
         UUID id,
 
-        @Schema(description = "Contextual human-readable reference code, e.g. FAB-2026-ABB5B9D6")
+        @Schema(description = "Human-readable tracking reference code, e.g. FAB-2026-ABB5B9D6")
         String referenceCode,
 
         String millName,
-        String contactName,
-        String designation,
-        String email,
-
-        @Schema(description = "Null when the submitter did not provide one")
-        String phone,
-
+        String machineBrand,
         String location,
+        String contactName,
+        String email,
+        String phone,
         String factoryType,
-        String inspectionFramesCount,
-        String fabricTypes,
-        String dailyProductionVolume,
-        String inspectionSpeed,
         String rollWidth,
-        String defectTypes,
-        String erpIntegrationNeeded,
-        String targetTimeline,
 
-        @Schema(description = "Null when the submitter left it blank")
-        String message,
-
-        @Schema(description = "Stage of the follow-up process")
+        @Schema(description = "Current stage in the engineering review workflow")
         DeploymentRequestStatus status,
 
-        @Schema(description = "When the request was received (UTC)")
+        @Schema(description = "Timestamp when the request was submitted (UTC)")
         Instant submittedAt,
 
-        @Schema(description = "When the request was last modified (UTC)")
+        @Schema(description = "Timestamp when the record was last updated (UTC)")
         Instant updatedAt
 ) {
 }

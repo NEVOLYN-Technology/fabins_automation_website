@@ -9,6 +9,7 @@ import com.fabins.exception.ResourceNotFoundException;
 import com.fabins.mapper.DeploymentRequestMapper;
 import com.fabins.repository.DeploymentRequestRepository;
 import com.fabins.service.EmailService;
+import com.fabins.service.PdfGenerationService;
 import com.fabins.service.DeploymentRequestService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -42,6 +43,7 @@ public class DeploymentRequestServiceImpl implements DeploymentRequestService {
     private final DeploymentRequestRepository repository;
     private final DeploymentRequestMapper mapper;
     private final EmailService emailService;
+    private final PdfGenerationService pdfGenerationService;
 
     /**
      * Constructor injection — no {@code @Autowired} needed on a single
@@ -51,10 +53,12 @@ public class DeploymentRequestServiceImpl implements DeploymentRequestService {
      */
     public DeploymentRequestServiceImpl(DeploymentRequestRepository repository,
                                          DeploymentRequestMapper mapper,
-                                         EmailService emailService) {
+                                         EmailService emailService,
+                                         PdfGenerationService pdfGenerationService) {
         this.repository = repository;
         this.mapper = mapper;
         this.emailService = emailService;
+        this.pdfGenerationService = pdfGenerationService;
     }
 
     @Override
@@ -121,6 +125,28 @@ public class DeploymentRequestServiceImpl implements DeploymentRequestService {
         emailService.sendAcknowledgementNotification(request);
 
         return mapper.toResponse(request);
+    }
+
+    @Override
+    public byte[] generatePreviewPdf(CreateDeploymentRequest request) {
+        DeploymentRequest entity = DeploymentRequest.preview(
+                request.millName(),
+                request.machineBrand(),
+                request.location(),
+                request.contactName(),
+                request.email(),
+                request.phone(),
+                request.factoryType(),
+                request.rollWidth()
+        );
+        return pdfGenerationService.generateDeploymentAssessmentPdf(entity);
+    }
+
+    @Override
+    public byte[] getAssessmentPdf(UUID id) {
+        DeploymentRequest entity = repository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Deployment request", id));
+        return pdfGenerationService.generateDeploymentAssessmentPdf(entity);
     }
 
     @Override

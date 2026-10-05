@@ -7,12 +7,14 @@ import java.util.List;
 /**
  * Type-safe binding for the {@code fabins.*} keys in {@code application.yml}.
  *
- * <p>Using a record instead of scattered {@code @Value("${…}")} annotations
+ * <p>
+ * Using a record instead of scattered {@code @Value("${…}")} annotations
  * means the configuration is discoverable in one place, and a missing or
  * misspelled key fails at startup rather than at the first request that needs
  * it. Registered via {@code @EnableConfigurationProperties} on the main class.
  *
- * <p><strong>Every component below must have a corresponding key in
+ * <p>
+ * <strong>Every component below must have a corresponding key in
  * {@code application.yml}.</strong> Records are bound by constructor, so a key
  * that is absent everywhere binds as {@code null} rather than failing loudly.
  *
@@ -50,28 +52,27 @@ public record ApiProperties(Cors cors, Admin admin, Mail mail, String backendUrl
     }
 
     /**
-     * Email notification settings.
+     * Email notification settings for corporate Webmail / SMTP.
      *
-     * <p>The engine that actually delivers a message is chosen in
-     * {@code EmailServiceImpl} from {@link #apiKey()}: a Brevo key selects the
-     * HTTPS REST transport, anything else falls through to JavaMail SMTP.
+     * <p>
+     * Standard SMTP authentication parameters are managed under
+     * {@code spring.mail.*}
+     * (e.g. host: mail.nevolyn.com, port: 465, username: fabins@nevolyn.com).
      *
-     * @param adminAddress          recipient address for internal alert notifications
-     * @param fromAddress           sender address on outgoing emails; must be a
-     *                              verified sender in the Brevo account, or the
-     *                              REST API rejects the send with HTTP 400
-     * @param senderName            display name shown next to {@code fromAddress}
-     *                              in the recipient's inbox
-     * @param apiKey                Brevo credential. A value starting with
-     *                              {@code xsmtpsib-} is a Brevo SMTP/API key and
-     *                              enables the HTTPS REST transport; blank
-     *                              disables live sending entirely (dev mode)
-     * @param adminSubject          subject format string for internal alerts,
-     *                              {@code %s} = mill name
-     * @param senderSubject         subject format string for sender confirmations,
-     *                              {@code %s} = reference code
+     * @param adminAddress           recipient address for internal alert
+     *                               notifications
+     * @param fromAddress            sender address on outgoing emails (e.g.
+     *                               fabins@nevolyn.com)
+     * @param senderName             display name shown next to {@code fromAddress}
+     *                               in inboxes
+     * @param apiKey                 deprecated; previously used for third-party
+     *                               HTTP API. Ignored in Webmail SMTP mode.
+     * @param adminSubject           subject format string for internal alerts,
+     *                               {@code %s} = mill name
+     * @param senderSubject          subject format string for sender confirmations,
+     *                               {@code %s} = reference code
      * @param acknowledgementSubject subject format string for acknowledgements,
-     *                              {@code %s} = reference code
+     *                               {@code %s} = reference code
      */
     public record Mail(
             String adminAddress,
@@ -80,7 +81,6 @@ public record ApiProperties(Cors cors, Admin admin, Mail mail, String backendUrl
             String apiKey,
             String adminSubject,
             String senderSubject,
-            String acknowledgementSubject
-    ) {
+            String acknowledgementSubject) {
     }
 }

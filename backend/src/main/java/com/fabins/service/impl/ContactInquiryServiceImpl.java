@@ -152,4 +152,12 @@ public class ContactInquiryServiceImpl implements ContactInquiryService {
 
         return mapper.toResponse(saved);
     }
+
+    @Override
+    @Transactional(readOnly = true)
+    public ContactInquiryResponse getById(UUID id) {
+        return repository.findById(id)
+                .map(mapper::toResponse)
+                .orElseThrow(() -> new ResourceNotFoundException("Contact inquiry", id));
+    }
 }

@@ -83,10 +83,13 @@ class DeploymentRequestControllerTest {
     private static CreateDeploymentRequest validRequest() {
         return new CreateDeploymentRequest(
                 "Apex Textile Mills",
-                "GM, Quality Assurance",
+                "Winda / Bianco",
+                "Board Bazar, Gazipur",
+                "Md. Rahim Ahmed",
                 "gm@apextextiles.com",
                 "+880 1700-000000",
-                "Knits and woven, 60in rolls."
+                "Knit Fabric Mill",
+                "72 inches (182 cm)"
         );
     }
 
@@ -108,32 +111,50 @@ class DeploymentRequestControllerTest {
     }
 
     @Test
-    @DisplayName("POST accepts a request with no phone or message")
+    @DisplayName("POST accepts a request without optional factory type or roll width")
     void submitWithoutOptionalFields() throws Exception {
         var minimal = new CreateDeploymentRequest(
-                "Small Mill", "Owner", "owner@smallmill.com", null, null);
+                "Small Mill",
+                "Lafer",
+                "Narayanganj",
+                "Owner",
+                "owner@smallmill.com",
+                "+880 1700-000000",
+                null,
+                null
+        );
 
         mockMvc().perform(post(ENDPOINT)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(json(minimal)))
                 .andExpect(status().isCreated())
                 // Null fields are omitted entirely (default-property-inclusion: non_null).
-                .andExpect(jsonPath("$.phone").doesNotExist());
+                .andExpect(jsonPath("$.factoryType").doesNotExist())
+                .andExpect(jsonPath("$.rollWidth").doesNotExist());
     }
 
     @Test
     @DisplayName("POST trims surrounding whitespace")
     void submitTrimsWhitespace() throws Exception {
         var padded = new CreateDeploymentRequest(
-                "  Apex Textile Mills  ", "  GM  ", "  gm@apextextiles.com  ", "   ", "  hello  ");
+                "  Apex Textile Mills  ",
+                "  Bianco  ",
+                "  Gazipur  ",
+                "  Md. Rahim  ",
+                "  gm@apextextiles.com  ",
+                "  +880 1700-000000  ",
+                "   ",
+                "   "
+        );
 
         mockMvc().perform(post(ENDPOINT)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(json(padded)))
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("$.millName").value("Apex Textile Mills"))
-                // A whitespace-only phone becomes null rather than "   ".
-                .andExpect(jsonPath("$.phone").doesNotExist());
+                .andExpect(jsonPath("$.machineBrand").value("Bianco"))
+                // Whitespace-only optional fields become null rather than "   ".
+                .andExpect(jsonPath("$.factoryType").doesNotExist());
     }
 
     // ── Validation ──────────────────────────────────────────────────────────
@@ -142,7 +163,15 @@ class DeploymentRequestControllerTest {
     @DisplayName("POST rejects a missing mill name with a per-field error")
     void rejectMissingMillName() throws Exception {
         var invalid = new CreateDeploymentRequest(
-                null, "GM", "gm@apextextiles.com", null, null);
+                null,
+                "Bianco",
+                "Gazipur",
+                "Md. Rahim",
+                "gm@apextextiles.com",
+                "+880 1700-000000",
+                null,
+                null
+        );
 
         mockMvc().perform(post(ENDPOINT)
                         .contentType(MediaType.APPLICATION_JSON)
@@ -150,14 +179,22 @@ class DeploymentRequestControllerTest {
                 .andExpect(status().isBadRequest())
                 // RFC 9457 problem+json, not a Whitelabel page.
                 .andExpect(jsonPath("$.title").value("Validation failed"))
-                .andExpect(jsonPath("$.errors.millName").value("Mill name is required"));
+                .andExpect(jsonPath("$.errors.millName").value("Mill / Factory name is required"));
     }
 
     @Test
     @DisplayName("POST rejects a malformed email")
     void rejectInvalidEmail() throws Exception {
         var invalid = new CreateDeploymentRequest(
-                "Apex", "GM", "not-an-email", null, null);
+                "Apex",
+                "Bianco",
+                "Gazipur",
+                "Md. Rahim",
+                "not-an-email",
+                "+880 1700-000000",
+                null,
+                null
+        );
 
         mockMvc().perform(post(ENDPOINT)
                         .contentType(MediaType.APPLICATION_JSON)
@@ -169,15 +206,18 @@ class DeploymentRequestControllerTest {
     @Test
     @DisplayName("POST reports every invalid field at once, not just the first")
     void reportAllFieldErrors() throws Exception {
-        var invalid = new CreateDeploymentRequest(null, null, "bad", null, null);
+        var invalid = new CreateDeploymentRequest(null, null, null, null, "bad", "bad_phone", null, null);
 
         mockMvc().perform(post(ENDPOINT)
                         .contentType(MediaType.APPLICATION_JSON)
                         .content(json(invalid)))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.errors.millName").exists())
+                .andExpect(jsonPath("$.errors.machineBrand").exists())
+                .andExpect(jsonPath("$.errors.location").exists())
                 .andExpect(jsonPath("$.errors.contactName").exists())
-                .andExpect(jsonPath("$.errors.email").exists());
+                .andExpect(jsonPath("$.errors.email").exists())
+                .andExpect(jsonPath("$.errors.phone").exists());
     }
 
     @Test
@@ -334,5 +374,93 @@ class DeploymentRequestControllerTest {
 
         mockMvc().perform(get(ENDPOINT + "/" + id))
                 .andExpect(status().isNotFound());
+    }
+
+    // ── Safe Acknowledge Flow (Scanner-Proof) ────────────────────────────────
+
+    @Test
+    @DisplayName("GET acknowledge displays confirmation page without modifying state")
+    void getAcknowledgeDisplaysConfirmationWithoutStateChange() throws Exception {
+        String body = mockMvc().perform(post(ENDPOINT)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(json(validRequest())))
+                .andReturn().getResponse().getContentAsString();
+
+        String id = objectMapper.readTree(body).get("id").asText();
+
+        // Automated scanner issues GET:
+        mockMvc().perform(get(ENDPOINT + "/" + id + "/acknowledge"))
+                .andExpect(status().isOk())
+                .andExpect(header().string("Content-Type", org.hamcrest.Matchers.containsString("text/html")))
+                .andExpect(org.springframework.test.web.servlet.result.MockMvcResultMatchers.content()
+                        .string(org.hamcrest.Matchers.containsString("Confirm Assessment Acknowledgement")))
+                .andExpect(org.springframework.test.web.servlet.result.MockMvcResultMatchers.content()
+                        .string(org.hamcrest.Matchers.containsString("Confirm &amp; Dispatch Acknowledgement")));
+
+        // Verify status remains NEW (scanner did not trigger state change)
+        mockMvc().perform(get(ENDPOINT + "/" + id).with(org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user("admin").roles("ADMIN")))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.status").value("NEW"));
+    }
+
+    @Test
+    @DisplayName("POST acknowledge transitions request to IN_REVIEW and renders success")
+    void postAcknowledgeTransitionsStatusAndRendersSuccess() throws Exception {
+        String body = mockMvc().perform(post(ENDPOINT)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(json(validRequest())))
+                .andReturn().getResponse().getContentAsString();
+
+        String id = objectMapper.readTree(body).get("id").asText();
+
+        // Human admin clicks confirm button issuing POST:
+        mockMvc().perform(post(ENDPOINT + "/" + id + "/acknowledge"))
+                .andExpect(status().isOk())
+                .andExpect(header().string("Content-Type", org.hamcrest.Matchers.containsString("text/html")))
+                .andExpect(org.springframework.test.web.servlet.result.MockMvcResultMatchers.content()
+                        .string(org.hamcrest.Matchers.containsString("Application Successfully Acknowledged")));
+
+        // Verify status is now IN_REVIEW
+        mockMvc().perform(get(ENDPOINT + "/" + id).with(org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user("admin").roles("ADMIN")))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.status").value("IN_REVIEW"));
+    }
+
+    // ── PDF Generation Endpoints ────────────────────────────────────────────
+
+    @Test
+    @DisplayName("POST preview-pdf is public and returns valid application/pdf bytes")
+    void previewPdfReturnsPdfBinary() throws Exception {
+        byte[] pdfBytes = mockMvc().perform(post(ENDPOINT + "/preview-pdf")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(json(validRequest())))
+                .andExpect(status().isOk())
+                .andExpect(header().string("Content-Type", MediaType.APPLICATION_PDF_VALUE))
+                .andExpect(header().string("Content-Disposition", org.hamcrest.Matchers.containsString("inline; filename=\"FABINS-Assessment-Preview.pdf\"")))
+                .andReturn().getResponse().getContentAsByteArray();
+
+        // PDF file starts with %PDF magic header
+        org.assertj.core.api.Assertions.assertThat(new String(pdfBytes, java.nio.charset.StandardCharsets.ISO_8859_1))
+                .startsWith("%PDF");
+    }
+
+    @Test
+    @DisplayName("GET {id}/pdf is public and returns valid application/pdf bytes for submitted request")
+    void getPdfReturnsPdfBinary() throws Exception {
+        String body = mockMvc().perform(post(ENDPOINT)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(json(validRequest())))
+                .andReturn().getResponse().getContentAsString();
+
+        String id = objectMapper.readTree(body).get("id").asText();
+
+        byte[] pdfBytes = mockMvc().perform(get(ENDPOINT + "/" + id + "/pdf"))
+                .andExpect(status().isOk())
+                .andExpect(header().string("Content-Type", MediaType.APPLICATION_PDF_VALUE))
+                .andExpect(header().string("Content-Disposition", org.hamcrest.Matchers.containsString("inline; filename=\"FABINS-Assessment-")))
+                .andReturn().getResponse().getContentAsByteArray();
+
+        org.assertj.core.api.Assertions.assertThat(new String(pdfBytes, java.nio.charset.StandardCharsets.ISO_8859_1))
+                .startsWith("%PDF");
     }
 }

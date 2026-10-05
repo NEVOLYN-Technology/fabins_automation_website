@@ -1,10 +1,11 @@
 'use client'
 
-import React from 'react'
+import React, { useState } from 'react'
 import Link from 'next/link'
 import { motion } from 'framer-motion'
-import { CheckCircle2, FileCheck2, Zap, Copy, Check, Download, Printer, Mail, ShieldCheck } from 'lucide-react'
+import { CheckCircle2, FileCheck2, Zap, Copy, Check, Download, Printer, Mail, ShieldCheck, Loader2 } from 'lucide-react'
 import type { DeploymentRequest } from '@/lib/api/contact'
+import { fetchDeploymentPreviewPdfBlob, downloadBlob } from '@/lib/api/contact'
 
 interface DeploySuccessViewProps {
   referenceCode: string
@@ -23,9 +24,32 @@ export function DeploySuccessView({
   senderEmail,
   formData,
 }: DeploySuccessViewProps) {
-  const handlePrint = () => {
-    if (typeof window !== 'undefined') {
-      window.print()
+  const [isProcessingPdf, setIsProcessingPdf] = useState(false)
+
+  const handleDownloadPdf = async () => {
+    if (!formData) return
+    setIsProcessingPdf(true)
+    const res = await fetchDeploymentPreviewPdfBlob(formData)
+    setIsProcessingPdf(false)
+    if (res.ok) {
+      downloadBlob(res.blob, `FABINS-Assessment-${referenceCode}.pdf`)
+    }
+  }
+
+  const handlePrintPdf = async () => {
+    if (!formData) {
+      if (typeof window !== 'undefined') window.print()
+      return
+    }
+    setIsProcessingPdf(true)
+    const res = await fetchDeploymentPreviewPdfBlob(formData)
+    setIsProcessingPdf(false)
+    if (res.ok) {
+      const url = window.URL.createObjectURL(res.blob)
+      const printWindow = window.open(url, '_blank')
+      if (printWindow) {
+        printWindow.focus()
+      }
     }
   }
 
@@ -122,14 +146,29 @@ export function DeploySuccessView({
       </div>
 
       {/* Action Buttons */}
-      <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-3.5 print:hidden">
+      <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-3.5 print:hidden flex-wrap">
         <button
           type="button"
-          onClick={handlePrint}
-          className="inline-flex items-center justify-center gap-2 rounded-xl border border-line bg-surface/90 hover:bg-surface text-ink px-6 py-3 text-xs sm:text-sm font-bold transition-all hover:border-accent/40 active:scale-[0.98] w-full sm:w-auto"
+          disabled={isProcessingPdf}
+          onClick={handleDownloadPdf}
+          className="inline-flex items-center justify-center gap-2 rounded-xl bg-accent hover:bg-accent-hover text-accent-fg px-6 py-3 text-xs sm:text-sm font-bold shadow-lg shadow-accent/25 transition-all active:scale-[0.98] w-full sm:w-auto disabled:opacity-60 cursor-pointer"
+        >
+          {isProcessingPdf ? (
+            <Loader2 className="h-4 w-4 animate-spin" />
+          ) : (
+            <Download className="h-4 w-4" />
+          )}
+          <span>Download Official Assessment PDF</span>
+        </button>
+
+        <button
+          type="button"
+          disabled={isProcessingPdf}
+          onClick={handlePrintPdf}
+          className="inline-flex items-center justify-center gap-2 rounded-xl border border-line bg-surface/90 hover:bg-surface text-ink px-6 py-3 text-xs sm:text-sm font-bold transition-all hover:border-accent/40 active:scale-[0.98] w-full sm:w-auto disabled:opacity-60 cursor-pointer"
         >
           <Printer className="h-4 w-4 text-accent" />
-          <span>Save / Print PDF Assessment</span>
+          <span>Print / Open PDF</span>
         </button>
 
         <button
@@ -142,7 +181,7 @@ export function DeploySuccessView({
 
         <Link
           href="/"
-          className="btn btn-primary w-full sm:w-auto px-7 py-3 text-xs sm:text-sm font-bold rounded-xl text-center"
+          className="btn btn-secondary w-full sm:w-auto px-7 py-3 text-xs sm:text-sm font-bold rounded-xl text-center"
         >
           Return to Homepage
         </Link>

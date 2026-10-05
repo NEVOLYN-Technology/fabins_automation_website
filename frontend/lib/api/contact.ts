@@ -38,38 +38,20 @@
 export interface DeploymentRequest {
   /** Mill or factory name. Required. */
   millName: string
-  /** Name of the person enquiring. Required. */
+  /** Inspection machine or frame manufacturer brand (e.g. Winda, Bianco, Lafer). Required. */
+  machineBrand: string
+  /** Factory location / zone (e.g. Gazipur, Dhaka). Required. */
+  location: string
+  /** Name of the technical representative. Required. */
   contactName: string
-  /** Designation / job title (e.g. Managing Director, Factory Manager). Optional. */
-  designation?: string
   /** Work email address. Required. */
   email: string
-  /** Phone or WhatsApp number. Optional. */
-  phone?: string
-  /** Factory location (e.g. Gazipur, Dhaka, Bangladesh). Optional. */
-  location?: string
-  /** Inspection machine or frame manufacturer brand (e.g. Bianco, Lafer). Optional. */
-  machineBrand?: string
-  /** Type of factory (e.g. Knit Fabric Mill, Woven Mill, Denim). Optional. */
+  /** Phone or WhatsApp number. Required. */
+  phone: string
+  /** Type of factory / operation sector. Optional. */
   factoryType?: string
-  /** Number of inspection frames to upgrade/retrofit (e.g. 1-2, 3-5, 6+). Optional. */
-  inspectionFramesCount?: string
-  /** Fabric types handled (e.g. Single Jersey, Interlock, Rib, Denim). Optional. */
-  fabricTypes?: string
-  /** Daily/monthly production volume (e.g. 25,000 yards/day). Optional. */
-  dailyProductionVolume?: string
-  /** Target inspection speed (e.g. 25 m/min). Optional. */
-  inspectionSpeed?: string
   /** Fabric roll or frame table width (e.g. 72 inches). Optional. */
   rollWidth?: string
-  /** Primary defect focus areas (e.g. Holes, Stains, Slubs, Yarn breaks). Optional. */
-  defectTypes?: string
-  /** Target ERP or software integration (e.g. FastReact, SAP, Standalone). Optional. */
-  erpIntegrationNeeded?: string
-  /** Target implementation timeline (e.g. Immediate, 1-3 Months). Optional. */
-  targetTimeline?: string
-  /** Free-text fabric specs and technical inspection requirements. Optional. */
-  message?: string
 }
 
 /**
@@ -231,4 +213,63 @@ function isStringRecord(value: unknown): value is Record<string, string> {
     value !== null &&
     Object.values(value).every((entry) => typeof entry === 'string')
   )
+}
+
+/**
+ * Fetches the official assessment PDF byte stream (as a Blob) compiled by the backend for live preview or download.
+ *
+ * Talks to `POST /api/v1/deployment-requests/preview-pdf`.
+ */
+export async function fetchDeploymentPreviewPdfBlob(
+  request: DeploymentRequest
+): Promise<{ ok: true; blob: Blob } | { ok: false; error: string }> {
+  const controller = new AbortController()
+  const timeout = setTimeout(() => controller.abort(), REQUEST_TIMEOUT_MS)
+
+  try {
+    const response = await fetch(`${API_BASE_URL}/api/v1/deployment-requests/preview-pdf`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify(request),
+      signal: controller.signal,
+    })
+
+    if (response.ok) {
+      const blob = await response.blob()
+      return { ok: true, blob }
+    }
+
+    return { ok: false, error: await readErrorMessage(response) }
+  } catch (error) {
+    if (error instanceof DOMException && error.name === 'AbortError') {
+      return { ok: false, error: 'PDF generation timed out. Please try again.' }
+    }
+    return { ok: false, error: 'Could not connect to server to compile PDF report.' }
+  } finally {
+    clearTimeout(timeout)
+  }
+}
+
+/**
+ * Returns the direct URL to download the compiled PDF report for a submitted request.
+ */
+export function getAssessmentPdfUrl(id: string): string {
+  return `${API_BASE_URL}/api/v1/deployment-requests/${id}/pdf`
+}
+
+/**
+ * Initiates an automatic browser file download for a given Blob.
+ */
+export function downloadBlob(blob: Blob, filename: string): void {
+  const url = window.URL.createObjectURL(blob)
+  const a = document.createElement('a')
+  a.style.display = 'none'
+  a.href = url
+  a.download = filename
+  document.body.appendChild(a)
+  a.click()
+  setTimeout(() => {
+    window.URL.revokeObjectURL(url)
+    document.body.removeChild(a)
+  }, 100)
 }

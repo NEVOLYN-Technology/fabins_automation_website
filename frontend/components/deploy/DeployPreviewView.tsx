@@ -1,7 +1,7 @@
 'use client'
 
-import React from 'react'
-import { motion } from 'framer-motion'
+import React, { useState, useEffect } from 'react'
+import { motion, AnimatePresence } from 'framer-motion'
 import {
   Building2,
   Factory,
@@ -12,15 +12,20 @@ import {
   Cpu,
   Ruler,
   ArrowLeft,
-  CheckCircle2,
   FileText,
   Printer,
   ShieldCheck,
   Send,
   Loader2,
-  Sparkles,
+  Eye,
+  Download,
+  ExternalLink,
+  X,
+  AlertCircle,
+  RefreshCw,
 } from 'lucide-react'
 import type { DeploymentRequest } from '@/lib/api/contact'
+import { fetchDeploymentPreviewPdfBlob, downloadBlob } from '@/lib/api/contact'
 
 interface DeployPreviewViewProps {
   formData: DeploymentRequest
@@ -35,9 +40,63 @@ export function DeployPreviewView({
   onConfirmSubmit,
   isSending,
 }: DeployPreviewViewProps) {
-  const handlePrint = () => {
-    if (typeof window !== 'undefined') {
-      window.print()
+  const [showPdfModal, setShowPdfModal] = useState(false)
+  const [pdfBlobUrl, setPdfBlobUrl] = useState<string | null>(null)
+  const [pdfBlob, setPdfBlob] = useState<Blob | null>(null)
+  const [isLoadingPdf, setIsLoadingPdf] = useState(false)
+  const [pdfError, setPdfError] = useState<string | null>(null)
+
+  // Clean up Object URL on unmount to prevent memory leaks
+  useEffect(() => {
+    return () => {
+      if (pdfBlobUrl) {
+        URL.revokeObjectURL(pdfBlobUrl)
+      }
+    }
+  }, [pdfBlobUrl])
+
+  const loadPdf = async (): Promise<{ blob: Blob; url: string } | null> => {
+    if (pdfBlob && pdfBlobUrl) {
+      return { blob: pdfBlob, url: pdfBlobUrl }
+    }
+
+    setIsLoadingPdf(true)
+    setPdfError(null)
+
+    const res = await fetchDeploymentPreviewPdfBlob(formData)
+    setIsLoadingPdf(false)
+
+    if (res.ok) {
+      const url = URL.createObjectURL(res.blob)
+      setPdfBlob(res.blob)
+      setPdfBlobUrl(url)
+      return { blob: res.blob, url }
+    } else {
+      setPdfError(res.error)
+      return null
+    }
+  }
+
+  const handleOpenPdfPreview = async () => {
+    setShowPdfModal(true)
+    await loadPdf()
+  }
+
+  const handleDownloadPdf = async () => {
+    const loaded = await loadPdf()
+    if (loaded) {
+      const sanitizedMill = (formData.millName || 'Mill').replace(/[^a-zA-Z0-9]/g, '_')
+      downloadBlob(loaded.blob, `FABINS-Assessment-Preview-${sanitizedMill}.pdf`)
+    }
+  }
+
+  const handlePrintPdf = async () => {
+    const loaded = await loadPdf()
+    if (loaded) {
+      const printWindow = window.open(loaded.url, '_blank')
+      if (printWindow) {
+        printWindow.focus()
+      }
     }
   }
 
@@ -67,15 +126,42 @@ export function DeployPreviewView({
               </p>
             </div>
 
-            <div className="flex items-center gap-2 self-start sm:self-center">
+            <div className="flex items-center gap-2 self-start sm:self-center flex-wrap">
               <button
                 type="button"
-                onClick={handlePrint}
-                className="inline-flex items-center gap-1.5 rounded-xl border border-line bg-surface/80 px-3.5 py-2 text-xs font-medium text-ink-muted hover:text-ink hover:bg-surface transition-colors print:hidden"
-                title="Print or Save PDF"
+                onClick={handleOpenPdfPreview}
+                disabled={isLoadingPdf}
+                className="inline-flex items-center gap-1.5 rounded-xl border border-accent/40 bg-accent/15 hover:bg-accent hover:text-accent-fg text-accent px-3.5 py-2 text-xs font-semibold transition-all shadow-xs active:scale-[0.98] disabled:opacity-60 cursor-pointer"
+                title="Preview the authentic PDF assessment document"
               >
-                <Printer className="h-3.5 w-3.5" />
-                <span className="hidden sm:inline">Print / Save PDF</span>
+                {isLoadingPdf ? (
+                  <Loader2 className="h-3.5 w-3.5 animate-spin" />
+                ) : (
+                  <Eye className="h-3.5 w-3.5" />
+                )}
+                <span>Live PDF Preview</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={handleDownloadPdf}
+                disabled={isLoadingPdf}
+                className="inline-flex items-center gap-1.5 rounded-xl border border-line bg-surface/80 hover:bg-surface text-ink px-3.5 py-2 text-xs font-medium transition-colors active:scale-[0.98] disabled:opacity-60 cursor-pointer"
+                title="Download the generated PDF file"
+              >
+                <Download className="h-3.5 w-3.5 text-accent" />
+                <span className="hidden sm:inline">Download PDF</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={handlePrintPdf}
+                disabled={isLoadingPdf}
+                className="inline-flex items-center gap-1.5 rounded-xl border border-line bg-surface/80 hover:bg-surface text-ink px-3.5 py-2 text-xs font-medium transition-colors active:scale-[0.98] disabled:opacity-60 cursor-pointer"
+                title="Print or view generated PDF report"
+              >
+                <Printer className="h-3.5 w-3.5 text-accent" />
+                <span className="hidden sm:inline">Print</span>
               </button>
             </div>
           </div>
@@ -149,14 +235,14 @@ export function DeployPreviewView({
             </div>
           </div>
 
-          {/* Section 2: Technical Representative */}
+          {/* Section 2: Technical Representative & Machinery Specifications */}
           <div className="space-y-4">
             <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-accent border-b border-line pb-2.5">
               <User className="h-4 w-4" />
-              <span>Technical Representative Credentials</span>
+              <span>Technical Representative &amp; Specifications</span>
             </div>
 
-            <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               {/* Contact Name */}
               <div className="rounded-xl border border-line/70 bg-surface/50 p-4">
                 <span className="text-xs font-medium text-ink-muted flex items-center gap-1.5 mb-1">
@@ -189,17 +275,7 @@ export function DeployPreviewView({
                   {formData.phone || '—'}
                 </span>
               </div>
-            </div>
-          </div>
 
-          {/* Section 3: Machine & Retrofit Scope */}
-          <div className="space-y-4">
-            <div className="flex items-center gap-2 text-xs font-bold uppercase tracking-wider text-accent border-b border-line pb-2.5">
-              <Ruler className="h-4 w-4" />
-              <span>Machine Retrofit Specifications</span>
-            </div>
-
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
               {/* Roll / Table Width */}
               <div className="rounded-xl border border-line/70 bg-surface/50 p-4">
                 <span className="text-xs font-medium text-ink-muted flex items-center gap-1.5 mb-1">
@@ -208,17 +284,6 @@ export function DeployPreviewView({
                 </span>
                 <span className="text-sm sm:text-base font-semibold text-accent break-words">
                   {formData.rollWidth || '—'}
-                </span>
-              </div>
-
-              {/* Inspection Frames Scope */}
-              <div className="rounded-xl border border-line/70 bg-surface/50 p-4">
-                <span className="text-xs font-medium text-ink-muted flex items-center gap-1.5 mb-1">
-                  <Cpu className="h-3.5 w-3.5 text-accent" />
-                  Target Frame Retrofit Scope
-                </span>
-                <span className="text-sm sm:text-base font-semibold text-ink break-words">
-                  {formData.inspectionFramesCount || '1 Frame (Pilot)'}
                 </span>
               </div>
             </div>
@@ -257,6 +322,124 @@ export function DeployPreviewView({
           </div>
         </div>
       </div>
+
+      {/* PDF Live Preview Modal */}
+      <AnimatePresence>
+        {showPdfModal && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-black/80 backdrop-blur-md print:hidden"
+            onClick={() => setShowPdfModal(false)}
+          >
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 15 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 15 }}
+              transition={{ duration: 0.2 }}
+              className="relative w-full max-w-5xl h-[88vh] flex flex-col rounded-3xl border border-line bg-panel shadow-2xl overflow-hidden"
+              onClick={(e) => e.stopPropagation()}
+            >
+              {/* Modal Header */}
+              <div className="flex items-center justify-between border-b border-line bg-panel-header/90 px-4 sm:px-6 py-4">
+                <div className="flex items-center gap-2.5">
+                  <div className="w-8 h-8 rounded-xl bg-accent/15 border border-accent/30 flex items-center justify-center text-accent shrink-0">
+                    <FileText className="h-4 w-4" />
+                  </div>
+                  <div>
+                    <h3 className="text-sm sm:text-base font-bold text-ink">
+                      Official Assessment Report (PDF)
+                    </h3>
+                    <p className="text-[11px] text-ink-muted hidden sm:block">
+                      Publication-quality report generated for {formData.millName || 'Your Mill'}
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex items-center gap-2">
+                  {pdfBlobUrl && (
+                    <>
+                      <button
+                        type="button"
+                        onClick={handleDownloadPdf}
+                        className="inline-flex items-center gap-1.5 rounded-xl border border-line bg-surface/80 hover:bg-surface px-3 py-1.5 text-xs font-semibold text-ink hover:text-accent transition-colors cursor-pointer"
+                        title="Download Generated PDF"
+                      >
+                        <Download className="h-3.5 w-3.5 text-accent" />
+                        <span className="hidden sm:inline">Download</span>
+                      </button>
+                      <button
+                        type="button"
+                        onClick={handlePrintPdf}
+                        className="inline-flex items-center gap-1.5 rounded-xl border border-line bg-surface/80 hover:bg-surface px-3 py-1.5 text-xs font-semibold text-ink hover:text-accent transition-colors cursor-pointer"
+                        title="Print PDF"
+                      >
+                        <Printer className="h-3.5 w-3.5 text-accent" />
+                        <span className="hidden sm:inline">Print</span>
+                      </button>
+                      <a
+                        href={pdfBlobUrl}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center gap-1.5 rounded-xl border border-line bg-surface/80 hover:bg-surface px-3 py-1.5 text-xs font-semibold text-ink hover:text-accent transition-colors"
+                        title="Open PDF in Browser Tab"
+                      >
+                        <ExternalLink className="h-3.5 w-3.5 text-accent" />
+                        <span className="hidden sm:inline">New Tab</span>
+                      </a>
+                    </>
+                  )}
+                  <button
+                    type="button"
+                    onClick={() => setShowPdfModal(false)}
+                    className="p-2 rounded-xl text-ink-muted hover:text-ink hover:bg-surface transition-colors cursor-pointer"
+                    title="Close Preview"
+                  >
+                    <X className="h-4 w-4" />
+                  </button>
+                </div>
+              </div>
+
+              {/* Modal Body */}
+              <div className="flex-1 bg-surface/50 overflow-hidden relative flex items-center justify-center">
+                {isLoadingPdf ? (
+                  <div className="text-center p-8 space-y-3">
+                    <Loader2 className="h-8 w-8 animate-spin text-accent mx-auto" />
+                    <p className="text-sm font-semibold text-ink">
+                      Compiling Official Assessment PDF...
+                    </p>
+                    <p className="text-xs text-ink-muted">
+                      Formatting mill profile and technical specifications into a formal PDF report
+                    </p>
+                  </div>
+                ) : pdfError ? (
+                  <div className="text-center p-8 max-w-md space-y-4">
+                    <div className="w-12 h-12 rounded-2xl bg-rose-500/10 border border-rose-500/30 flex items-center justify-center text-rose-500 mx-auto">
+                      <AlertCircle className="h-6 w-6" />
+                    </div>
+                    <p className="text-sm font-semibold text-rose-500">{pdfError}</p>
+                    <button
+                      type="button"
+                      onClick={loadPdf}
+                      className="inline-flex items-center gap-2 rounded-xl bg-accent px-4 py-2 text-xs font-bold text-accent-fg hover:bg-accent-hover transition-colors"
+                    >
+                      <RefreshCw className="h-3.5 w-3.5" />
+                      <span>Retry Generation</span>
+                    </button>
+                  </div>
+                ) : pdfBlobUrl ? (
+                  <iframe
+                    src={pdfBlobUrl}
+                    className="w-full h-full border-none"
+                    title="Official FABINS Deployment Assessment PDF"
+                  />
+                ) : null}
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </motion.div>
   )
 }

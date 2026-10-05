@@ -17,11 +17,13 @@
 #   FABINS_ALLOWED_ORIGIN  the deployed site origin, e.g. https://fabins.com
 #   FABINS_BACKEND_URL     this service's own public origin, e.g.
 #                          https://api.fabins.com — used for email links
-#   SPRING_MAIL_PASSWORD   Brevo key (xsmtpsib-…); also feeds fabins.mail.api-key
+#   SPRING_MAIL_PASSWORD   password for the webmail account (e.g. fabins@nevolyn.com)
 #
 # OPTIONAL
-#   BREVO_API_KEY          only if the REST key differs from the SMTP password
-#   SPRING_MAIL_FROM       verified Brevo sender, if not the default
+#   SPRING_MAIL_HOST       webmail host (default: mail.nevolyn.com)
+#   SPRING_MAIL_PORT       webmail port (default: 465)
+#   SPRING_MAIL_USERNAME   webmail username (default: fabins@nevolyn.com)
+#   SPRING_MAIL_FROM       webmail from address (default: fabins@nevolyn.com)
 # =============================================================================
 
 spring:
@@ -72,9 +74,7 @@ spring:
     # Never log SQL in production: it is slow and can print personal data.
     show-sql: false
 
-  # SMTP fallback engine. Identical to application.yml but repeated here so the
-  # production mail path is auditable in one file. See application.yml for why
-  # port 465 rather than 587.
+  # Corporate Webmail / SMTP engine.
   mail:
     host: ${SPRING_MAIL_HOST:mail.nevolyn.com}
     port: ${SPRING_MAIL_PORT:465}
@@ -85,12 +85,12 @@ spring:
         smtp:
           auth: true
           ssl:
-            enable: true
+            enable: ${SPRING_MAIL_SSL_ENABLE:true}
             trust: "*"
           starttls:
-            enable: false
+            enable: ${SPRING_MAIL_STARTTLS_ENABLE:false}
           socketFactory:
-            port: 465
+            port: ${SPRING_MAIL_PORT:465}
             class: javax.net.ssl.SSLSocketFactory
         smtps:
           connectiontimeout: 10000

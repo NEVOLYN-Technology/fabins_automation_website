@@ -235,8 +235,8 @@ export const ContactSection = () => {
                   </div>
                   <h3 className="text-xl font-bold text-ink">Message Received!</h3>
                   <p className="text-sm text-ink-muted max-w-sm">
-                    Thank you for reaching out. Our R&amp;D team will reply to your message within
-                    1–2 working days.
+                    Thank you for your inquiry. Our team will acknowledge your message within
+                    1-2 working days.
                   </p>
                   {result.referenceCode && (
                     <div className="inline-flex items-center gap-2 rounded-lg border border-accent/30 bg-accent-quiet px-4 py-2">

@@ -37,6 +37,15 @@ public interface ContactInquiryService {
     ContactInquiryResponse submit(CreateContactInquiry dto);
 
     /**
+     * Retrieves a contact inquiry by id.
+     *
+     * @param id the inquiry's UUID primary key
+     * @return the inquiry response
+     * @throws com.fabins.exception.ResourceNotFoundException if no inquiry has that id
+     */
+    ContactInquiryResponse getById(UUID id);
+
+    /**
      * Acknowledges a contact inquiry (moving its status to {@code REPLIED})
      * and dispatches an acknowledgement email to the visitor.
      *

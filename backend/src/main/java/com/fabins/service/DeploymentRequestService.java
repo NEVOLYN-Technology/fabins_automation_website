@@ -63,6 +63,22 @@ public interface DeploymentRequestService {
     DeploymentRequestResponse acknowledge(UUID id);
 
     /**
+     * Generates a preview assessment PDF byte stream from an unpersisted request payload.
+     *
+     * @param request validated payload
+     * @return PDF binary bytes
+     */
+    byte[] generatePreviewPdf(CreateDeploymentRequest request);
+
+    /**
+     * Compiles and fetches the official assessment PDF for a previously submitted request.
+     *
+     * @param id the request id
+     * @return PDF binary bytes
+     */
+    byte[] getAssessmentPdf(UUID id);
+
+    /**
      * Deletes a single request by id.
      *
      * @param id the request id

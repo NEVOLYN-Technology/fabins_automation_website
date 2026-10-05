@@ -28,9 +28,6 @@ interface DeployFormCardsProps {
     field: keyof DeploymentRequest
   ) => (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => void
   setFieldValue: (field: keyof DeploymentRequest, value: string, toggle?: boolean) => void
-  selectedDefects?: string[]
-  toggleDefect?: (defect: string) => void
-  selectAllDefects?: () => void
   isSending: boolean
 }
 
@@ -38,9 +35,6 @@ export function DeployFormCards({
   formData,
   updateField,
   setFieldValue,
-  selectedDefects,
-  toggleDefect,
-  selectAllDefects,
   isSending,
 }: DeployFormCardsProps) {
   const [isEditingOtherSector, setIsEditingOtherSector] = useState(false)
@@ -118,7 +112,6 @@ export function DeployFormCards({
           </span>
           <span className="text-line-strong shrink-0">&bull;</span>
           <span className="text-ink-soft whitespace-nowrap shrink-0">
-            <span className="hidden sm:inline">Dispatch: </span>
             <strong className="text-accent font-semibold">fabins@nevolyn.com</strong>
           </span>
         </div>

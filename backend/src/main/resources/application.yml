@@ -46,33 +46,30 @@ spring:
     enabled: true
     locations: classpath:db/migration
 
-  # --- SMTP transport (fallback email engine) --------------------------------
-  # Only used when the Brevo HTTPS REST engine is unavailable; see
-  # `fabins.mail.api-key` below and EmailServiceImpl for the engine selection.
+  # --- Corporate Webmail / SMTP transport -----------------------------------
+  # Configured for corporate webmail (e.g. mail.nevolyn.com). Supports standard
+  # SMTPS (port 465 with SSL/TLS) or STARTTLS (port 587).
   #
-  # PORT 465 (SMTPS / implicit SSL) IS DELIBERATE. Brevo also listens on 587
-  # (STARTTLS), but most cloud PaaS providers block outbound 25/465/587 to fight
-  # spam — and they blackhole rather than reject, so a 587 connection hangs for
-  # the full socket timeout instead of failing fast. 465 is the variant most
-  # likely to survive; the REST engine is the one that always does.
+  # Local development: leave SPRING_MAIL_PASSWORD blank to log simulated emails
+  # without attempting network connections.
   mail:
     host: ${SPRING_MAIL_HOST:mail.nevolyn.com}
     port: ${SPRING_MAIL_PORT:465}
     username: ${SPRING_MAIL_USERNAME:fabins@nevolyn.com}
     # Empty fallback on purpose: with no credential the app still boots and
-    # EmailServiceImpl logs messages instead of sending them.
-    password: ${SPRING_MAIL_PASSWORD:}
+    # EmailServiceImpl logs messages instead of failing.
+    password: "${SPRING_MAIL_PASSWORD:}"
     properties:
       mail:
         smtp:
           auth: true
           ssl:
-            enable: true
+            enable: ${SPRING_MAIL_SSL_ENABLE:true}
             trust: "*"
           starttls:
-            enable: false
+            enable: ${SPRING_MAIL_STARTTLS_ENABLE:false}
           socketFactory:
-            port: 465
+            port: ${SPRING_MAIL_PORT:465}
             class: javax.net.ssl.SSLSocketFactory
         smtps:
           connectiontimeout: 10000
@@ -169,25 +166,19 @@ fabins:
   mail:
     # Internal recipient — where new-enquiry alerts land.
     admin-address: ${FABINS_ADMIN_ADDRESS:fabins@nevolyn.com}
-    # Envelope sender. MUST be a verified sender in the Brevo account, otherwise
-    # the REST API answers HTTP 400 and SMTP answers 550.
+    # Envelope sender address (must match your webmail account).
     from-address: ${SPRING_MAIL_FROM:fabins@nevolyn.com}
-    # Display name shown beside the address in the recipient's inbox, i.e.
-    # "NEVOLYN FABINS <fabins@nevolyn.com>".
-    sender-name: ${FABINS_MAIL_SENDER_NAME:NEVOLYN FABINS}
-    # Credential for the primary (HTTPS REST) engine. A Brevo key starts with
-    # `xsmtpsib-`; anything else — or blank — makes EmailServiceImpl skip the
-    # REST engine and use SMTP. Defaults to the SMTP password because Brevo
-    # issues one key that serves both transports, so a single deployment
-    # variable is enough. Set BREVO_API_KEY only if you want them separated.
-    api-key: ${BREVO_API_KEY:${SPRING_MAIL_PASSWORD:}}
+    # Display name shown beside the address in the recipient's inbox.
+    sender-name: ${FABINS_MAIL_SENDER_NAME:FABINS@NEVOLYN}
+    # Optional fallback/legacy variable; defaults to SPRING_MAIL_PASSWORD
+    api-key: "${SPRING_MAIL_PASSWORD:}"
     # Subject templates. The %s is filled by EmailServiceImpl:
     #   admin           → mill name
     #   sender          → reference code (FAB-2026-XXXXXXXX)
     #   acknowledgement → reference code
-    admin-subject: "[FABINS Alert] New Deployment Enquiry: %s"
-    sender-subject: "FABINS Deployment Assessment Request Received — Ref: %s"
-    acknowledgement-subject: "[Acknowledged] FABINS Deployment Request — Ref: %s"
+    admin-subject: "[FABINS] Deployment Assessment: %s"
+    sender-subject: "[FABINS] Assessment Request Confirmed [Ref: %s]"
+    acknowledgement-subject: "[FABINS] Assessment Request Acknowledged [Ref: %s]"
 
 logging:
   level:
