@@ -153,7 +153,7 @@ public class EmailServiceImpl implements EmailService {
         } catch (Exception e) {
             log.error("Failed to generate PDF for deployment request id {}", request.getId(), e);
         }
-        String attachmentFilename = "FABINS-Deployment_Assessment-" + request.getReferenceCode() + ".pdf";
+        String attachmentFilename = "FABINS_Deployment_Assessment-" + request.getReferenceCode() + ".pdf";
 
         sendAdminNotification(request, attachmentFilename, pdfBytes);
         sendSenderConfirmation(request, attachmentFilename, pdfBytes);

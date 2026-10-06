@@ -1,0 +1,348 @@
+<!--
+================================================================================
+WEB PAGE TEMPLATE: Deployment Assessment — Confirmation & Email Preview
+FILE: templates/web/deployment-acknowledge-confirm.html
+--------------------------------------------------------------------------------
+WHEN IT IS USED:
+  Rendered when an administrator/engineer clicks the "Acknowledge" link from an
+  internal notification email for a pending Deployment Request.
+  Provides a pre-flight safety check displaying the mill details, an outgoing
+  email preview, and an explicit confirmation action before final dispatch.
+
+SUPPORTED PLACEHOLDERS:
+  - {{actionUrl}}               : Target POST endpoint (e.g. /api/v1/deployment-requests/{id}/acknowledge)
+  - {{referenceCode}}           : Tracking Reference Code (e.g. FAB-2026-XXXXXXXX)
+  - {{millName}}                : Factory / Mill Name
+  - {{contactName}}             : Contact Person Full Name
+  - {{email}}                   : Applicant's Email Address
+  - {{machineBrand}}            : Machine / Frame Brand
+================================================================================
+-->
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Confirm Assessment Acknowledgement — FABINS@NEVOLYN</title>
+  <style>
+    :root {
+      color-scheme: light;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      line-height: 1.6;
+      color: #1e293b;
+      background-color: #f1f5f9;
+      margin: 0;
+      padding: 40px 16px;
+    }
+
+    .container {
+      max-width: 660px;
+      margin: 0 auto;
+      background: #ffffff;
+      border: 1px solid #e2e8f0;
+      border-radius: 14px;
+      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.01);
+      overflow: hidden;
+    }
+
+    .header-bar {
+      background-color: #0f172a;
+      padding: 22px 28px;
+      border-bottom: 3px solid #0ea5e9;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .brand-title {
+      font-size: 17px;
+      font-weight: 800;
+      color: #ffffff;
+      letter-spacing: -0.3px;
+    }
+
+    .brand-sub {
+      color: #38bdf8;
+      font-size: 12px;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+      text-transform: uppercase;
+    }
+
+    .content-body {
+      padding: 32px 28px;
+    }
+
+    .title-section {
+      text-align: center;
+      margin-bottom: 24px;
+    }
+
+    .page-title {
+      color: #0f172a;
+      font-size: 22px;
+      font-weight: 800;
+      margin: 0 0 6px 0;
+    }
+
+    .page-subtitle {
+      font-size: 14px;
+      color: #64748b;
+      margin: 0;
+    }
+
+    .card {
+      background-color: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      padding: 16px 20px;
+      margin-bottom: 20px;
+      font-size: 13px;
+    }
+
+    .card-title {
+      font-size: 11px;
+      font-weight: 700;
+      color: #64748b;
+      text-transform: uppercase;
+      letter-spacing: 0.8px;
+      margin-bottom: 10px;
+      border-bottom: 1px solid #f1f5f9;
+      padding-bottom: 6px;
+    }
+
+    .card-row {
+      margin-bottom: 8px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .card-row:last-child {
+      margin-bottom: 0;
+    }
+
+    .card-label {
+      color: #64748b;
+      font-weight: 600;
+    }
+
+    .card-val {
+      color: #0f172a;
+      font-weight: 600;
+      text-align: right;
+    }
+
+    .ref-pill {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-weight: 700;
+      color: #0369a1;
+      background-color: #e0f2fe;
+      padding: 3px 8px;
+      border-radius: 5px;
+      border: 1px solid #bae6fd;
+      font-size: 12px;
+    }
+
+    .preview-box {
+      border: 1px solid #bae6fd;
+      background: #ffffff;
+      border-radius: 8px;
+      overflow: hidden;
+      margin-bottom: 22px;
+    }
+
+    .preview-header {
+      background: #f0f9ff;
+      padding: 10px 16px;
+      border-bottom: 1px solid #bae6fd;
+      font-size: 12px;
+      font-weight: 700;
+      color: #0369a1;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .preview-body {
+      padding: 18px;
+      font-size: 13px;
+      color: #334155;
+      line-height: 1.6;
+    }
+
+    .preview-meta {
+      background-color: #f8fafc;
+      padding: 10px 12px;
+      border-radius: 6px;
+      margin-bottom: 14px;
+      font-size: 12px;
+      color: #64748b;
+      border: 1px solid #e2e8f0;
+    }
+
+    .preview-meta-row {
+      margin-bottom: 3px;
+    }
+
+    .preview-meta-row:last-child {
+      margin-bottom: 0;
+    }
+
+    .next-box {
+      background-color: #f0fdf4;
+      border: 1px solid #bbf7d0;
+      border-left: 3px solid #16a34a;
+      padding: 10px 12px;
+      border-radius: 4px;
+      margin: 12px 0;
+      font-size: 12px;
+      color: #166534;
+    }
+
+    .warning-box {
+      background-color: #fffbeb;
+      border: 1px solid #fde68a;
+      border-radius: 6px;
+      padding: 12px 16px;
+      margin-bottom: 24px;
+      font-size: 12px;
+      color: #92400e;
+      line-height: 1.5;
+    }
+
+    .action-container {
+      text-align: center;
+    }
+
+    .btn-submit {
+      background-color: #0284c7;
+      color: #ffffff;
+      border: none;
+      padding: 14px 32px;
+      border-radius: 8px;
+      font-size: 15px;
+      font-weight: 700;
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(2, 132, 199, 0.35);
+      transition: background-color 0.2s, transform 0.1s;
+    }
+
+    .btn-submit:hover {
+      background-color: #0369a1;
+    }
+
+    .btn-submit:active {
+      transform: scale(0.98);
+    }
+
+    .action-note {
+      font-size: 12px;
+      color: #94a3b8;
+      margin-top: 10px;
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="container">
+    <div class="content-body">
+      <div class="title-section">
+        <h1 class="page-title">Confirm Assessment Acknowledgement</h1>
+        <p class="page-subtitle">
+          Review the mill details and the outgoing email preview below before confirming dispatch.
+        </p>
+      </div>
+
+      <!-- Application Details Card -->
+      <div class="card">
+        <div class="card-title">Submitted Application Details</div>
+        <div class="card-row">
+          <span class="card-label">Tracking Reference Code:</span>
+          <span class="card-val ref-pill">{{referenceCode}}</span>
+        </div>
+        <div class="card-row">
+          <span class="card-label">Mill Name:</span>
+          <span class="card-val">{{millName}}</span>
+        </div>
+        <div class="card-row">
+          <span class="card-label">Contact Person:</span>
+          <span class="card-val">{{contactName}}</span>
+        </div>
+        <div class="card-row">
+          <span class="card-label">Applicant Email:</span>
+          <span class="card-val"><a href="mailto:{{email}}"
+              style="color: #0284c7; text-decoration: none;">{{email}}</a></span>
+        </div>
+        <div class="card-row">
+          <span class="card-label">Machine Brand:</span>
+          <span class="card-val">{{machineBrand}}</span>
+        </div>
+      </div>
+
+      <!-- Outgoing Email Preview -->
+      <div class="preview-box">
+        <div class="preview-header">
+          <span>&#9993;&nbsp; Outgoing Email Preview (What the Applicant Will Receive)</span>
+          <span style="font-size: 11px; font-weight: 600; color: #0284c7;">Final Delivery Copy</span>
+        </div>
+        <div class="preview-body">
+          <div class="preview-meta">
+            <div class="preview-meta-row"><strong>To:</strong> {{email}}</div>
+            <div class="preview-meta-row"><strong>Subject:</strong> [FABINS] Deployment Request Acknowledged:
+              {{millName}} [{{referenceCode}}]</div>
+            <div class="preview-meta-row"><strong>From:</strong> FABINS@NEVOLYN &lt;fabins@nevolyn.com&gt;</div>
+          </div>
+          <div>
+            <p style="margin: 0 0 10px 0;"><strong>Dear {{contactName}},</strong></p>
+            <p style="margin: 0 0 12px 0;">
+              We are pleased to inform you that your deployment request for <strong>{{millName}}</strong>
+              (Tracking Reference Code: <span class="ref-pill">{{referenceCode}}</span>)
+              has been officially reviewed and <strong>acknowledged</strong> by our team.
+            </p>
+            <div class="next-box">
+              &#128172;&nbsp; <strong>What's Next:</strong> Our team will contact you within <strong>1–2 working
+                days</strong> to discuss technical requirements and deployment scheduling.
+            </div>
+            <p style="margin: 0; font-size: 12px; color: #64748b;">
+              Warm regards,<br />
+              <strong style="color: #334155;">FABINS Automation</strong>
+            </p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Safety Confirmation Alert -->
+      <div class="warning-box">
+        &#9888;&nbsp; <strong>Single-Acknowledgement Protection:</strong> Once confirmed, this request will transition
+        to IN_REVIEW and the official acknowledgement email will be immediately delivered to <strong>{{email}}</strong>.
+        This action cannot be undone or repeated.
+      </div>
+
+      <!-- Confirmation Action -->
+      <div class="action-container">
+        <form method="POST" action="{{actionUrl}}"
+          onsubmit="return confirm('Are you sure you want to officially dispatch the acknowledgement email to {{email}}? This action can only be performed once.');">
+          <button type="submit" class="btn-submit">
+            &#10003;&nbsp; Confirm &amp; Dispatch Acknowledgement
+          </button>
+        </form>
+        <div class="action-note">
+          Clicking confirm will mark the application as IN_REVIEW and notify the applicant.
+        </div>
+      </div>
+    </div>
+  </div>
+
+</body>
+
+</html>

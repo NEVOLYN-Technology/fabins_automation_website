@@ -140,14 +140,20 @@ public class ContactInquiryServiceImpl implements ContactInquiryService {
         ContactInquiry inquiry = repository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Contact inquiry", id));
 
-        // Mark as replied — intentionally idempotent.
+        // When acknowledged one time, cannot be acknowledged again.
+        if (inquiry.getStatus() == ContactInquiryStatus.REPLIED) {
+            log.info("Contact inquiry {} has already been acknowledged; skipping duplicate email dispatch", id);
+            return mapper.toResponse(inquiry);
+        }
+
+        // Mark as replied and save
         inquiry.markReplied();
         ContactInquiry saved = repository.save(inquiry);
 
         log.info("Contact inquiry acknowledged: id={}, ref={}",
                 saved.getId(), saved.getReferenceCode());
 
-        // Dispatch acknowledgement email asynchronously.
+        // Dispatch acknowledgement email asynchronously
         emailService.sendContactInquiryAcknowledgement(saved);
 
         return mapper.toResponse(saved);

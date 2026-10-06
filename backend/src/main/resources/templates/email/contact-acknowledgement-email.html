@@ -2,6 +2,8 @@
 ================================================================================
 EMAIL TEMPLATE: Contact Inquiry — Acknowledged by Engineering Desk
 FILE: templates/email/contact-acknowledgement-email.html
+
+
 --------------------------------------------------------------------------------
 WHEN IT IS USED:
   Sent automatically to the visitor when an engineer clicks "Acknowledge"
@@ -24,7 +26,7 @@ ATTACHMENTS:
 SUPPORTED PLACEHOLDERS:
   - {{name}}                    : Visitor / Representative Full Name
   - {{subject}}                 : Inquiry Subject / Topic
-  - {{referenceCode}}           : Unique Tracking Reference Code (e.g. INQ-2026-XXXXXXXX)
+  - {{referenceCode}}           : Unique Tracking Reference Code (e.g. FAB-CONTACT-XXXXXXXX)
   - {{adminEmail}}              : Official Support & Engineering Email (fabins@nevolyn.com)
 ================================================================================
 -->
@@ -37,10 +39,10 @@ SUPPORTED PLACEHOLDERS:
   <meta name="supported-color-schemes" content="light">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>FABINS - Inquiry Acknowledged - NEVOLYN</title>
+
   <style>
     :root {
       color-scheme: light;
-      supported-color-schemes: light;
     }
 
     body,
@@ -95,7 +97,7 @@ SUPPORTED PLACEHOLDERS:
     }
 
     .body-content {
-      padding: 32px;
+      padding: 32px 32px 8px 32px;
     }
 
     .greeting {
@@ -126,27 +128,67 @@ SUPPORTED PLACEHOLDERS:
       margin: 24px 0;
     }
 
-    .commitment-title {
-      font-size: 15px;
-      font-weight: 700;
-      color: #047857;
-      margin: 0 0 8px 0;
-    }
-
+    /* Updated: Light Sky Blue Reference Code */
     .ref-pill {
       display: inline-block;
-      background-color: #0f172a;
-      color: #38bdf8;
-      font-family: ui-monospace, monospace;
+      background-color: #e0f2fe;
+      color: #0f172a;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
       font-size: 13px;
       font-weight: 700;
-      padding: 3px 10px;
-      border-radius: 4px;
+      padding: 4px 10px;
+      border-radius: 5px;
+      border: 1px solid #bae6fd;
+    }
+
+    /* Updated: Separate Light Panel for Visit Us */
+    .social-section {
+      text-align: center;
+      margin-top: 20px;
+      padding: 18px 16px;
+      background-color: #f1f5f9;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+    }
+
+    .social-title {
+      font-size: 14px;
+      font-weight: 700;
+      color: #475569;
+      margin: 0 0 14px 0;
+    }
+
+    .company-name {
+      font-size: 13px;
+      font-weight: 700;
+      color: #0f172a;
+      margin: 12px 0 7px 0;
+    }
+
+    .social-links {
+      font-size: 12px;
+      line-height: 1.8;
+    }
+
+    .social-links a {
+      color: #0284c7;
+      text-decoration: none;
+      font-weight: 600;
+      margin: 0 5px;
+    }
+
+    .social-links a:hover {
+      text-decoration: underline;
+    }
+
+    .social-divider {
+      color: #cbd5e1;
+      margin: 0 2px;
     }
 
     .footer {
       background-color: #f8fafc;
-      padding: 24px 32px;
+      padding: 16px 32px 24px 32px;
       border-top: 1px solid #e2e8f0;
       font-size: 13px;
       color: #64748b;
@@ -156,84 +198,124 @@ SUPPORTED PLACEHOLDERS:
 
 <body
   style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; line-height: 1.6; color: #1e293b; background-color: #f8fafc; margin: 0; padding: 30px 15px;">
+
   <!-- Hidden Preheader -->
   <div
     style="display:none;font-size:1px;color:#ffffff;line-height:1px;max-height:0px;max-width:0px;opacity:0;overflow:hidden;">
-    Your message regarding "{{subject}}" has been acknowledged by our team.
+    Your inquiry regarding "{{subject}}" has been acknowledged by our team. Tracking Reference Code: {{referenceCode}}.
   </div>
 
-  <div class="wrapper"
-    style="max-width: 620px; margin: 0 auto; background: #ffffff; border-radius: 12px; overflow: hidden; border: 1px solid #e2e8f0;">
-    <div class="header" style="background-color: #0f172a; padding: 24px 32px; border-bottom: 3px solid #0ea5e9;">
-      <table cellpadding="0" cellspacing="0" border="0" style="width:100%; border-collapse:collapse;">
-        <tr>
-          <td style="width: 52px; vertical-align: middle; padding-right: 14px;">
-            <table cellpadding="0" cellspacing="0" border="0" style="border-collapse: collapse;">
-              <tr>
-                <td style="background-color: #ffffff; width: 44px; height: 44px; border-radius: 10px; text-align: center; vertical-align: middle; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25); border: 1px solid rgba(255, 255, 255, 0.15);">
-                  <img src="cid:fabinsLogo" alt="FABINS Logo" width="36" height="36"
-                    style="display: block; margin: 0 auto; width: 36px; height: 36px; border: 0; outline: none;" />
-                </td>
-              </tr>
-            </table>
-          </td>
-          <td style="vertical-align:middle; text-align:left;">
-            <h1 class="brand-title"
-              style="font-size: 22px; font-weight: 700; margin: 0 0 4px 0; color: #ffffff; letter-spacing: -0.5px;">
-              FABINS</h1>
-            <div class="brand-sub" style="color: #38bdf8; font-size: 13px; font-weight: 600; letter-spacing: 0.5px;">
-              NEVOLYN</div>
-          </td>
-        </tr>
-      </table>
+  <div class="body-content" style="padding: 32px 32px 8px 32px;">
+
+    <div class="badge-ack"
+      style="display: inline-block; background-color: #dcfce7; color: #047857; font-size: 13px; font-weight: 700; padding: 6px 14px; border-radius: 20px; margin-bottom: 20px; border: 1px solid #a7f3d0;">
+      &#10003; Acknowledged by FABINS
     </div>
 
-    <div class="body-content" style="padding: 32px;">
-      <div class="badge-ack"
-        style="display: inline-block; background-color: #dcfce7; color: #047857; font-size: 13px; font-weight: 700; padding: 6px 14px; border-radius: 20px; margin-bottom: 20px; border: 1px solid #a7f3d0;">
-        &#10003; Acknowledged by Our Team
+    <div class="greeting" style="font-size: 16px; font-weight: 600; color: #080d16; margin-bottom: 16px;">
+      Dear {{name}},
+    </div>
+
+    <p style="margin-top:0; font-size:15px; color:#334155;">
+      We are pleased to confirm that your inquiry regarding
+      <strong>"{{subject}}"</strong>
+      (Tracking Reference Code: <span class="ref-pill"
+        style="display: inline-block; background-color: #e0f2fe; color: #0f172a; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; font-size: 13px; font-weight: 700; padding: 4px 10px; border-radius: 5px; border: 1px solid #bae6fd;">{{referenceCode}}</span>)
+      has been reviewed and <strong>acknowledged</strong>.
+    </p>
+
+    <div class="commitment-card"
+      style="background-color: #f0fdf4; border: 1px solid #a7f3d0; border-left: 4px solid #059669; padding: 20px; border-radius: 6px; margin: 24px 0;">
+
+      <div class="commitment-title" style="font-size: 15px; font-weight: 700; color: #047857; margin: 0 0 8px 0;">
+        &#128172; What's next!
       </div>
 
-      <div class="greeting" style="font-size: 16px; font-weight: 600; color: #080d16; margin-bottom: 16px;">
-        Dear {{name}},
-      </div>
-
-      <p style="margin-top:0; font-size:15px; color:#334155;">
-        We are pleased to confirm that your inquiry regarding
-        <strong>"{{subject}}"</strong>
-        (Reference: <span class="ref-pill"
-          style="display: inline-block; background-color: #0f172a; color: #38bdf8; font-family: ui-monospace, monospace; font-size: 13px; font-weight: 700; padding: 3px 10px; border-radius: 4px;">{{referenceCode}}</span>)
-        has been personally reviewed and <strong>acknowledged</strong> by the NEVOLYN Engineering Desk.
+      <p style="margin:0; font-size:14px; color:#14532d;">
+        FABINS team will send you a response to this email as soon as possible.
       </p>
 
-      <div class="commitment-card"
-        style="background-color: #f0fdf4; border: 1px solid #a7f3d0; border-left: 4px solid #059669; padding: 20px; border-radius: 6px; margin: 24px 0;">
-        <div class="commitment-title" style="font-size: 15px; font-weight: 700; color: #047857; margin: 0 0 8px 0;">
-          &#128172; Personal Reply Incoming
-        </div>
-        <p style="margin:0; font-size:14px; color:#14532d;">
-          A member of the FABINS engineering team will send you a personal reply
-          to this email address as soon as possible. You do not need to resend
-          your message.
-        </p>
-      </div>
-
-      <p style="font-size:14px; color:#475569;">
-        If your matter is urgent or you have additional details to share,
-        reply directly to this email or reach us at
-        <a href="mailto:{{adminEmail}}" style="color:#0284c7; font-weight: 600;">{{adminEmail}}</a>.
-      </p>
     </div>
 
-    <div class="footer"
-      style="background-color: #f8fafc; padding: 24px 32px; border-top: 1px solid #e2e8f0; font-size: 13px; color: #64748b;">
-      Warm regards,<br />
-      <strong style="color:#334155;">FABINS Automation</strong><br />
-      NEVOLYN
-      <br>
-      <a href="https://fabins.nevolyn.com" style="color: #0284c7; text-decoration: none;">fabins.nevolyn.com</a>
-    </div>
   </div>
+
+  <div class="footer"
+    style="background-color: #f8fafc; padding: 16px 32px 24px 32px; border-top: 1px solid #e2e8f0; font-size: 13px; color: #64748b;">
+
+    Warm regards,<br />
+
+    <strong style="color:#334155;">FABINS Automation</strong>
+
+    <!-- ================================================================
+         Marketing / Social Branding Section
+         ================================================================ -->
+
+    <div class="social-section"
+      style="text-align:center; margin-top:20px; padding:18px 16px; background-color:#f1f5f9; border:1px solid #e2e8f0; border-radius:8px;">
+
+      <div class="social-title" style="font-size:14px; font-weight:700; color:#475569; margin:0 0 14px 0;">
+        Visit Us
+      </div>
+
+      <!-- FABINS -->
+      <div class="company-name" style="font-size:13px; font-weight:700; color:#0f172a; margin:12px 0 7px 0;">
+        FABINS - Fabric Inspection Automation
+      </div>
+
+      <div class="social-links" style="font-size:12px; line-height:1.8;">
+
+        <a href="https://fabins.nevolyn.com/" target="_blank"
+          style="color:#0284c7; text-decoration:none; font-weight:600;">
+          Website
+        </a>
+
+        <span class="social-divider" style="color:#cbd5e1; margin:0 2px;">|</span>
+
+        <a href="https://www.facebook.com/fabinsautomation/" target="_blank"
+          style="color:#0284c7; text-decoration:none; font-weight:600;">
+          Facebook
+        </a>
+
+        <span class="social-divider" style="color:#cbd5e1; margin:0 2px;">|</span>
+
+        <a href="https://www.linkedin.com/company/fabins/" target="_blank"
+          style="color:#0284c7; text-decoration:none; font-weight:600;">
+          LinkedIn
+        </a>
+
+      </div>
+
+      <!-- NEVOLYN -->
+      <div class="company-name" style="font-size:13px; font-weight:700; color:#0f172a; margin:16px 0 7px 0;">
+        NEVOLYN
+      </div>
+
+      <div class="social-links" style="font-size:12px; line-height:1.8;">
+
+        <a href="https://nevolyn.com/" target="_blank" style="color:#0284c7; text-decoration:none; font-weight:600;">
+          Website
+        </a>
+
+        <span class="social-divider" style="color:#cbd5e1; margin:0 2px;">|</span>
+
+        <a href="https://www.facebook.com/nevolyn/" target="_blank"
+          style="color:#0284c7; text-decoration:none; font-weight:600;">
+          Facebook
+        </a>
+
+        <span class="social-divider" style="color:#cbd5e1; margin:0 2px;">|</span>
+
+        <a href="https://www.linkedin.com/company/nevolyn/" target="_blank"
+          style="color:#0284c7; text-decoration:none; font-weight:600;">
+          LinkedIn
+        </a>
+
+      </div>
+
+    </div>
+
+  </div>
+
 </body>
 
 </html>

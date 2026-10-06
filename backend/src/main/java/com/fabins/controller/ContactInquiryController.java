@@ -4,12 +4,14 @@ import com.fabins.dto.request.CreateContactInquiry;
 import com.fabins.dto.response.ContactInquiryResponse;
 import com.fabins.entity.enums.ContactInquiryStatus;
 import com.fabins.service.ContactInquiryService;
+import com.fabins.service.mail.EmailTemplateRenderer;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -22,6 +24,8 @@ import org.springframework.web.util.UriComponentsBuilder;
 
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
+import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 
 /**
@@ -61,14 +65,19 @@ import java.util.UUID;
 public class ContactInquiryController {
 
   private final ContactInquiryService service;
+  private final EmailTemplateRenderer templateRenderer;
 
   /**
-   * Spring injects the service implementation. Constructor injection is
-   * preferred: the dependency is explicit, the field can be {@code final},
-   * and unit tests can construct this controller without a Spring context.
+   * Spring injects the service and template renderer implementations.
    */
-  public ContactInquiryController(ContactInquiryService service) {
+  @Autowired
+  public ContactInquiryController(ContactInquiryService service, EmailTemplateRenderer templateRenderer) {
     this.service = service;
+    this.templateRenderer = templateRenderer != null ? templateRenderer : new EmailTemplateRenderer();
+  }
+
+  public ContactInquiryController(ContactInquiryService service) {
+    this(service, new EmailTemplateRenderer());
   }
 
   /**
@@ -126,58 +135,33 @@ public class ContactInquiryController {
   public ResponseEntity<String> showAcknowledgeConfirmation(@PathVariable UUID id) {
     ContactInquiryResponse inquiry = service.getById(id);
 
-    String content;
     if (inquiry.status() == ContactInquiryStatus.REPLIED) {
-      content = """
-          <div style="display: inline-block; background: #e0f2fe; color: #0369a1; padding: 4px 12px; border-radius: 999px; font-weight: 700; font-size: 13px; margin-bottom: 16px;">
-            Status: REPLIED
-          </div>
-          <h2 style="color: #0f172a; margin-top: 0;">Inquiry Already Acknowledged</h2>
-          <p style="font-size: 15px; color: #334155;">Contact inquiry <strong>%s</strong> from <strong>%s</strong> has already been acknowledged.</p>
-          <p style="color: #64748b; font-size: 13px;">No further automated action is needed.</p>
-          """
-          .formatted(inquiry.referenceCode(), inquiry.name());
-    } else {
-      content = """
-          <h2 style="color: #0f172a; margin-top: 0;">Confirm Inquiry Acknowledgement</h2>
-          <p style="font-size: 15px; color: #334155; margin-bottom: 20px;">
-            You are about to acknowledge the general inquiry from:
-          </p>
-          <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 18px; text-align: left; margin-bottom: 24px; font-size: 14px;">
-            <div style="margin-bottom: 8px;"><strong>Reference Code:</strong> <span style="color: #0284c7;">%s</span></div>
-            <div style="margin-bottom: 8px;"><strong>Visitor Name:</strong> %s</div>
-            <div style="margin-bottom: 8px;"><strong>Subject:</strong> %s</div>
-            <div><strong>Visitor Email:</strong> %s</div>
-          </div>
-          <form method="POST" action="/api/v1/contact-inquiries/%s/acknowledge">
-            <button type="submit" style="background: #0284c7; color: #ffffff; border: none; padding: 14px 28px; border-radius: 8px; font-size: 15px; font-weight: 700; cursor: pointer; box-shadow: 0 4px 12px rgba(2, 132, 199, 0.35);">
-              &#10003; Confirm &amp; Dispatch Acknowledgement
-            </button>
-          </form>
-          <p style="font-size: 12px; color: #94a3b8; margin-top: 16px;">
-            Clicking confirm will mark the inquiry as REPLIED and notify the visitor.
-          </p>
-          """
-          .formatted(inquiry.referenceCode(), inquiry.name(), inquiry.subject(), inquiry.email(), id);
+      String html = templateRenderer.render(
+          "templates/web/contact-acknowledge-result.html",
+          Map.ofEntries(
+              Map.entry("title", "Inquiry Already Acknowledged"),
+              Map.entry("statusBadge", inquiry.status().name()),
+              Map.entry("referenceCode", inquiry.referenceCode()),
+              Map.entry("name", inquiry.name()),
+              Map.entry("email", inquiry.email()),
+              Map.entry("message", "Contact inquiry " + inquiry.referenceCode() + " from " + inquiry.name() + " has already been acknowledged."),
+              Map.entry("detailNote", "An official acknowledgement email was already dispatched to " + inquiry.email() + ". To prevent duplicate emails to the visitor, this inquiry cannot be acknowledged again.")
+          ));
+      return ResponseEntity.ok()
+          .contentType(new MediaType(MediaType.TEXT_HTML, StandardCharsets.UTF_8))
+          .body(html);
     }
 
-    String html = """
-        <!DOCTYPE html>
-        <html lang="en">
-        <head>
-          <meta charset="UTF-8">
-          <meta name="viewport" content="width=device-width, initial-scale=1.0">
-          <title>FABINS@NEVOLYN — Inquiry Acknowledgement</title>
-        </head>
-        <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; text-align: center; padding: 40px 15px; line-height: 1.6; background-color: #f1f5f9;">
-          <div style="max-width: 540px; margin: 0 auto; background: #ffffff; border: 1px solid #e2e8f0; padding: 36px; border-radius: 12px; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.05);">
-            <div style="font-size: 13px; font-weight: 700; color: #0284c7; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 12px;">FABINS@NEVOLYN</div>
-            %s
-          </div>
-        </body>
-        </html>
-        """
-        .formatted(content);
+    String html = templateRenderer.render(
+        "templates/web/contact-acknowledge-confirm.html",
+        Map.ofEntries(
+            Map.entry("actionUrl", "/api/v1/contact-inquiries/" + id + "/acknowledge"),
+            Map.entry("referenceCode", inquiry.referenceCode()),
+            Map.entry("name", inquiry.name()),
+            Map.entry("email", inquiry.email()),
+            Map.entry("subject", inquiry.subject())
+        ),
+        Set.of("actionUrl"));
 
     return ResponseEntity.ok()
         .contentType(new MediaType(MediaType.TEXT_HTML, StandardCharsets.UTF_8))
@@ -186,33 +170,44 @@ public class ContactInquiryController {
 
   /**
    * Executes the status transition to REPLIED and sends the acknowledgement email
-   * to visitor.
+   * to visitor. Enforces single-acknowledgement: subsequent calls do not re-send.
    */
   @PostMapping("/{id}/acknowledge")
   @Operation(summary = "Acknowledge a contact inquiry and notify the visitor")
   public ResponseEntity<String> acknowledge(@PathVariable UUID id) {
+    ContactInquiryResponse current = service.getById(id);
+
+    if (current.status() == ContactInquiryStatus.REPLIED) {
+      String html = templateRenderer.render(
+          "templates/web/contact-acknowledge-result.html",
+          Map.ofEntries(
+              Map.entry("title", "Inquiry Already Acknowledged"),
+              Map.entry("statusBadge", current.status().name()),
+              Map.entry("referenceCode", current.referenceCode()),
+              Map.entry("name", current.name()),
+              Map.entry("email", current.email()),
+              Map.entry("message", "Contact inquiry " + current.referenceCode() + " from " + current.name() + " was already acknowledged previously."),
+              Map.entry("detailNote", "To prevent sending duplicate messages, no additional email was sent. An acknowledgement email was already dispatched to " + current.email() + ".")
+          ));
+
+      return ResponseEntity.ok()
+          .contentType(new MediaType(MediaType.TEXT_HTML, StandardCharsets.UTF_8))
+          .body(html);
+    }
+
     ContactInquiryResponse response = service.acknowledge(id);
 
-    String html = """
-        <!DOCTYPE html>
-        <html lang="en">
-        <head>
-          <meta charset="UTF-8">
-          <meta name="viewport" content="width=device-width, initial-scale=1.0">
-          <title>FABINS@NEVOLYN — Inquiry Acknowledged</title>
-        </head>
-        <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; text-align: center; padding: 50px 15px; line-height: 1.6; background-color: #f1f5f9;">
-          <div style="max-width: 540px; margin: 0 auto; background: #ffffff; border: 1px solid #e2e8f0; padding: 36px; border-radius: 12px; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.05);">
-            <div style="font-size: 13px; font-weight: 700; color: #0284c7; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 12px;">FABINS@NEVOLYN</div>
-            <div style="font-size: 36px; margin-bottom: 12px; color: #16a34a;">&#10003;</div>
-            <h2 style="color: #0f172a; margin-top: 0;">Inquiry Successfully Acknowledged</h2>
-            <p style="font-size: 15px; color: #1e293b;">Contact inquiry <strong>%s</strong> from <strong>%s</strong> is now marked as <strong>REPLIED</strong>.</p>
-            <p style="color: #64748b; font-size: 14px;">An acknowledgement email has been dispatched to <strong>%s</strong> confirming our team will reply personally.</p>
-          </div>
-        </body>
-        </html>
-        """
-        .formatted(response.referenceCode(), response.name(), response.email());
+    String html = templateRenderer.render(
+        "templates/web/contact-acknowledge-result.html",
+        Map.ofEntries(
+            Map.entry("title", "Inquiry Successfully Acknowledged"),
+            Map.entry("statusBadge", response.status().name()),
+            Map.entry("referenceCode", response.referenceCode()),
+            Map.entry("name", response.name()),
+            Map.entry("email", response.email()),
+            Map.entry("message", "Contact inquiry " + response.referenceCode() + " from " + response.name() + " is now marked as REPLIED."),
+            Map.entry("detailNote", "An acknowledgement email has been dispatched to " + response.email() + " confirming our team will reply personally.")
+        ));
 
     return ResponseEntity.ok()
         .contentType(new MediaType(MediaType.TEXT_HTML, StandardCharsets.UTF_8))

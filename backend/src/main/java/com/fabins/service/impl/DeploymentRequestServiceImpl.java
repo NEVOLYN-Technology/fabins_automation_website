@@ -119,6 +119,13 @@ public class DeploymentRequestServiceImpl implements DeploymentRequestService {
         DeploymentRequest request = repository.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Deployment request", id));
 
+        // When acknowledged one time, cannot be acknowledged again.
+        if (request.getStatus() != DeploymentRequestStatus.NEW) {
+            log.info("Deployment request {} has already been acknowledged (current status: {}); skipping duplicate email dispatch",
+                    id, request.getStatus());
+            return mapper.toResponse(request);
+        }
+
         request.changeStatus(DeploymentRequestStatus.IN_REVIEW);
         log.info("Deployment request {} acknowledged by R&D team", id);
 

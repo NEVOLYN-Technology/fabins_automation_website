@@ -32,7 +32,7 @@ export function DeploySuccessView({
     const res = await fetchDeploymentPreviewPdfBlob(formData)
     setIsProcessingPdf(false)
     if (res.ok) {
-      downloadBlob(res.blob, `FABINS-Assessment-${referenceCode}.pdf`)
+      downloadBlob(res.blob, `FABINS_Deployment_Assessment-${referenceCode}.pdf`)
     }
   }
 
@@ -78,7 +78,7 @@ export function DeploySuccessView({
       {/* Official Reference Receipt Card */}
       <div className="mt-8 rounded-2xl border border-accent/30 bg-accent-quiet/40 p-5 sm:p-6 text-center shadow-xs">
         <span className="text-[11px] font-mono uppercase tracking-widest text-ink-soft font-bold block mb-1">
-          Official Assessment Tracking Reference
+          Tracking Reference Code
         </span>
         <div className="flex items-center justify-center gap-3">
           <span className="font-mono text-xl sm:text-2xl font-black tracking-wider text-accent select-all">

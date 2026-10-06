@@ -10,8 +10,7 @@ WHEN IT IS USED:
 RECIPIENT:
   Internal Engineering Team (fabins@nevolyn.com)
 
- & Machine Details
-================================================================================SENDER:
+SENDER:
   FABINS@NEVOLYN <fabins@nevolyn.com>
   (Reply-To is automatically set to the applicant's work email for easy replies)
 
@@ -19,20 +18,21 @@ SUBJECT LINE:
   [FABINS Alert] New Deployment Enquiry: {{millName}}
 
 ATTACHMENTS:
-  FABINS-Assessment-{{requestId}}.pdf (generated assessment report)
+  FABINS_Deployment_Assessment-{{requestId}}.pdf (generated assessment report)
 
 SUPPORTED PLACEHOLDERS:
   - {{acknowledgeUrl}}          : Secure URL to the 1-click confirmation page
   - {{requestId}}               : Tracking Reference Code (e.g. FAB-2026-XXXXXXXX)
   - {{millName}}                : Factory / Mill Name
   - {{machineBrand}}            : Machine / Frame Brand (e.g. Winda, Bianco, Lafer)
-  - {{location}}                : Factory Geographic Location / Zone (e.g. Gazipur, Dhaka)
+  - {{location}}                : Factory Geographic Location / Zone
   - {{contactName}}             : Contact Representative's Full Name
   - {{email}}                   : Work Email Address
   - {{phone}}                   : Phone / WhatsApp Contact
-  - {{factoryType}}             : Factory / Operation Type (e.g. Knit Fabric Mill, Woven)
-  - {{rollWidth}}               : Roll / Table Width (e.g. 72 inches, Custom Width)
+  - {{factoryType}}             : Factory / Operation Type
+  - {{rollWidth}}               : Roll / Table Width
   - {{submittedAt}}             : Submission Date & Time (UTC)
+================================================================================
 -->
 <!DOCTYPE html>
 <html lang="en">
@@ -42,16 +42,24 @@ SUPPORTED PLACEHOLDERS:
   <meta name="color-scheme" content="light">
   <meta name="supported-color-schemes" content="light">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>New FABINS Deployment Request — NEVOLYN</title>
+
+  <title>FABINS — New Deployment Request — NEVOLYN</title>
+
   <style>
     :root {
       color-scheme: light;
-      supported-color-schemes: light;
     }
-    body, table, td, p, a, li {
+
+    body,
+    table,
+    td,
+    p,
+    a,
+    li {
       -webkit-text-size-adjust: 100%;
       -ms-text-size-adjust: 100%;
     }
+
     body {
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
       line-height: 1.6;
@@ -64,113 +72,162 @@ SUPPORTED PLACEHOLDERS:
     .wrapper {
       max-width: 640px;
       margin: 0 auto;
-      background: #ffffff;
+      background-color: #ffffff;
       border-radius: 12px;
       overflow: hidden;
-      box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -2px rgba(0, 0, 0, 0.02);
       border: 1px solid #e2e8f0;
-    }
-
-    .header {
-      background: #0f172a;
-      padding: 28px 32px;
-      color: #ffffff;
-      border-bottom: 3px solid #0ea5e9;
-    }
-
-    .brand-title {
-      font-size: 22px;
-      font-weight: 700;
-      margin: 0 0 4px 0;
-      color: #ffffff;
-      letter-spacing: -0.5px;
-    }
-
-    .brand-sub {
-      color: #38bdf8;
-      font-size: 13px;
-      font-weight: 600;
-      letter-spacing: 0.5px;
+      box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05),
+        0 4px 6px -2px rgba(0, 0, 0, 0.02);
     }
 
     .body-content {
-      padding: 32px;
+      padding: 32px 32px 10px 32px;
     }
 
-    .ref-badge {
+    .alert-badge {
       display: inline-block;
-      background-color: #e0f2fe;
-      color: #0369a1;
-      font-size: 13px;
+      background-color: #fef3c7;
+      color: #92400e;
+      font-size: 12px;
       font-weight: 700;
-      padding: 4px 12px;
+      padding: 5px 12px;
       border-radius: 20px;
+      border: 1px solid #fde68a;
       margin-bottom: 16px;
     }
 
-    .pdf-attached-badge {
+    .intro {
+      margin: 0 0 22px 0;
+      font-size: 15px;
+      color: #334155;
+      line-height: 1.65;
+    }
+
+    /* Light Sky Blue Tracking Reference */
+    .ref-pill {
       display: inline-block;
-      background-color: #ecfdf5;
-      color: #047857;
-      font-size: 12px;
+      background-color: #e0f2fe;
+      color: #0f172a;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 13px;
       font-weight: 700;
-      padding: 4px 12px;
-      border-radius: 20px;
-      margin-left: 8px;
-      border: 1px solid #a7f3d0;
+      padding: 4px 10px;
+      border-radius: 5px;
+      border: 1px solid #bae6fd;
+      white-space: nowrap;
+    }
+
+    /* PDF Attachment Panel */
+    .attachment-card {
+      background-color: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-left: 4px solid #dc2626;
+      border-radius: 8px;
+      padding: 14px 16px;
+      margin: 22px 0 26px 0;
+    }
+
+    .pdf-icon {
+      width: 38px;
+      height: 42px;
+      background-color: #dc2626;
+      color: #ffffff;
+      border-radius: 5px;
+      font-size: 10px;
+      font-weight: 800;
+      text-align: center;
+      line-height: 42px;
+      letter-spacing: 0.3px;
+    }
+
+    .attachment-title {
+      font-size: 13px;
+      font-weight: 700;
+      color: #334155;
+      margin: 0 0 2px 0;
+    }
+
+    .attachment-text {
+      font-size: 12px;
+      color: #64748b;
+      margin: 0;
+      line-height: 1.5;
     }
 
     .section-title {
-      font-size: 14px;
+      font-size: 13px;
       font-weight: 700;
       color: #475569;
       text-transform: uppercase;
-      letter-spacing: 0.5px;
-      margin-top: 24px;
-      margin-bottom: 12px;
-      border-bottom: 1px solid #f1f5f9;
-      padding-bottom: 6px;
+      letter-spacing: 0.7px;
+      margin: 24px 0 10px 0;
+      padding-bottom: 7px;
+      border-bottom: 1px solid #e2e8f0;
     }
 
     .info-grid {
       width: 100%;
       border-collapse: collapse;
-      margin-bottom: 20px;
+      margin: 0 0 20px 0;
+      border: 1px solid #e2e8f0;
+      overflow: hidden;
     }
 
     .info-grid td {
       padding: 10px 12px;
-      border-bottom: 1px solid #f1f5f9;
-      font-size: 14px;
+      border-bottom: 1px solid #e2e8f0;
+      font-size: 13px;
+      vertical-align: top;
+    }
+
+    .info-grid tr:last-child td {
+      border-bottom: none;
     }
 
     .info-grid td.label {
+      width: 36%;
       font-weight: 600;
       color: #64748b;
-      width: 35%;
-      background-color: #fafafa;
+      background-color: #f8fafc;
+    }
+
+    .info-grid td.value {
+      color: #334155;
+      background-color: #ffffff;
+    }
+
+    .info-grid a {
+      color: #0284c7;
+      text-decoration: none;
+      font-weight: 600;
     }
 
     .cta-container {
       text-align: center;
-      margin: 32px 0 20px 0;
+      padding: 8px 0 28px 0;
+    }
+
+    .cta-note {
+      font-size: 12px;
+      color: #94a3b8;
+      margin: 0 0 12px 0;
     }
 
     .btn-acknowledge {
       display: inline-block;
-      background: #0284c7;
+      background-color: #0284c7;
       color: #ffffff !important;
       font-weight: 700;
-      font-size: 15px;
-      padding: 14px 28px;
+      font-size: 14px;
+      padding: 12px 26px;
       text-decoration: none;
-      border-radius: 8px;
-      box-shadow: 0 4px 12px rgba(2, 132, 199, 0.35);
+      border-radius: 7px;
+      box-shadow: 0 4px 10px rgba(2, 132, 199, 0.25);
     }
 
     .footer {
       background-color: #f8fafc;
-      padding: 20px 32px;
+      padding: 18px 32px 22px 32px;
       border-top: 1px solid #e2e8f0;
       font-size: 12px;
       color: #64748b;
@@ -180,112 +237,245 @@ SUPPORTED PLACEHOLDERS:
 </head>
 
 <body
-  style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; line-height: 1.6; color: #1e293b; background-color: #f8fafc; margin: 0; padding: 30px 15px;">
+  style="font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;line-height:1.6;color:#1e293b;background-color:#f8fafc;margin:0;padding:30px 15px;">
+
   <!-- Hidden Preheader -->
   <div
     style="display:none;font-size:1px;color:#ffffff;line-height:1px;max-height:0px;max-width:0px;opacity:0;overflow:hidden;">
-    New fabric inspection assessment registered for {{millName}} [Tracking ID: {{requestId}}].
+    New FABINS deployment assessment received from {{millName}} [Tracking Reference Code: {{requestId}}].
   </div>
 
   <div class="wrapper"
-    style="max-width: 640px; margin: 0 auto; background: #ffffff; border-radius: 12px; overflow: hidden; border: 1px solid #e2e8f0;">
-    <div class="header" style="background: #0f172a; padding: 24px 32px; border-bottom: 3px solid #0ea5e9;">
-      <table cellpadding="0" cellspacing="0" border="0" style="width: 100%; border-collapse: collapse;">
-        <tr>
-          <td style="width: 52px; vertical-align: middle; padding-right: 14px;">
-            <table cellpadding="0" cellspacing="0" border="0" style="border-collapse: collapse;">
-              <tr>
-                <td style="background-color: #ffffff; width: 44px; height: 44px; border-radius: 10px; text-align: center; vertical-align: middle; box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25); border: 1px solid rgba(255, 255, 255, 0.15);">
-                  <img src="cid:fabinsLogo" alt="FABINS Logo" width="36" height="36"
-                    style="display: block; margin: 0 auto; width: 36px; height: 36px; border: 0; outline: none;" />
-                </td>
-              </tr>
-            </table>
-          </td>
-          <td style="vertical-align: middle; text-align: left;">
-            <h1 class="brand-title"
-              style="font-size: 22px; font-weight: 700; margin: 0 0 4px 0; color: #ffffff; letter-spacing: -0.5px;">
-              FABINS</h1>
-            <div class="brand-sub" style="color: #38bdf8; font-size: 13px; font-weight: 600; letter-spacing: 0.5px;">
-              NEVOLYN</div>
-          </td>
-        </tr>
-      </table>
-    </div>
+    style="max-width:640px;margin:0 auto;background-color:#ffffff;border-radius:12px;overflow:hidden;border:1px solid #e2e8f0;box-shadow:0 10px 15px -3px rgba(0,0,0,0.05),0 4px 6px -2px rgba(0,0,0,0.02);">
 
-    <div class="body-content" style="padding: 32px;">
-      <div style="margin-bottom: 20px;">
-        <span class="ref-badge"
-          style="display: inline-block; background-color: #e0f2fe; color: #0369a1; font-size: 13px; font-weight: 700; padding: 4px 12px; border-radius: 20px;">Tracking
-          ID: {{requestId}}</span>
-        <span class="pdf-attached-badge"
-          style="display: inline-block; background-color: #ecfdf5; color: #047857; font-size: 12px; font-weight: 700; padding: 4px 12px; border-radius: 20px; margin-left: 8px; border: 1px solid #a7f3d0;">&#128206;
-          PDF Assessment Attached</span>
+    <!-- ================================================================
+         Main Content: Deployment Operational Alert
+         ================================================================ -->
+    <div class="body-content" style="padding:32px 32px 10px 32px;">
+
+      <div class="alert-badge"
+        style="display:inline-block;background-color:#fef3c7;color:#92400e;font-size:12px;font-weight:700;padding:5px 12px;border-radius:20px;border:1px solid #fde68a;margin-bottom:16px;">
+        &#9888; New Deployment Enquiry
       </div>
 
-      <p style="margin-top: 0; font-size: 15px; color: #334155;">
-        A new fabric inspection assessment application has been submitted and registered to
-        <strong>fabins@nevolyn.com</strong>.
-        An official formatted PDF assessment copy has been generated and attached to this dispatch.
+      <p class="intro" style="margin:0 0 22px 0;font-size:15px;color:#334155;line-height:1.65;">
+
+        A new FABINS deployment assessment has been submitted by
+        <strong>{{contactName}}</strong> from
+        <strong>{{millName}}</strong>.
+        The generated technical assessment report is attached to this email
+        for internal review.
+
       </p>
 
-      <div class="section-title">Mill &amp; Factory Profile</div>
-      <table class="info-grid">
-        <tr>
-          <td class="label">Mill / Factory Name</td>
-          <td><strong>{{millName}}</strong></td>
-        </tr>
-        <tr>
-          <td class="label">Machine / Frame Brand</td>
-          <td><strong>{{machineBrand}}</strong></td>
-        </tr>
-        <tr>
-          <td class="label">Location / Zone</td>
-          <td>{{location}}</td>
-        </tr>
-        <tr>
-          <td class="label">Factory / Operation Type</td>
-          <td>{{factoryType}}</td>
-        </tr>
-      </table>
+      <!-- Tracking Reference Code Display -->
+      <div style="margin:0 0 20px 0;">
 
-      <div class="section-title">Technical Representative &amp; Specifications</div>
-      <table class="info-grid">
-        <tr>
-          <td class="label">Representative Name</td>
-          <td><strong>{{contactName}}</strong></td>
-        </tr>
-        <tr>
-          <td class="label">Work Email</td>
-          <td><a href="mailto:{{email}}" style="color: #0284c7; font-weight: 600;">{{email}}</a></td>
-        </tr>
-        <tr>
-          <td class="label">Phone / WhatsApp</td>
-          <td>{{phone}}</td>
-        </tr>
-        <tr>
-          <td class="label">Roll / Table Width</td>
-          <td><strong>{{rollWidth}}</strong></td>
-        </tr>
-        <tr>
-          <td class="label">Submission Date</td>
-          <td>{{submittedAt}}</td>
-        </tr>
-      </table>
+        <span style="font-size:13px;font-weight:600;color:#64748b;margin-right:6px;">
+          Tracking Reference Code:
+        </span>
 
-      <div class="cta-container">
-        <a href="{{acknowledgeUrl}}" class="btn-acknowledge">
-          &#10003; Acknowledge Request
-        </a>
+        <span class="ref-pill"
+          style="display:inline-block;background-color:#e0f2fe;color:#0f172a;font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,monospace;font-size:13px;font-weight:700;padding:4px 10px;border-radius:5px;border:1px solid #bae6fd;white-space:nowrap;">
+          {{requestId}}
+        </span>
+
       </div>
+
+      <!-- ================================================================
+           PDF Attachment Card
+           ================================================================ -->
+      <div class="attachment-card"
+        style="background-color:#f8fafc;border:1px solid #e2e8f0;border-left:4px solid #dc2626;border-radius:8px;padding:14px 16px;margin:22px 0 26px 0;">
+
+        <table cellpadding="0" cellspacing="0" border="0" style="width:100%;border-collapse:collapse;">
+
+          <tr>
+
+            <td style="width:50px;vertical-align:middle;padding-right:12px;">
+
+              <div class="pdf-icon"
+                style="width:38px;height:42px;background-color:#dc2626;color:#ffffff;border-radius:5px;font-size:10px;font-weight:800;text-align:center;line-height:42px;letter-spacing:0.3px;">
+                PDF
+              </div>
+
+            </td>
+
+            <td style="vertical-align:middle;">
+
+              <p class="attachment-title" style="font-size:13px;font-weight:700;color:#334155;margin:0 0 2px 0;">
+                Technical Assessment Report Attached
+              </p>
+
+              <p class="attachment-text"
+                style="font-size:12px;color:#0284c7;font-weight:600;margin:0;line-height:1.5;font-family:ui-monospace,SFMono-Regular,Menlo,Monaco,Consolas,monospace;">
+                FABINS_Deployment_Assessment-{{requestId}}.pdf
+              </p>
+
+              <p class="attachment-text" style="font-size:12px;color:#64748b;margin:2px 0 0 0;line-height:1.5;">
+                Generated assessment report for internal review.
+              </p>
+
+            </td>
+
+          </tr>
+
+        </table>
+
+      </div>
+
+      <!-- ================================================================
+           Mill & Factory Profile
+           ================================================================ -->
+      <div class="section-title"
+        style="font-size:13px;font-weight:700;color:#475569;text-transform:uppercase;letter-spacing:0.7px;margin:24px 0 10px 0;padding-bottom:7px;border-bottom:1px solid #e2e8f0;">
+        Mill &amp; Factory Profile
+      </div>
+
+      <table class="info-grid" cellpadding="0" cellspacing="0" border="0"
+        style="width:100%;border-collapse:collapse;margin:0 0 20px 0;border:1px solid #e2e8f0;">
+
+        <tr>
+          <td class="label"
+            style="width:36%;font-weight:600;color:#64748b;background-color:#f8fafc;padding:10px 12px;border-bottom:1px solid #e2e8f0;font-size:13px;">
+            Mill / Factory Name
+          </td>
+
+          <td class="value"
+            style="color:#334155;background-color:#ffffff;padding:10px 12px;border-bottom:1px solid #e2e8f0;font-size:13px;">
+            <strong>{{millName}}</strong>
+          </td>
+        </tr>
+
+        <tr>
+          <td class="label"
+            style="width:36%;font-weight:600;color:#64748b;background-color:#f8fafc;padding:10px 12px;border-bottom:1px solid #e2e8f0;font-size:13px;">
+            Machine Brand
+          </td>
+
+          <td class="value"
+            style="color:#334155;background-color:#ffffff;padding:10px 12px;border-bottom:1px solid #e2e8f0;font-size:13px;">
+            <strong>{{machineBrand}}</strong>
+          </td>
+        </tr>
+
+        <tr>
+          <td class="label"
+            style="width:36%;font-weight:600;color:#64748b;background-color:#f8fafc;padding:10px 12px;border-bottom:1px solid #e2e8f0;font-size:13px;">
+            Location / Zone
+          </td>
+
+          <td class="value"
+            style="color:#334155;background-color:#ffffff;padding:10px 12px;border-bottom:1px solid #e2e8f0;font-size:13px;">
+            {{location}}
+          </td>
+        </tr>
+
+        <tr>
+          <td class="label"
+            style="width:36%;font-weight:600;color:#64748b;background-color:#f8fafc;padding:10px 12px;font-size:13px;">
+            Factory Type
+          </td>
+
+          <td class="value" style="color:#334155;background-color:#ffffff;padding:10px 12px;font-size:13px;">
+            {{factoryType}}
+          </td>
+        </tr>
+
+      </table>
+
+      <!-- ================================================================
+           Technical Representative & Specifications
+           ================================================================ -->
+      <div class="section-title"
+        style="font-size:13px;font-weight:700;color:#475569;text-transform:uppercase;letter-spacing:0.7px;margin:24px 0 10px 0;padding-bottom:7px;border-bottom:1px solid #e2e8f0;">
+        Technical Representative &amp; Specifications
+      </div>
+
+      <table class="info-grid" cellpadding="0" cellspacing="0" border="0"
+        style="width:100%;border-collapse:collapse;margin:0 0 20px 0;border:1px solid #e2e8f0;">
+
+        <tr>
+          <td class="label"
+            style="width:36%;font-weight:600;color:#64748b;background-color:#f8fafc;padding:10px 12px;border-bottom:1px solid #e2e8f0;font-size:13px;">
+            Representative Name
+          </td>
+
+          <td class="value"
+            style="color:#334155;background-color:#ffffff;padding:10px 12px;border-bottom:1px solid #e2e8f0;font-size:13px;">
+            <strong>{{contactName}}</strong>
+          </td>
+        </tr>
+
+        <tr>
+          <td class="label"
+            style="width:36%;font-weight:600;color:#64748b;background-color:#f8fafc;padding:10px 12px;border-bottom:1px solid #e2e8f0;font-size:13px;">
+            Work Email
+          </td>
+
+          <td class="value"
+            style="color:#334155;background-color:#ffffff;padding:10px 12px;border-bottom:1px solid #e2e8f0;font-size:13px;">
+            <a href="mailto:{{email}}" style="color:#0284c7;text-decoration:none;font-weight:600;">
+              {{email}}
+            </a>
+          </td>
+        </tr>
+
+        <tr>
+          <td class="label"
+            style="width:36%;font-weight:600;color:#64748b;background-color:#f8fafc;padding:10px 12px;border-bottom:1px solid #e2e8f0;font-size:13px;">
+            Phone / WhatsApp
+          </td>
+
+          <td class="value"
+            style="color:#334155;background-color:#ffffff;padding:10px 12px;border-bottom:1px solid #e2e8f0;font-size:13px;">
+            {{phone}}
+          </td>
+        </tr>
+
+        <tr>
+          <td class="label"
+            style="width:36%;font-weight:600;color:#64748b;background-color:#f8fafc;padding:10px 12px;border-bottom:1px solid #e2e8f0;font-size:13px;">
+            Roll / Table Width
+          </td>
+
+          <td class="value"
+            style="color:#334155;background-color:#ffffff;padding:10px 12px;border-bottom:1px solid #e2e8f0;font-size:13px;">
+            <strong>{{rollWidth}}</strong>
+          </td>
+        </tr>
+
+        <tr>
+          <td class="label"
+            style="width:36%;font-weight:600;color:#64748b;background-color:#f8fafc;padding:10px 12px;font-size:13px;">
+            Submission Date
+          </td>
+
+          <td class="value" style="color:#334155;background-color:#ffffff;padding:10px 12px;font-size:13px;">
+            {{submittedAt}}
+          </td>
+        </tr>
+
+      </table>
+
+      <!-- ================================================================
+           Action: Acknowledge Request
+           ================================================================ -->
+      <div class="cta-container" style="text-align:center;padding:8px 0 20px 0;">
+
+        <p class="cta-note" style="font-size:12px;color:#94a3b8;margin:0 0 12px 0;">
+          Review the submitted assessment before acknowledging the request.
+        </p>
+
+        <a href="{{acknowledgeUrl}}" class="btn-acknowledge"
+          style="display:inline-block;background-color:#0284c7;color:#ffffff !important;font-weight:700;font-size:14px;padding:12px 26px;text-decoration:none;border-radius:7px;box-shadow:0 4px 10px rgba(2,132,199,0.25);">
+          &#10003;&nbsp; Acknowledge Request
+        </a>
+
+      </div>
+
     </div>
 
-    <div class="footer">
-      <strong style="color: #334155;">NEVOLYN — Engineering Desk</strong><br />
-      <span style="font-size: 12px; color: #94a3b8;">FABINS Automated Fabric Inspection &bull; Official Mail:
-        fabins@nevolyn.com &bull; <a href="https://fabins.nevolyn.com" style="color: #0284c7; text-decoration: none;">fabins.nevolyn.com</a></span>
-    </div>
-  </div>
 </body>
 
 </html>

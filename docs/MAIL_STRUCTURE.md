@@ -1,211 +1,261 @@
-# Transactional Mail Architecture — Reusable Agent Prompt
+# Transactional Mail Architecture — Reusable Agent Prompt & Architectural Blueprint
 
-Use this file as an instruction set for an AI agent working on **any** NEVOLYN
-product. It describes *principles* and points at a **reference implementation**
-(FABINS) so the agent can read real code. Do not copy FABINS-specific names,
-schema, statuses, addresses or wording.
+> **Role & Purpose:**  
+> This document is the master instruction set and architectural standard for any developer or AI agent designing, refactoring, or auditing transactional email pipelines, server-rendered confirmation pages, and PDF generation across **any NEVOLYN product**.  
+> It defines **structural contracts, design patterns, security controls, and code conventions**. Use the **FABINS** codebase as the living reference implementation to see these patterns applied. Never hardcode credentials, operational addresses, or secrets.
 
 ---
 
-## 0. Project context (fill in; never guess)
+## 0. Project Context & Configuration Contract
+
+Before implementing or refactoring, establish these configuration variables for the target product. Leave unknown values in `[BRACKETS]`—never invent them or embed real secrets:
 
 ```text
-PRODUCT       = [product name]          # appears first: PRODUCT@NEVOLYN
-COMPANY       = NEVOLYN                 # never "NEVOLYN Technology"
-FRONTEND_URL  = [url]
-BACKEND_URL   = [url]
-ADMIN_EMAIL   = [address]
-DATABASE      = [engine]
-MAIL_PROVIDER = [SMTP / REST provider]
+PRODUCT_NAME     = [PRODUCT_NAME]           # Header lockup: e.g. PRODUCT@NEVOLYN
+COMPANY_NAME     = NEVOLYN                  # Umbrella entity: strictly "NEVOLYN" (never "NEVOLYN Technology")
+BACKEND_ORIGIN   = [BACKEND_BASE_URL]       # Public backend root for absolute email action links
+FRONTEND_ORIGIN  = [FRONTEND_BASE_URL]      # Public web client origin
+ADMIN_EMAIL      = [INTERNAL_ADMIN_EMAIL]   # Mailbox where staff notifications/escalations land
+FROM_EMAIL       = [ENVELOPE_SENDER_EMAIL]  # Authenticated mailbox sender matching SMTP credentials
+MAIL_TRANSPORT   = [SMTP_HOST_AND_PORT]     # Standard SMTPS (465 SSL/TLS) or STARTTLS (587)
+DATABASE         = [DATABASE_ENGINE]        # Relational engine managed via migrations (e.g. PostgreSQL)
+DOCUMENT_LABEL   = Tracking Reference Code  # Standardized user-facing reference label
 ```
 
-Any value left in `[brackets]` is an **unknown**: report it, do not invent it.
-Never print, log, commit or paste passwords, API keys, SMTP credentials or tokens.
+> **Zero-Credential Mandate:**  
+> A prompt, specification, or code commit must never expose passwords, API tokens, production credentials, or real user mailboxes. All credentials must resolve exclusively through runtime environment variables.
 
-## 1. Working protocol
+---
 
-1. **Discover** – read the repo; change nothing; report architecture, security
-   findings, unknowns, breaking changes. Stop for approval.
-2. **Plan** – classify each change `SAFE | BREAKING | REQUIRES MIGRATION | OPTIONAL`. Stop for approval.
-3. **Implement** – security/correctness first, then email/documents/branding/UI.
-4. **Verify** – run real tests/builds; report exact results. Never claim a pass you did not execute.
+## 1. Professional Working Protocol
 
-Preserve working behaviour and public API contracts. Prefer the simplest design
-that meets the project's real reliability and security needs.
+When assigned to build or refactor transactional messaging in any product, follow this 4-step protocol:
 
-## 2. Target flow
+1. **Observe & Audit:** Inspect existing routes, controllers, entities, DTOs, and templates without mutating files. Map out current mail dispatches, missing validations, inline markup leaks, and idempotency vulnerabilities.
+2. **Plan Structural Refactoring:** Classify proposed changes (`SAFE`, `BREAKING`, `REQUIRES MIGRATION`). Stop for user confirmation on architectural decisions.
+3. **Implement with Separation of Concerns:**
+   - **Persistence & Domain:** Transactional state changes and entity validation.
+   - **Asynchronous Messaging:** Decoupled, non-blocking dispatch with immutable message packaging.
+   - **Template & View Layer:** 100% externalized HTML templates with automatic XSS escaping.
+   - **Idempotence & Security:** Single-dispatch protection and scanner-safe pre-flight confirmations.
+4. **Verify Against Automated Tests:** Run the full integration suite and assert on MIME structure, idempotence, and XSS sanitization before finishing.
+
+---
+
+## 2. End-to-End Architectural Flow
+
+The transactional architecture enforces strict separation of concerns across 5 distinct phases:
 
 ```text
-Controller (DTO + validation)
-   → Service (persist, state change)          # transactional
-        → EmailService (@Async)               # never blocks the request
-             → EmailTemplateRenderer          # load, cache, escape, plain-text
-             → EmailMessage (immutable)
-             → dispatch (JavaMailSender / provider adapter)
+1. Client Request
+   └─► HTTP POST (Public Form)
+         │
+2. Orchestration Controller
+   └─► DTO Binding & Bean Validation (@Valid)
+   └─► Honeypot Filter (silent discard on automated bots)
+   └─► Returns HTTP 201 Created with canonical Location header
+         │
+3. Domain Service (@Transactional)
+   └─► Database Persistence (Flyway-managed entity, server-generated reference code)
+   └─► Emits Asynchronous Notification Event: emailService.sendXxxNotifications(entity)
+         │
+4. Asynchronous Messaging Engine (@Async)
+   ├─► PDF Generation (optional document service, returns byte[])
+   ├─► Template Rendering (EmailTemplateRenderer: classpath load, in-memory cache, auto-XSS escape)
+   ├─► Plain-Text Fallback Generation (HTML tag stripping, spacing normalization)
+   ├─► Immutable Message Packaging (EmailMessage record with defensive copies)
+   └─► MIME Construction & Dispatch (JavaMailSender, multipart/alternative + inline CID logos + attachment)
+         │
+5. Administrator Pre-Flight & Single-Acknowledgement Flow
+   ├─► GET /{id}/acknowledge   ──► Safe read-only pre-flight page + Live Outgoing Email Preview Card
+   └─► POST /{id}/acknowledge  ──► Atomic state transition + Dispatches customer acknowledgement email
+                                   (Idempotent: duplicate attempts suppressed, renders "Already Acknowledged")
 ```
 
-Rules: controllers hold no business logic; the email layer makes no domain
-decisions; PDF/document generation is a separate service returning `byte[]`.
-A mail failure must never turn an already-persisted submission into an HTTP 500.
+### Core Architecture Axioms:
+1. **Controllers hold ZERO HTML markup:** Never concatenate raw HTML strings or templates inside `@RestController` or `@Controller` classes. All user-facing views must reside in standalone template files under `resources/templates/`.
+2. **Non-blocking asynchronous dispatch:** All external messaging calls must execute asynchronously (`@Async`) so client response latency remains under `< 100ms`, regardless of SMTP or network delays.
+3. **Persistence isolation:** Mail delivery errors must never roll back already-committed database transactions or return HTTP 500 errors to visitors.
+4. **Idempotent state transitions:** Automated email security scanners (SafeLinks, Proofpoint, Mimecast) aggressively perform HTTP `GET` requests on links inside emails. `GET` routes must be strictly read-only. State mutation and email triggers must belong exclusively to `POST`.
 
-## 3. Reference implementation map (FABINS)
+---
 
-| Concern | File |
+## 3. Reference Implementation Map (FABINS)
+
+The FABINS repository demonstrates this architecture in its most refined, production-proven form:
+
+| Architecture Layer | Reference Implementation |
 |---|---|
-| Mail contract | `backend/src/main/java/com/fabins/service/EmailService.java` |
-| Orchestration, dispatch, MIME, prod guard | `backend/src/main/java/com/fabins/service/impl/EmailServiceImpl.java` |
-| Template loading, cache, escaping, plain text | `backend/src/main/java/com/fabins/service/mail/EmailTemplateRenderer.java` |
-| Immutable message value object | `backend/src/main/java/com/fabins/service/mail/EmailMessage.java` |
-| Acknowledge GET page + POST action | `controller/ContactInquiryController.java`, `controller/DeploymentRequestController.java` |
-| State transition | `service/impl/ContactInquiryServiceImpl.java#acknowledge`, `DeploymentRequestServiceImpl.java#acknowledge` |
-| Templates (6) | `backend/src/main/resources/templates/email/*.html` |
-| Brand assets (CID) | `backend/src/main/resources/static/` |
-| Mail tests | `backend/src/test/java/com/fabins/service/impl/EmailServiceImplTest.java` |
+| **Mail Contract Interface** | `backend/src/main/java/com/fabins/service/EmailService.java` |
+| **Mail Engine & Dispatcher** | `backend/src/main/java/com/fabins/service/impl/EmailServiceImpl.java` |
+| **Template Cache & Sanitizer** | `backend/src/main/java/com/fabins/service/mail/EmailTemplateRenderer.java` |
+| **Immutable Message Value Object** | `backend/src/main/java/com/fabins/service/mail/EmailMessage.java` |
+| **PDF Document Generator** | `backend/src/main/java/com/fabins/service/impl/PdfGenerationServiceImpl.java` |
+| **Pre-Flight Web Controllers** | `backend/src/main/java/com/fabins/controller/DeploymentRequestController.java`<br/>`backend/src/main/java/com/fabins/controller/ContactInquiryController.java` |
+| **Idempotent Service Guards** | `backend/src/main/java/com/fabins/service/impl/DeploymentRequestServiceImpl.java`<br/>`backend/src/main/java/com/fabins/service/impl/ContactInquiryServiceImpl.java` |
+| **Email Templates (6)** | `backend/src/main/resources/templates/email/*.html` |
+| **Web Pre-Flight Templates (4)** | `backend/src/main/resources/templates/web/*.html` |
+| **Inline Brand Assets (CID)** | `backend/src/main/resources/static/` |
+| **Integration Test Suite** | `backend/src/test/java/com/fabins/controller/DeploymentRequestControllerTest.java`<br/>`backend/src/test/java/com/fabins/service/impl/EmailServiceImplTest.java` |
 
-Read these before designing; adapt, do not duplicate.
+---
 
-## 4. Component contracts
+## 4. Component Design Specifications
 
-### 4.1 `EmailMessage` — immutable record
-Fields: `to, subject, htmlBody, plainTextBody, replyTo, attachment`.
-Compact constructor enforces non-null `to`, `subject`, `htmlBody`. Builder
-pattern; defensive copy of attachment bytes. Avoid methods like
-`send(to, subject, html, text, replyTo, file, ...)`.
-*Extend* (if needed) with a list of attachments and inline resources; FABINS
-currently supports one attachment and wires inline CID images in `dispatch`.
+### 4.1 Immutable Message Value Object (`EmailMessage`)
+- Implemented as a Java `record` with a builder pattern.
+- Invariants: `to`, `subject`, and `htmlBody` are strictly required (null checks in compact constructor).
+- Binary attachments stored with defensive copies (`byte[].clone()`) to ensure memory safety across asynchronous boundaries.
+- Optional fields: `plainTextBody`, `replyTo`, `attachmentFilename`, `attachmentBytes`.
 
-### 4.2 `EmailTemplateRenderer`
-- Loads templates from the classpath; caches in a `ConcurrentHashMap`.
-- Replaces `{{key}}` with **`HtmlUtils.htmlEscape(value)`**; `null` → `""`.
-- Only an explicit allow-list (`DEFAULT_RAW_KEYS`, e.g. `acknowledgeUrl`) bypasses
-  escaping, and those values must be server-built, never user input.
-- `generatePlainText(html)` strips comments/style/script/tags, converts block
-  tags to newlines, decodes entities, normalises whitespace.
-- **Gap to close in new projects:** after substitution, fail (or log an error) if
-  `{{` or `}}` remain, so an unresolved token can never reach a recipient.
+### 4.2 Template Engine & Sanitizer (`EmailTemplateRenderer`)
+- **In-Memory Cache:** Loads classpath templates once into a `ConcurrentHashMap<String, String>` to eliminate disk I/O bottlenecks.
+- **Variant Resolution:** Gracefully resolves between `-mail.html` and `-email.html` filename conventions.
+- **Automatic HTML Escaping:**
+  - Dynamic parameters `{{key}}` are automatically escaped via Spring's `HtmlUtils.htmlEscape(value)`.
+  - Only server-constructed keys explicitly listed in `DEFAULT_RAW_KEYS` (e.g. `acknowledgeUrl`, `actionUrl`) bypass escaping.
+- **Plain-Text Engine (`generatePlainText`):**
+  - Strips HTML comments (`<!-- ... -->`).
+  - Strips `<style>` and `<script>` blocks entirely.
+  - Converts `<br>`, `</p>`, `</div>`, `</tr>`, `</li>`, and heading tags to structured line breaks.
+  - Strips residual tags, unescapes entities (`HtmlUtils.htmlUnescape`), and normalizes whitespace.
 
-### 4.3 `EmailServiceImpl`
-- `@Async` public methods; one private method per email (admin / sender / acknowledgement).
-- Build the placeholder map with explicit fallbacks. **`Map.of` throws on any
-  null value**, so use `x != null ? x : "<fallback>"` or `Map.ofEntries` with safe values.
-- Compose an `EmailMessage`, then call a single `dispatch(...)`.
-- `dispatch`: skip when credentials are blank in non-prod; build
-  `MimeMessageHelper(msg, true, UTF-8)`, set From (`PRODUCT@NEVOLYN`), To, Subject,
-  Reply-To, HTML + plain text; `addInline("brandLogo", classpath png, "image/png")`
-  only when the HTML references `cid:brandLogo`; add the PDF attachment if present.
-- Catch and log delivery failures with the **reference code**, never with
-  credentials or full message bodies.
-- `@PostConstruct` production guard: if the `prod` profile is active and mail
-  credentials are blank, throw `IllegalStateException` (fail fast). Dev may simulate.
+### 4.3 Mail Engine & Dispatcher (`EmailServiceImpl`)
+- **MIME Composition Hierarchy:**
+  ```text
+  multipart/mixed
+  ├── multipart/related
+  │   ├── multipart/alternative
+  │   │   ├── text/plain (Clean RFC fallback generated by templateRenderer)
+  │   │   └── text/html (Responsive HTML with light-mode lock)
+  │   ├── image/png (Content-ID: brandLogo)
+  │   └── image/png (Content-ID: companyIcon)
+  └── application/pdf (Attachment: Optional document report)
+  ```
+- **CID Embedded Logos:** Logos are packaged as inline MIME parts from the classpath. This eliminates external HTTP dependencies and prevents email clients from blocking images.
+- **Direct Reply-To:** Admin notification emails set `Reply-To` to the submitter's email address, allowing team members to hit "Reply" in their email client to engage directly.
+- **Fail-Fast Production Validation (`@PostConstruct`):** If the application starts under `prod` or `production` profiles without SMTP credentials, it must throw an `IllegalStateException` immediately. Silent simulation is strictly restricted to local development.
+- **Safe Development Simulation:** In non-prod environments with empty credentials, dispatch logs `[WEBMAIL SIMULATED]` with recipient, subject, and attachment info, allowing local development without SMTP dependencies.
 
-### 4.4 Optional provider abstraction
-Introduce `EmailDeliveryProvider` (`Smtp…`, `Transactional…`) **only** if the
-project must switch or combine providers. Otherwise keep one `dispatch`.
+---
 
-## 5. Email design rules
+## 5. Security & Idempotence Standards
 
-- **Structure:** nested `<table>` layout, inline CSS, 600–640px wrapper, solid
-  `background-color` (no gradient-only backgrounds). No flexbox/grid/external CSS.
-- **Light-mode lock:** `<meta name="color-scheme" content="light">`,
-  `<meta name="supported-color-schemes" content="light">`, `:root{color-scheme:light}`,
-  plus inline styles on every critical element.
-- **Logo:** embed via `cid:` from classpath (never a hosted URL). On a dark header,
-  place the logo in a white 44×44 rounded cell so dark artwork stays visible.
-- **Preheader:** hidden `<div>` with a one-line, purpose-specific summary.
-- **Sender / identity:** `PRODUCT@NEVOLYN`; header lockup product first, NEVOLYN second.
-- **Subjects:** `[PRODUCT] <Type> [Ref: <code>]` — e.g. Inquiry Confirmation,
-  New Contact Inquiry, Inquiry Acknowledged. Never the word "Alert". Do not put
-  user-typed free text in the subject.
-- **Echoing user input:** dedicated summary card (Subject, Message, Reference);
-  `white-space: pre-wrap; word-break: break-word;` and a brand-colour left border.
-  Always escaped by the renderer.
-- **Admin mail:** reference, name, email, phone, subject, message, timestamp,
-  status, Reply-To = the visitor; plus the acknowledge action.
-- Use the **project's own** palette; the FABINS slate/sky palette is an example only.
-
-## 6. MIME checklist
+### 5.1 Single-Acknowledgement State Machine
+To guarantee that an applicant or visitor never receives duplicate acknowledgement emails:
 
 ```text
-multipart/mixed
-├─ multipart/related
-│   ├─ multipart/alternative
-│   │   ├─ text/plain
-│   │   └─ text/html
-│   └─ image/png   (Content-ID: brandLogo)
-└─ application/pdf (optional)
+[State: NEW] ──(Admin Confirms via POST)──► [State: IN_REVIEW / REPLIED] ──► Dispatches Email
+      │                                                │
+      │                                                └──(Repeated Action)──► Suppress Email
+      │                                                                         Return "Already Acknowledged"
+      └──(Scanner Hits GET)──► Read-Only Pre-flight Form + Outgoing Email Preview
 ```
 
-## 7. Acknowledgement / action links (security-critical)
+1. **Service-Layer Guard:**
+   The domain service must verify current status before dispatching emails. If status is already updated, suppress the dispatch, log a warning with the reference code, and return cleanly.
+2. **Controller-Layer Guard:**
+   - When `GET /{id}/acknowledge` is requested for an already-acknowledged entity, return the `result.html` view with status badge and **no confirmation button**.
+   - When `POST /{id}/acknowledge` is called on an already-acknowledged entity, bypass the service transition and return the idempotent result view immediately.
 
-- **GET must be side-effect free.** It renders a read-only confirmation page
-  (HTML-escape any data shown). Email scanners and link previewers issue GETs.
-- **POST performs the state change**, inside a transaction, then triggers the
-  acknowledgement email. Repeated POSTs must be harmless (return an
-  "already acknowledged" page, do not resend).
-- FABINS already follows GET-page → POST-action (`…/{id}/acknowledge`).
-- **Remaining weakness to fix in new projects:** the link is authorised only by an
-  entity UUID. Prefer a signed, expiring, single-use token (e.g. HMAC over
-  `id|expiry|nonce`, or a random token stored hashed), compared in constant time.
-  A UUID is an identifier, not a credential. Also add CSRF protection or
-  re-authentication for the POST if the endpoint is publicly reachable.
-- State changes go through an explicit domain method (e.g. `markAcknowledged()`),
-  not a public `setStatus`; log the transition with the reference code.
+### 5.2 Anti-Scanner Protection
+- `GET /{id}/acknowledge` displays:
+  - Form/application summary card.
+  - Prominent **Tracking Reference Code**.
+  - **Live Outgoing Email Preview Card** displaying the exact message the recipient will receive.
+  - Single-acknowledgement safety notice.
+  - Confirmation button protected by browser confirmation dialog (`onsubmit="return confirm(...)"`).
+- Only `POST /{id}/acknowledge` triggers the state change and fires downstream mail events.
 
-## 8. Persistence & audit
+### 5.3 PDF Generation Standard
+- Generator returns raw `byte[]` via a dedicated document service (e.g. iText 8).
+- Standardized attachment naming:  
+  `[PRODUCT]_Deployment_Assessment-{{referenceCode}}.pdf`
 
-- Server-generated, unique, non-updatable `referenceCode`.
-- Timestamps via JPA auditing; explicit status enum with allowed transitions.
-- Constraints in the migration (`NOT NULL`, `UNIQUE`, `CHECK`, indexes), not only in code.
-- Entities created through a static factory that validates required fields; no
-  blanket public setters.
-- Do not expose entities from controllers; use request/response DTOs.
+---
 
-## 9. Reliability
+## 6. Template Catalog & Design Rules
 
-`@Async` is best-effort. If an email is business-critical, evaluate (and justify
-before adding) a transactional outbox, retry with back-off, delivery status and
-idempotency keys. For ordinary notifications, `@Async` + logged failure is enough.
-Decide explicitly: what is atomic, what is async, what is retried, what happens
-if the DB commit succeeds and the mail fails, and what if the HTTP request is retried.
+### 6.1 Required Template Sets
 
-## 10. Security checklist
+1. **Email Templates (`resources/templates/email/`):**
+   - `<entity>-admin-notification-mail.html`: Comprehensive internal alert for team members with details, direct Reply-To, and 1-click acknowledge button.
+   - `<entity>-sender-confirmation-mail.html`: Immediate submission confirmation for the customer with request summary and SLA notice.
+   - `<entity>-acknowledgement-email.html`: Follow-up message sent after staff officially acknowledges the request.
+2. **Web Pre-Flight Templates (`resources/templates/web/`):**
+   - `<entity>-acknowledge-confirm.html`: Pre-flight confirmation view with entity attributes, live email preview card, and POST confirmation form.
+   - `<entity>-acknowledge-result.html`: Post-action success receipt and idempotent "Already Acknowledged" screen.
 
-- All user data entering HTML is escaped; raw keys are an allow-list of server-built values.
-- Validate input with DTO + domain + DB constraints; defend against header/CRLF
-  injection in `to` / `subject` / `replyTo`.
-- CORS: explicit origins per environment; never `*` with credentials.
-- Secrets only from environment/secret store; `.env*`, `run.md` and local profiles are gitignored.
-- Logs: reference code, operation, outcome; never credentials, tokens or full bodies.
-- Production fails fast when mail credentials are missing.
+### 6.2 Email HTML/CSS Best Practices
+- **Structure:** Nested `<table>` elements with `cellpadding="0" cellspacing="0" border="0"`. No flexbox, CSS grid, or external stylesheets.
+- **Width:** Fixed container width between `600px` and `640px`, centered with `margin: 0 auto;`.
+- **Light-Mode Lock:**
+  ```html
+  <meta name="color-scheme" content="light">
+  <meta name="supported-color-schemes" content="light">
+  <style>
+    :root { color-scheme: light; }
+  </style>
+  ```
+- **Branding Separation:**
+  - **Internal Admin Emails:** Clean, operational, minimal footer (no external marketing copy).
+  - **External Customer Emails:** Professional footer featuring product lockup and company branding.
+- **Preheader:** Hidden preview text `<div>` placed immediately after `<body>` to control inbox preview snippets.
 
-## 11. Tests required
+---
 
-1. Renderer: replacement, escaping (`<script>alert('xss')</script>`,
-   `<img src=x onerror=alert(1)>`), `null`/empty, Unicode, long text, **no `{{` left**.
-2. Service: admin + sender dispatch, recipient, subject, Reply-To, attachment, failure swallowed.
-3. **Inspect the real `MimeMessage`** (parts: plain, html, inline image, attachment) —
-   do not only mock `send()`.
-4. Acknowledge: GET changes nothing; POST transitions once; second POST is idempotent.
-5. Config: prod + blank credentials → startup fails; dev → simulation allowed.
-6. Database: migrations apply, constraints and unique `referenceCode` hold.
+## 7. Configuration Schema & Environment Contract
 
-Commands (adapt to the project):
+All mail configurations must map to standard environment variables:
+
+```yaml
+# Spring Framework SMTP Contract
+spring:
+  mail:
+    host: ${SPRING_MAIL_HOST}
+    port: ${SPRING_MAIL_PORT:465}
+    username: ${SPRING_MAIL_USERNAME}
+    password: "${SPRING_MAIL_PASSWORD:}"
+    properties:
+      mail:
+        smtp:
+          auth: true
+          ssl:
+            enable: ${SPRING_MAIL_SSL_ENABLE:true}
+          starttls:
+            enable: ${SPRING_MAIL_STARTTLS_ENABLE:false}
+
+# Application Mail Routing Contract
+app:
+  backend-url: ${APP_BACKEND_URL}
+  frontend-url: ${APP_FRONTEND_URL}
+  mail:
+    admin-address: ${APP_MAIL_ADMIN_ADDRESS}
+    from-address: ${APP_MAIL_FROM_ADDRESS}
+    sender-name: ${APP_MAIL_SENDER_NAME}
+    admin-subject: "[PRODUCT] Assessment Request: %s"
+    sender-subject: "[PRODUCT] Request Confirmed [Ref: %s]"
+    acknowledgement-subject: "[PRODUCT] Request Acknowledged [Ref: %s]"
+```
+
+---
+
+## 8. Verification & Test Suite Requirements
+
+Every transactional mail implementation must validate against these test cases:
 
 ```powershell
-./mvnw test
-./mvnw clean verify
-npm run lint
-npm run build
+cmd /c "mvnw.cmd test"
 ```
 
-## 12. Final audit
+### Essential Test Assertions:
+1. **Renderer Sanitization:** Verify `<script>` and `<img>` tags in user inputs are escaped via `HtmlUtils.htmlEscape`, while raw allow-listed URLs remain unescaped.
+2. **Plain-Text Extraction:** Verify HTML comments and styles are stripped, and paragraphs convert to clean line breaks.
+3. **MIME Structure:** Verify `MimeMessage` contains `text/plain`, `text/html`, inline CID logos, and attachments with correct filenames.
+4. **Scanner Safety:** Verify `GET /{id}/acknowledge` renders the pre-flight confirmation page without altering entity status.
+5. **State Transition:** Verify `POST /{id}/acknowledge` transitions entity status and dispatches the acknowledgement email.
+6. **Idempotence:** Verify a second `POST` request suppresses duplicate email dispatches and returns the "Already Acknowledged" screen.
+7. **Production Guard:** Verify application refuses to boot in `prod` profile when `SPRING_MAIL_PASSWORD` is blank.
 
-Search the whole repo for: hardcoded credentials, state-changing GET, raw HTML
-interpolation, `Map.of` with nullable values, wildcard CORS, legacy brand names /
-domains / providers, the word "Alert", `TODO`, `FIXME`, `System.out.println`,
-`printStackTrace`. Fix real findings; do not delete valid comments or tests.
-
-## 13. Report format
-
-Architecture · Database · Email · Security · Frontend · Tests (exact command and
-counts) · Required environment variable **names** · Genuine remaining issues.
+---
+*NEVOLYN Engineering Standard • Core Architectural Specification*

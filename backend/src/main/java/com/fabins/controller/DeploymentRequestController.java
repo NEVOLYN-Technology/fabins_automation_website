@@ -22,15 +22,19 @@ import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
+import com.fabins.service.mail.EmailTemplateRenderer;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.util.HtmlUtils;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.net.URI;
 import java.nio.charset.StandardCharsets;
+import java.util.Map;
+import java.util.Set;
 import java.util.UUID;
 
 /**
@@ -69,9 +73,16 @@ import java.util.UUID;
 public class DeploymentRequestController {
 
   private final DeploymentRequestService service;
+  private final EmailTemplateRenderer templateRenderer;
+
+  @org.springframework.beans.factory.annotation.Autowired
+  public DeploymentRequestController(DeploymentRequestService service, EmailTemplateRenderer templateRenderer) {
+    this.service = service;
+    this.templateRenderer = templateRenderer != null ? templateRenderer : new EmailTemplateRenderer();
+  }
 
   public DeploymentRequestController(DeploymentRequestService service) {
-    this.service = service;
+    this(service, new EmailTemplateRenderer());
   }
 
   /**
@@ -137,7 +148,7 @@ public class DeploymentRequestController {
   public ResponseEntity<byte[]> getPdf(@PathVariable UUID id) {
     byte[] pdf = service.getAssessmentPdf(id);
     DeploymentRequestResponse request = service.getById(id);
-    String filename = "FABINS-Assessment-" + request.referenceCode() + ".pdf";
+    String filename = "FABINS_Deployment_Assessment-" + request.referenceCode() + ".pdf";
     return ResponseEntity.ok()
         .contentType(MediaType.APPLICATION_PDF)
         .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"" + filename + "\"")
@@ -203,95 +214,75 @@ public class DeploymentRequestController {
   public ResponseEntity<String> showAcknowledgeConfirmation(@PathVariable UUID id) {
     DeploymentRequestResponse request = service.getById(id);
 
-    String content;
     if (request.status() != DeploymentRequestStatus.NEW) {
-      content = """
-          <div style="display: inline-block; background: #e0f2fe; color: #0369a1; padding: 4px 12px; border-radius: 999px; font-weight: 700; font-size: 13px; margin-bottom: 16px;">
-            Status: %s
-          </div>
-          <h2 style="color: #0f172a; margin-top: 0;">Request Already Acknowledged</h2>
-          <p style="font-size: 15px; color: #334155;">Deployment request <strong>%s</strong> for <strong>%s</strong> is already in progress.</p>
-          <p style="color: #64748b; font-size: 13px;">No further automated action is needed.</p>
-          """
-          .formatted(request.status(), request.referenceCode(), request.millName());
-    } else {
-      content = """
-          <h2 style="color: #0f172a; margin-top: 0;">Confirm Assessment Acknowledgement</h2>
-          <p style="font-size: 15px; color: #334155; margin-bottom: 20px;">
-            You are about to acknowledge the deployment assessment application for:
-          </p>
-          <div style="background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 18px; text-align: left; margin-bottom: 24px; font-size: 14px;">
-            <div style="margin-bottom: 8px;"><strong>Tracking ID:</strong> <span style="color: #0284c7;">%s</span></div>
-            <div style="margin-bottom: 8px;"><strong>Mill Name:</strong> %s</div>
-            <div style="margin-bottom: 8px;"><strong>Contact Person:</strong> %s</div>
-            <div><strong>Applicant Email:</strong> %s</div>
-          </div>
-          <form method="POST" action="/api/v1/deployment-requests/%s/acknowledge">
-            <button type="submit" style="background: #0284c7; color: #ffffff; border: none; padding: 14px 28px; border-radius: 8px; font-size: 15px; font-weight: 700; cursor: pointer; box-shadow: 0 4px 12px rgba(2, 132, 199, 0.35);">
-              &#10003; Confirm &amp; Dispatch Acknowledgement
-            </button>
-          </form>
-          <p style="font-size: 12px; color: #94a3b8; margin-top: 16px;">
-            Clicking confirm will mark the application as IN_REVIEW and notify the applicant.
-          </p>
-          """
-          .formatted(request.referenceCode(), request.millName(), request.contactName(), request.email(), id);
+      String html = templateRenderer.render(
+          "templates/web/deployment-acknowledge-result.html",
+          Map.ofEntries(
+              Map.entry("title", "Request Already Acknowledged"),
+              Map.entry("statusBadge", request.status().name()),
+              Map.entry("referenceCode", request.referenceCode()),
+              Map.entry("millName", request.millName()),
+              Map.entry("email", request.email()),
+              Map.entry("message", "Deployment request " + request.referenceCode() + " for " + request.millName() + " has already been acknowledged."),
+              Map.entry("detailNote", "An official acknowledgement email was already dispatched to " + request.email() + ". To prevent duplicate emails to the applicant, this application cannot be acknowledged again.")
+          ));
+      return ResponseEntity.ok().contentType(MediaType.TEXT_HTML).body(html);
     }
 
-    String html = """
-        <!DOCTYPE html>
-        <html lang="en">
-        <head>
-          <meta charset="UTF-8">
-          <meta name="viewport" content="width=device-width, initial-scale=1.0">
-          <title>FABINS@NEVOLYN — Deployment Acknowledgement</title>
-        </head>
-        <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; text-align: center; padding: 40px 15px; line-height: 1.6; background-color: #f1f5f9;">
-          <div style="max-width: 540px; margin: 0 auto; background: #ffffff; border: 1px solid #e2e8f0; padding: 36px; border-radius: 12px; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.05);">
-            <div style="font-size: 13px; font-weight: 700; color: #0284c7; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 12px;">FABINS@NEVOLYN</div>
-            %s
-          </div>
-        </body>
-        </html>
-        """
-        .formatted(content);
+    String html = templateRenderer.render(
+        "templates/web/deployment-acknowledge-confirm.html",
+        Map.ofEntries(
+            Map.entry("actionUrl", "/api/v1/deployment-requests/" + id + "/acknowledge"),
+            Map.entry("referenceCode", request.referenceCode()),
+            Map.entry("millName", request.millName()),
+            Map.entry("contactName", request.contactName()),
+            Map.entry("email", request.email()),
+            Map.entry("machineBrand", request.machineBrand() != null ? request.machineBrand() : "N/A")
+        ),
+        Set.of("actionUrl"));
 
-    return ResponseEntity.ok()
-        .contentType(new MediaType(MediaType.TEXT_HTML, StandardCharsets.UTF_8))
-        .body(html);
+    return ResponseEntity.ok().contentType(MediaType.TEXT_HTML).body(html);
   }
 
   /**
    * Executes the state change to IN_REVIEW and dispatches the acknowledgement
-   * email.
+   * email. Enforces single-acknowledgement: subsequent calls do not re-send.
    */
   @PostMapping("/{id}/acknowledge")
   @Operation(summary = "Acknowledge a deployment request and notify sender")
   public ResponseEntity<String> acknowledge(@PathVariable UUID id) {
+    DeploymentRequestResponse current = service.getById(id);
+
+    if (current.status() != DeploymentRequestStatus.NEW) {
+      String html = templateRenderer.render(
+          "templates/web/deployment-acknowledge-result.html",
+          Map.ofEntries(
+              Map.entry("title", "Request Already Acknowledged"),
+              Map.entry("statusBadge", current.status().name()),
+              Map.entry("referenceCode", current.referenceCode()),
+              Map.entry("millName", current.millName()),
+              Map.entry("email", current.email()),
+              Map.entry("message", "Deployment request " + current.referenceCode() + " for " + current.millName() + " was already acknowledged previously."),
+              Map.entry("detailNote", "To prevent sending duplicate emails to the applicant, no additional email was sent. An acknowledgement email was already dispatched to " + current.email() + ".")
+          ));
+      return ResponseEntity.ok().contentType(MediaType.TEXT_HTML).body(html);
+    }
+
     DeploymentRequestResponse response = service.acknowledge(id);
-    String htmlResponse = """
-        <!DOCTYPE html>
-        <html lang="en">
-        <head>
-          <meta charset="UTF-8">
-          <meta name="viewport" content="width=device-width, initial-scale=1.0">
-          <title>FABINS@NEVOLYN — Request Acknowledged</title>
-        </head>
-        <body style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; text-align: center; padding: 50px 15px; line-height: 1.6; background-color: #f1f5f9;">
-          <div style="max-width: 540px; margin: 0 auto; background: #ffffff; border: 1px solid #e2e8f0; padding: 36px; border-radius: 12px; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.05);">
-            <div style="font-size: 13px; font-weight: 700; color: #0284c7; letter-spacing: 1px; text-transform: uppercase; margin-bottom: 12px;">FABINS@NEVOLYN</div>
-            <div style="font-size: 36px; margin-bottom: 12px; color: #16a34a;">&#10003;</div>
-            <h2 style="color: #0f172a; margin-top: 0;">Application Successfully Acknowledged</h2>
-            <p style="font-size: 15px; color: #1e293b;">Deployment request <strong>%s</strong> for <strong>%s</strong> is now marked as <strong>IN REVIEW</strong>.</p>
-            <p style="color: #64748b; font-size: 14px;">An official acknowledgement email has been dispatched to <strong>%s</strong> confirming our team will contact them within 24 hours.</p>
-          </div>
-        </body>
-        </html>
-        """
-        .formatted(response.referenceCode(), response.millName(), response.email());
+    String htmlResponse = templateRenderer.render(
+        "templates/web/deployment-acknowledge-result.html",
+        Map.ofEntries(
+            Map.entry("title", "Application Successfully Acknowledged"),
+            Map.entry("statusBadge", "IN_REVIEW"),
+            Map.entry("referenceCode", response.referenceCode()),
+            Map.entry("millName", response.millName()),
+            Map.entry("email", response.email()),
+            Map.entry("message", "Deployment request " + response.referenceCode() + " for " + response.millName() + " is now marked as IN_REVIEW."),
+            Map.entry("detailNote", "An official acknowledgement email has been dispatched to " + response.email() + " confirming our team will contact them within 24 hours.")
+        ));
 
     return ResponseEntity.ok()
-        .contentType(new MediaType(MediaType.TEXT_HTML, StandardCharsets.UTF_8))
+        .contentType(MediaType.TEXT_HTML)
         .body(htmlResponse);
   }
 

@@ -240,7 +240,7 @@ export const ContactSection = () => {
                   </p>
                   {result.referenceCode && (
                     <div className="inline-flex items-center gap-2 rounded-lg border border-accent/30 bg-accent-quiet px-4 py-2">
-                      <span className="text-xs text-ink-muted">Reference:</span>
+                      <span className="text-xs text-ink-muted">Tracking Reference Code:</span>
                       <code className="text-xs font-bold text-accent font-mono">
                         {result.referenceCode}
                       </code>

@@ -424,6 +424,43 @@ class DeploymentRequestControllerTest {
         mockMvc().perform(get(ENDPOINT + "/" + id).with(org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user("admin").roles("ADMIN")))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.status").value("IN_REVIEW"));
+
+        // Subsequent GET: displays "Request Already Acknowledged" without the confirmation button
+        mockMvc().perform(get(ENDPOINT + "/" + id + "/acknowledge"))
+                .andExpect(status().isOk())
+                .andExpect(header().string("Content-Type", org.hamcrest.Matchers.containsString("text/html")))
+                .andExpect(org.springframework.test.web.servlet.result.MockMvcResultMatchers.content()
+                        .string(org.hamcrest.Matchers.containsString("Request Already Acknowledged")))
+                .andExpect(org.springframework.test.web.servlet.result.MockMvcResultMatchers.content()
+                        .string(org.hamcrest.Matchers.not(org.hamcrest.Matchers.containsString("Confirm &amp; Dispatch Acknowledgement"))));
+
+        // Subsequent POST: rejects duplicate acknowledgement and renders "Request Already Acknowledged"
+        mockMvc().perform(post(ENDPOINT + "/" + id + "/acknowledge"))
+                .andExpect(status().isOk())
+                .andExpect(header().string("Content-Type", org.hamcrest.Matchers.containsString("text/html")))
+                .andExpect(org.springframework.test.web.servlet.result.MockMvcResultMatchers.content()
+                        .string(org.hamcrest.Matchers.containsString("Request Already Acknowledged")));
+    }
+
+    @Test
+    @DisplayName("GET acknowledge displays email preview and tracking reference code before confirmation")
+    void getAcknowledgeDisplaysEmailPreview() throws Exception {
+        String body = mockMvc().perform(post(ENDPOINT)
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(json(validRequest())))
+                .andReturn().getResponse().getContentAsString();
+
+        String id = objectMapper.readTree(body).get("id").asText();
+
+        mockMvc().perform(get(ENDPOINT + "/" + id + "/acknowledge"))
+                .andExpect(status().isOk())
+                .andExpect(header().string("Content-Type", org.hamcrest.Matchers.containsString("text/html")))
+                .andExpect(org.springframework.test.web.servlet.result.MockMvcResultMatchers.content()
+                        .string(org.hamcrest.Matchers.containsString("Outgoing Email Preview")))
+                .andExpect(org.springframework.test.web.servlet.result.MockMvcResultMatchers.content()
+                        .string(org.hamcrest.Matchers.containsString("Tracking Reference Code:")))
+                .andExpect(org.springframework.test.web.servlet.result.MockMvcResultMatchers.content()
+                        .string(org.hamcrest.Matchers.containsString("Single-Acknowledgement Protection:")));
     }
 
     // ── PDF Generation Endpoints ────────────────────────────────────────────
@@ -457,7 +494,7 @@ class DeploymentRequestControllerTest {
         byte[] pdfBytes = mockMvc().perform(get(ENDPOINT + "/" + id + "/pdf"))
                 .andExpect(status().isOk())
                 .andExpect(header().string("Content-Type", MediaType.APPLICATION_PDF_VALUE))
-                .andExpect(header().string("Content-Disposition", org.hamcrest.Matchers.containsString("inline; filename=\"FABINS-Assessment-")))
+                .andExpect(header().string("Content-Disposition", org.hamcrest.Matchers.containsString("inline; filename=\"FABINS_Deployment_Assessment-")))
                 .andReturn().getResponse().getContentAsByteArray();
 
         org.assertj.core.api.Assertions.assertThat(new String(pdfBytes, java.nio.charset.StandardCharsets.ISO_8859_1))
