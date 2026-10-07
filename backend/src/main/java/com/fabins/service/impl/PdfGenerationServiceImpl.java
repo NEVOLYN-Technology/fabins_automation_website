@@ -11,13 +11,11 @@ import org.springframework.stereotype.Service;
 import java.util.Objects;
 
 /**
- * Service implementation for official FABINS deployment assessment PDF
- * generation.
+ * Service implementation for official FABINS deployment assessment PDF generation.
  *
  * <p>
- * Delegates document construction and XHTML/CSS styling to
- * {@link DeploymentAssessmentPdfBuilder},
- * which renders from {@code templates/pdf/deployment-assessment.html}.
+ * Delegates document construction to {@link DeploymentAssessmentPdfBuilder},
+ * which builds pixel-perfect executive A4 PDF reports via OpenPDF.
  */
 @Service
 public class PdfGenerationServiceImpl implements PdfGenerationService {
@@ -50,7 +48,7 @@ public class PdfGenerationServiceImpl implements PdfGenerationService {
         byte[] pdfBytes = pdfBuilder.build(request);
 
         long duration = System.currentTimeMillis() - start;
-        log.info("Successfully generated assessment report from HTML template for reference: {} ({} bytes, took {} ms)",
+        log.info("Successfully generated assessment report for reference: {} ({} bytes, took {} ms)",
                 refCode, pdfBytes.length, duration);
 
         return pdfBytes;
