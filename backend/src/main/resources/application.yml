@@ -71,10 +71,13 @@ spring:
           socketFactory:
             port: ${SPRING_MAIL_PORT:465}
             class: javax.net.ssl.SSLSocketFactory
+          connectiontimeout: 8000
+          timeout: 8000
+          writetimeout: 8000
         smtps:
-          connectiontimeout: 10000
-          timeout: 10000
-          writetimeout: 10000
+          connectiontimeout: 8000
+          timeout: 8000
+          writetimeout: 8000
 
   jackson:
     # Serialise Instant as ISO-8601 ("2026-07-27T18:30:00Z") rather than as an

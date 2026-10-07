@@ -303,7 +303,7 @@ public class DeploymentAssessmentPdfBuilder {
         cell.setPaddingRight(14f);
 
         // Statement Title Header
-        Paragraph title = new Paragraph("TECHNICAL ASSESSMENT FABINS", font(12.0f, Font.BOLD, COLOR_PRIMARY));
+        Paragraph title = new Paragraph("FABINS DEPLOYMENT ASSESSMENT", font(12.0f, Font.BOLD, COLOR_PRIMARY));
         title.setSpacingAfter(7f);
         cell.addElement(title);
 

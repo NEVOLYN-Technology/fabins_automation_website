@@ -1,143 +1,230 @@
-<!--
-================================================================================
-WEB PAGE TEMPLATE: Contact Inquiry — Acknowledge Result / Status Notice
-FILE: templates/web/contact-acknowledge-result.html
---------------------------------------------------------------------------------
-WHEN IT IS USED:
-  Rendered after an administrator submits the confirmation form, or when the
-  link is accessed after the inquiry has already been acknowledged.
-  Provides a clear status receipt without allowing duplicate actions.
-
-SUPPORTED PLACEHOLDERS:
-  - {{title}}                   : Main header (e.g. Inquiry Successfully Acknowledged)
-  - {{statusBadge}}             : Status pill label (e.g. REPLIED)
-  - {{referenceCode}}           : Tracking Reference Code (e.g. FAB-CONTACT-XXXXXXXX)
-  - {{name}}                    : Visitor Representative Full Name
-  - {{email}}                   : Visitor Email Address
-  - {{message}}                 : Summary message
-  - {{detailNote}}              : Follow-up explanatory text
-================================================================================
--->
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>{{title}} — FABINS@NEVOLYN</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>{{title}} — FABINS</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@600;700&display=swap" rel="stylesheet">
   <style>
-    :root {
-      color-scheme: light;
-    }
     * {
       box-sizing: border-box;
-    }
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-      line-height: 1.6;
-      color: #1e293b;
-      background-color: #f1f5f9;
       margin: 0;
-      padding: 50px 16px;
+      padding: 0;
     }
-    .container {
-      max-width: 560px;
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      line-height: 1.5;
+      color: #0f172a;
+      background-color: #f8fafc;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 24px 14px;
+    }
+
+    .wrapper {
+      width: 100%;
+      max-width: 580px;
       margin: 0 auto;
+    }
+
+    .main-card {
       background: #ffffff;
       border: 1px solid #e2e8f0;
-      border-radius: 14px;
-      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05);
-      padding: 40px 32px;
+      border-radius: 16px;
+      box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.06), 0 8px 10px -6px rgba(15, 23, 42, 0.02);
+      overflow: hidden;
       text-align: center;
+      padding: 36px 28px;
     }
-    .brand-tag {
-      font-size: 13px;
-      font-weight: 700;
-      color: #0284c7;
-      letter-spacing: 1px;
-      text-transform: uppercase;
-      margin-bottom: 16px;
+
+    .status-icon-circle {
+      width: 64px;
+      height: 64px;
+      background: #ecfdf5;
+      border: 2px solid #a7f3d0;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      margin: 0 auto 16px auto;
+      font-size: 30px;
+      color: #10b981;
     }
+
     .status-badge {
       display: inline-block;
-      background-color: #e0f2fe;
+      font-size: 11px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
       color: #0369a1;
-      padding: 5px 16px;
-      border-radius: 999px;
-      font-weight: 700;
-      font-size: 13px;
-      margin-bottom: 18px;
+      background: #e0f2fe;
       border: 1px solid #bae6fd;
+      padding: 4px 14px;
+      border-radius: 999px;
+      margin-bottom: 12px;
     }
-    .icon {
-      font-size: 42px;
-      line-height: 1;
-      margin-bottom: 14px;
-      color: #16a34a;
-    }
+
     .page-title {
-      color: #0f172a;
       font-size: 22px;
       font-weight: 800;
-      margin: 0 0 12px 0;
+      color: #0f172a;
+      margin-bottom: 10px;
+      letter-spacing: -0.3px;
     }
+
     .summary-text {
-      font-size: 15px;
-      color: #334155;
-      margin-bottom: 16px;
-      line-height: 1.55;
+      font-size: 14px;
+      color: #475569;
+      line-height: 1.6;
+      margin-bottom: 22px;
     }
+
     .info-card {
-      background-color: #f8fafc;
+      background: #f8fafc;
       border: 1px solid #e2e8f0;
-      border-radius: 8px;
-      padding: 14px 18px;
-      margin-bottom: 18px;
+      border-radius: 12px;
+      padding: 16px;
+      text-align: left;
+      margin-bottom: 20px;
+    }
+
+    .info-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 6px 0;
+      border-bottom: 1px solid #f1f5f9;
       font-size: 13px;
+      gap: 10px;
+    }
+
+    .info-row:last-child {
+      border-bottom: none;
+    }
+
+    .info-label {
       color: #64748b;
+      font-weight: 600;
+    }
+
+    .info-val {
+      color: #0f172a;
+      font-weight: 600;
+      text-align: right;
+      word-break: break-all;
+    }
+
+    .ref-pill {
+      font-family: 'JetBrains Mono', ui-monospace, Consolas, monospace;
+      font-weight: 700;
+      font-size: 12px;
+      color: #0284c7;
+      background: #e0f2fe;
+      border: 1px solid #bae6fd;
+      padding: 2px 8px;
+      border-radius: 5px;
+    }
+
+    .note-box {
+      background: #f0fdf4;
+      border: 1px solid #bbf7d0;
+      border-radius: 8px;
+      padding: 12px 14px;
+      font-size: 12.5px;
+      color: #166534;
       line-height: 1.5;
+      margin-bottom: 24px;
       text-align: left;
     }
-    .ref-pill {
-      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+
+    .btn-return {
+      display: inline-block;
+      width: 100%;
+      background: #0f172a;
+      color: #ffffff;
+      text-decoration: none;
+      padding: 13px 24px;
+      border-radius: 10px;
+      font-size: 14px;
       font-weight: 700;
-      color: #0369a1;
-      background-color: #e0f2fe;
-      padding: 2px 7px;
-      border-radius: 4px;
-      border: 1px solid #bae6fd;
+      box-shadow: 0 4px 12px rgba(15, 23, 42, 0.15);
+      transition: all 0.2s;
     }
-    .footer-note {
-      color: #94a3b8;
-      font-size: 12px;
-      margin: 0;
+
+    .btn-return:hover {
+      background: #1e293b;
+    }
+
+    @media (max-width: 640px) {
+      body {
+        padding: 16px 10px;
+      }
+
+      .main-card {
+        padding: 28px 18px;
+      }
+
+      .page-title {
+        font-size: 19px;
+      }
+
+      .info-row {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 3px;
+      }
+
+      .info-val {
+        text-align: left;
+      }
     }
   </style>
 </head>
+
 <body>
 
-  <div class="container">
-    <div class="brand-tag">FABINS@NEVOLYN</div>
-    
-    <div class="status-badge">Status: {{statusBadge}}</div>
-    
-    <h1 class="page-title">{{title}}</h1>
-    
-    <p class="summary-text">{{message}}</p>
-    
-    <div class="info-card">
-      <div style="margin-bottom: 6px;"><strong>Tracking Reference Code:</strong> <span class="ref-pill">{{referenceCode}}</span></div>
-      <div style="margin-bottom: 6px;"><strong>Visitor Name:</strong> <strong>{{name}}</strong></div>
-      <div><strong>Visitor Email:</strong> {{email}}</div>
-    </div>
+  <div class="wrapper">
+    <div class="main-card">
 
-    <p style="color: #64748b; font-size: 14px; margin-bottom: 20px;">
-      {{detailNote}}
-    </p>
+      <div class="status-icon-circle">&#10003;</div>
+      <div class="status-badge">{{statusBadge}}</div>
+      <h1 class="page-title">{{title}}</h1>
+      <p class="summary-text">{{message}}</p>
 
-    <div class="footer-note">
-      This is an internal operational record. No further automated action is needed.
+      <div class="info-card">
+        <div class="info-row">
+          <span class="info-label">Tracking Reference:</span>
+          <span class="info-val"><span class="ref-pill">{{referenceCode}}</span></span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">Sender Name:</span>
+          <span class="info-val">{{name}}</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">Recipient Email:</span>
+          <span class="info-val" style="color: #0284c7;">{{email}}</span>
+        </div>
+      </div>
+
+      <div class="note-box">
+        &#10003;&nbsp; <strong>Both Ends Notified:</strong> {{detailNote}}
+      </div>
+
+      <a href="https://fabins.nevolyn.com" class="btn-return">
+        Return to FABINS Portal &rarr;
+      </a>
+
     </div>
   </div>
 
 </body>
+
 </html>

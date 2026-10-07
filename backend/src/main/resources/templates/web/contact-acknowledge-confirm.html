@@ -1,342 +1,493 @@
-<!--
-================================================================================
-WEB PAGE TEMPLATE: Contact Inquiry — Confirmation & Email Preview
-FILE: templates/web/contact-acknowledge-confirm.html
---------------------------------------------------------------------------------
-WHEN IT IS USED:
-  Rendered when an administrator/engineer clicks the "Acknowledge" link from an
-  internal notification email for a pending Contact Inquiry.
-  Provides a pre-flight safety check displaying the inquiry details, an outgoing
-  email preview, and an explicit confirmation action before final dispatch.
-
-SUPPORTED PLACEHOLDERS:
-  - {{actionUrl}}               : Target POST endpoint (e.g. /api/v1/contact-inquiries/{id}/acknowledge)
-  - {{referenceCode}}           : Tracking Reference Code (e.g. FAB-CONTACT-XXXXXXXX)
-  - {{name}}                    : Visitor Representative Full Name
-  - {{email}}                   : Visitor Email Address
-  - {{subject}}                 : Inquiry Subject / Topic
-================================================================================
--->
 <!DOCTYPE html>
 <html lang="en">
 
 <head>
   <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Confirm Inquiry Acknowledgement — FABINS@NEVOLYN</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Confirm Inquiry Acknowledgement — FABINS</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@600;700&display=swap"
+    rel="stylesheet">
   <style>
     :root {
-      color-scheme: light;
+      --primary: #0f172a;
+      --accent: #0284c7;
+      --border: #e2e8f0;
+      --bg-page: #f8fafc;
+      --bg-card: #ffffff;
+      --text-main: #0f172a;
+      --text-muted: #64748b;
     }
 
     * {
       box-sizing: border-box;
+      margin: 0;
+      padding: 0;
     }
 
     body {
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-      line-height: 1.6;
-      color: #1e293b;
-      background-color: #f1f5f9;
-      margin: 0;
-      padding: 40px 16px;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      line-height: 1.5;
+      color: var(--text-main);
+      background-color: var(--bg-page);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      padding: 24px 14px;
     }
 
-    .container {
-      max-width: 660px;
+    .wrapper {
+      width: 100%;
+      max-width: 680px;
       margin: 0 auto;
-      background: #ffffff;
-      border: 1px solid #e2e8f0;
-      border-radius: 14px;
-      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.01);
+    }
+
+    .main-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.06), 0 8px 10px -6px rgba(15, 23, 42, 0.02);
       overflow: hidden;
     }
 
+    /* ── Header Bar ─────────────────────────────────────────── */
     .header-bar {
-      background-color: #0f172a;
-      padding: 22px 28px;
-      border-bottom: 3px solid #0ea5e9;
+      background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
+      padding: 20px 24px;
+      border-bottom: 3px solid #0284c7;
       display: flex;
       align-items: center;
       justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 12px;
+    }
+
+    .brand-left {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .brand-logo-badge {
+      width: 34px;
+      height: 34px;
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.15);
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 900;
+      color: #38bdf8;
+      font-size: 16px;
+    }
+
+    .brand-title-wrap {
+      display: flex;
+      flex-direction: column;
     }
 
     .brand-title {
-      font-size: 17px;
+      font-size: 18px;
       font-weight: 800;
       color: #ffffff;
-      letter-spacing: -0.3px;
+      letter-spacing: -0.2px;
+      line-height: 1.2;
+    }
+
+    .brand-title span {
+      color: #38bdf8;
     }
 
     .brand-sub {
-      color: #38bdf8;
-      font-size: 12px;
+      color: #94a3b8;
+      font-size: 10px;
       font-weight: 600;
-      letter-spacing: 0.5px;
+      letter-spacing: 0.6px;
       text-transform: uppercase;
     }
 
-    .content-body {
-      padding: 32px 28px;
+    .brand-right-badge {
+      background: rgba(56, 189, 248, 0.12);
+      border: 1px solid rgba(56, 189, 248, 0.3);
+      color: #38bdf8;
+      font-size: 11px;
+      font-weight: 700;
+      padding: 5px 12px;
+      border-radius: 999px;
+      letter-spacing: 0.3px;
     }
 
-    .title-section {
-      text-align: center;
-      margin-bottom: 24px;
+    /* ── Body Content ───────────────────────────────────────── */
+    .content-body {
+      padding: 28px 24px;
     }
 
     .page-title {
-      color: #0f172a;
       font-size: 22px;
       font-weight: 800;
-      margin: 0 0 6px 0;
+      color: #0f172a;
+      letter-spacing: -0.3px;
+      margin-bottom: 6px;
     }
 
     .page-subtitle {
-      font-size: 14px;
-      color: #64748b;
-      margin: 0;
+      font-size: 13.5px;
+      color: var(--text-muted);
+      margin-bottom: 22px;
+      line-height: 1.5;
     }
 
-    .card {
-      background-color: #f8fafc;
+    /* ── Details Panel ──────────────────────────────────────── */
+    .details-panel {
+      background: #f8fafc;
       border: 1px solid #e2e8f0;
-      border-radius: 8px;
-      padding: 16px 20px;
+      border-radius: 12px;
+      padding: 16px 18px;
       margin-bottom: 20px;
-      font-size: 13px;
     }
 
-    .card-title {
+    .panel-header {
       font-size: 11px;
-      font-weight: 700;
+      font-weight: 800;
+      color: #475569;
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+      margin-bottom: 12px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid #e2e8f0;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .detail-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px 16px;
+    }
+
+    .detail-item {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .detail-item.full-width {
+      grid-column: 1 / -1;
+    }
+
+    .detail-label {
+      font-size: 11px;
+      font-weight: 600;
       color: #64748b;
       text-transform: uppercase;
-      letter-spacing: 0.8px;
-      margin-bottom: 10px;
-      border-bottom: 1px solid #f1f5f9;
-      padding-bottom: 6px;
+      letter-spacing: 0.3px;
     }
 
-    .card-row {
-      margin-bottom: 8px;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-    }
-
-    .card-row:last-child {
-      margin-bottom: 0;
-    }
-
-    .card-label {
-      color: #64748b;
+    .detail-val {
+      font-size: 13.5px;
       font-weight: 600;
-    }
-
-    .card-val {
       color: #0f172a;
-      font-weight: 600;
-      text-align: right;
+      word-break: break-word;
     }
 
     .ref-pill {
-      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      display: inline-block;
+      font-family: 'JetBrains Mono', ui-monospace, Consolas, monospace;
       font-weight: 700;
-      color: #0369a1;
-      background-color: #e0f2fe;
-      padding: 3px 8px;
-      border-radius: 5px;
-      border: 1px solid #bae6fd;
       font-size: 12px;
+      color: #0284c7;
+      background: #e0f2fe;
+      border: 1px solid #bae6fd;
+      padding: 2px 8px;
+      border-radius: 6px;
+      width: fit-content;
     }
 
-    .preview-box {
+    /* ── Outgoing Preview ───────────────────────────────────── */
+    .preview-card {
       border: 1px solid #bae6fd;
       background: #ffffff;
-      border-radius: 8px;
+      border-radius: 12px;
       overflow: hidden;
-      margin-bottom: 22px;
+      margin-bottom: 20px;
     }
 
-    .preview-header {
+    .preview-card-header {
       background: #f0f9ff;
-      padding: 10px 16px;
       border-bottom: 1px solid #bae6fd;
+      padding: 10px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .preview-card-title {
       font-size: 12px;
       font-weight: 700;
       color: #0369a1;
       display: flex;
       align-items: center;
-      justify-content: space-between;
+      gap: 6px;
     }
 
-    .preview-body {
-      padding: 18px;
+    .preview-card-badge {
+      font-size: 10.5px;
+      font-weight: 700;
+      color: #0284c7;
+      background: #ffffff;
+      padding: 2px 8px;
+      border-radius: 999px;
+      border: 1px solid #bae6fd;
+    }
+
+    .preview-card-body {
+      padding: 16px 18px;
       font-size: 13px;
       color: #334155;
       line-height: 1.6;
     }
 
-    .preview-meta {
-      background-color: #f8fafc;
+    .preview-meta-strip {
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
       padding: 10px 12px;
-      border-radius: 6px;
       margin-bottom: 14px;
       font-size: 12px;
-      color: #64748b;
-      border: 1px solid #e2e8f0;
+      color: #475569;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
     }
 
-    .preview-meta-row {
-      margin-bottom: 3px;
+    .preview-meta-row strong {
+      color: #0f172a;
     }
 
-    .preview-meta-row:last-child {
-      margin-bottom: 0;
-    }
-
-    .next-box {
-      background-color: #f0fdf4;
-      border: 1px solid #bbf7d0;
-      border-left: 3px solid #16a34a;
-      padding: 10px 12px;
-      border-radius: 4px;
-      margin: 12px 0;
-      font-size: 12px;
-      color: #166534;
-    }
-
-    .warning-box {
-      background-color: #fffbeb;
-      border: 1px solid #fde68a;
-      border-radius: 6px;
+    /* ── Alert Note ─────────────────────────────────────────── */
+    .alert-box {
+      background: #eff6ff;
+      border: 1px solid #bfdbfe;
+      border-radius: 10px;
       padding: 12px 16px;
-      margin-bottom: 24px;
-      font-size: 12px;
-      color: #92400e;
+      margin-bottom: 22px;
+      font-size: 12.5px;
+      color: #1e40af;
       line-height: 1.5;
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
     }
 
-    .action-container {
+    /* ── Action Section ─────────────────────────────────────── */
+    .action-section {
       text-align: center;
     }
 
     .btn-submit {
-      background-color: #0284c7;
+      width: 100%;
+      background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);
       color: #ffffff;
       border: none;
-      padding: 14px 32px;
-      border-radius: 8px;
+      min-height: 50px;
+      padding: 14px 24px;
+      border-radius: 10px;
       font-size: 15px;
       font-weight: 700;
+      letter-spacing: 0.2px;
       cursor: pointer;
-      box-shadow: 0 4px 12px rgba(2, 132, 199, 0.35);
-      transition: background-color 0.2s, transform 0.1s;
+      box-shadow: 0 4px 14px rgba(2, 132, 199, 0.35);
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
     }
 
-    .btn-submit:hover {
-      background-color: #0369a1;
+    .btn-submit:hover:not(:disabled) {
+      background: linear-gradient(135deg, #0369a1 0%, #075985 100%);
+      box-shadow: 0 6px 18px rgba(2, 132, 199, 0.45);
+      transform: translateY(-1px);
     }
 
-    .btn-submit:active {
-      transform: scale(0.98);
+    .btn-submit:active:not(:disabled) {
+      transform: translateY(1px);
     }
 
-    .action-note {
+    .btn-submit:disabled {
+      opacity: 0.8;
+      cursor: not-allowed;
+      box-shadow: none;
+    }
+
+    .action-subtext {
       font-size: 12px;
-      color: #94a3b8;
+      color: var(--text-muted);
       margin-top: 10px;
+    }
+
+    .spinner {
+      display: none;
+      width: 18px;
+      height: 18px;
+      border: 2px solid rgba(255, 255, 255, 0.3);
+      border-radius: 50%;
+      border-top-color: #ffffff;
+      animation: spin 0.7s linear infinite;
+    }
+
+    @keyframes spin {
+      to {
+        transform: rotate(360deg);
+      }
+    }
+
+    /* ── Mobile Responsive Adjustments ──────────────────────── */
+    @media (max-width: 640px) {
+      body {
+        padding: 12px 8px;
+      }
+
+      .header-bar {
+        padding: 16px 18px;
+      }
+
+      .content-body {
+        padding: 20px 16px;
+      }
+
+      .page-title {
+        font-size: 19px;
+      }
+
+      .page-subtitle {
+        font-size: 12.5px;
+      }
+
+      .detail-grid {
+        grid-template-columns: 1fr;
+        gap: 10px;
+      }
+
+      .preview-card-body {
+        padding: 14px 14px;
+      }
     }
   </style>
 </head>
 
 <body>
 
-  <div class="container">
-    <div class="content-body">
-      <div class="title-section">
+  <div class="wrapper">
+    <div class="main-card">
+      <!-- Main Body -->
+      <div class="content-body">
         <h1 class="page-title">Confirm Inquiry Acknowledgement</h1>
         <p class="page-subtitle">
-          Review details and the outgoing email preview below before confirming dispatch.
+          Review visitor inquiry details and preview the outgoing notification before confirming dispatch.
         </p>
-      </div>
 
-      <!-- Inquiry Details Card -->
-      <div class="card">
-        <div class="card-title">Submitted Inquiry Details</div>
-        <div class="card-row">
-          <span class="card-label">Tracking Reference Code:</span>
-          <span class="card-val ref-pill">{{referenceCode}}</span>
-        </div>
-        <div class="card-row">
-          <span class="card-label">Visitor Name:</span>
-          <span class="card-val">{{name}}</span>
-        </div>
-        <div class="card-row">
-          <span class="card-label">Visitor Email:</span>
-          <span class="card-val"><a href="mailto:{{email}}"
-              style="color: #0284c7; text-decoration: none;">{{email}}</a></span>
-        </div>
-        <div class="card-row">
-          <span class="card-label">Subject:</span>
-          <span class="card-val">{{subject}}</span>
-        </div>
-      </div>
-
-      <!-- Outgoing Email Preview -->
-      <div class="preview-box">
-        <div class="preview-header">
-          <span>&#9993;&nbsp; Outgoing Email Preview (What the Visitor Will Receive)</span>
-          <span style="font-size: 11px; font-weight: 600; color: #0284c7;">Final Delivery Copy</span>
-        </div>
-        <div class="preview-body">
-          <div class="preview-meta">
-            <div class="preview-meta-row"><strong>To:</strong> {{email}}</div>
-            <div class="preview-meta-row"><strong>Subject:</strong> [FABINS] Inquiry Acknowledged [Ref:
-              {{referenceCode}}]</div>
-            <div class="preview-meta-row"><strong>From:</strong> FABINS@NEVOLYN &lt;fabins@nevolyn.com&gt;</div>
+        <!-- Details -->
+        <div class="details-panel">
+          <div class="panel-header">
+            <span>Visitor Inquiry Record</span>
+            <span style="color: #0284c7;">Status: PENDING ACKNOWLEDGEMENT</span>
           </div>
-          <div>
-            <p style="margin: 0 0 10px 0;"><strong>Dear {{name}},</strong></p>
-            <p style="margin: 0 0 12px 0;">
-              We are pleased to confirm that your inquiry regarding <strong>"{{subject}}"</strong>
-              (Tracking Reference Code: <span class="ref-pill">{{referenceCode}}</span>)
-              has been reviewed and <strong>acknowledged</strong>.
-            </p>
-            <div class="next-box">
-              &#128172;&nbsp; <strong>What's Next:</strong> FABINS team will send you a response to this email as soon
-              as possible.
+          <div class="detail-grid">
+            <div class="detail-item">
+              <span class="detail-label">Tracking Reference</span>
+              <span class="detail-val"><span class="ref-pill">{{referenceCode}}</span></span>
             </div>
-            <p style="margin: 0; font-size: 12px; color: #64748b;">
-              Warm regards,<br />
-              <strong style="color: #334155;">FABINS Automation</strong>
+            <div class="detail-item">
+              <span class="detail-label">Sender Name</span>
+              <span class="detail-val">{{name}}</span>
+            </div>
+            <div class="detail-item full-width">
+              <span class="detail-label">Sender Email</span>
+              <span class="detail-val" style="color: #0284c7;">{{email}}</span>
+            </div>
+            <div class="detail-item full-width">
+              <span class="detail-label">Subject</span>
+              <span class="detail-val">{{subject}}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Outgoing Email Preview -->
+        <div class="preview-card">
+          <div class="preview-card-header">
+            <div class="preview-card-title">
+              <span>&#9993;</span> Outgoing Email Preview
+            </div>
+            <div class="preview-card-badge">Delivered to Visitor</div>
+          </div>
+          <div class="preview-card-body">
+            <div class="preview-meta-strip">
+              <div class="preview-meta-row"><strong>To:</strong> {{email}}</div>
+              <div class="preview-meta-row"><strong>Subject:</strong> [FABINS] Inquiry Acknowledged: {{subject}}
+                [{{referenceCode}}]</div>
+              <div class="preview-meta-row"><strong>From:</strong> FABINS Team &lt;fabins@nevolyn.com&gt;</div>
+            </div>
+            <p style="margin-bottom: 8px;"><strong>Dear {{name}},</strong></p>
+            <p style="margin-bottom: 10px;">
+              Thank you for reaching out to FABINS. Your inquiry has been received and <strong>acknowledged</strong> by
+              our specialist team.
+            </p>
+            <p style="margin-bottom: 10px; font-size: 12.5px; color: #475569;">
+              A dedicated technical representative is reviewing your message and will respond with relevant
+              specifications and consultation within 24 hours.
             </p>
           </div>
         </div>
-      </div>
 
-      <!-- Safety Confirmation Alert -->
-      <div class="warning-box">
-        &#9888;&nbsp; <strong>Single-Acknowledgement Protection:</strong> Once confirmed, this inquiry will be marked as
-        REPLIED and the official acknowledgement email will be immediately delivered to <strong>{{email}}</strong>. This
-        action cannot be undone or repeated.
-      </div>
-
-      <!-- Confirmation Action -->
-      <div class="action-container">
-        <form method="POST" action="{{actionUrl}}"
-          onsubmit="return confirm('Are you sure you want to officially dispatch the acknowledgement email to {{email}}? This action can only be performed once.');">
-          <button type="submit" class="btn-submit">
-            &#10003;&nbsp; Confirm &amp; Dispatch Acknowledgement
-          </button>
-        </form>
-        <div class="action-note">
-          Clicking confirm will mark the inquiry as REPLIED and notify the visitor.
+        <!-- Alert Banner -->
+        <div class="alert-box">
+          <div style="font-size: 16px; line-height: 1;">&#9432;</div>
+          <div>
+            <strong>Dual Notification Protocol:</strong> Confirming will mark this inquiry as <strong>REPLIED</strong>,
+            deliver an official acknowledgement email to <strong>{{email}}</strong>, and record confirmation with the
+            FABINS operations desk.
+          </div>
         </div>
+
+        <!-- Action Button -->
+        <div class="action-section">
+          <form id="ackForm" method="POST" action="{{actionUrl}}" onsubmit="handleFormSubmit(event)">
+            <button type="submit" id="submitBtn" class="btn-submit">
+              <span class="spinner" id="btnSpinner"></span>
+              <span id="btnText">&#10003;&nbsp; Confirm &amp; Dispatch Acknowledgement</span>
+            </button>
+          </form>
+          <div class="action-subtext">
+            Protected single-dispatch flow &bull; Immediate delivery to visitor
+          </div>
+        </div>
+
       </div>
+
     </div>
   </div>
+
+  <script>
+    function handleFormSubmit(e) {
+      var btn = document.getElementById('submitBtn');
+      var spinner = document.getElementById('btnSpinner');
+      var text = document.getElementById('btnText');
+
+      btn.disabled = true;
+      spinner.style.display = 'inline-block';
+      text.innerText = 'Dispatching Acknowledgement...';
+      document.getElementById('ackForm').submit();
+    }
+  </script>
 
 </body>
 

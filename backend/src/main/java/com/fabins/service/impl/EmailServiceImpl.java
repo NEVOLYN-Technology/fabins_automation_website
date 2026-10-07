@@ -22,6 +22,7 @@ import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
+import java.io.InputStream;
 import java.nio.charset.StandardCharsets;
 import java.util.Map;
 import java.util.Objects;
@@ -236,6 +237,8 @@ public class EmailServiceImpl implements EmailService {
         ApiProperties.Mail mail = getMailConfig();
         String reference = request.getReferenceCode();
 
+        log.info("Dispatching deployment request acknowledgement to both applicant and FABINS team [Ref: {}]", reference);
+
         Map<String, String> values = Map.of(
                 "contactName", request.getContactName(),
                 "millName", request.getMillName(),
@@ -245,12 +248,63 @@ public class EmailServiceImpl implements EmailService {
         String htmlBody = templateRenderer.render(TEMPLATE_ACKNOWLEDGEMENT, values);
         String plainText = templateRenderer.generatePlainText(htmlBody);
 
-        EmailMessage message = EmailMessage.builder()
+        // 1. Dispatch official acknowledgement to the applicant
+        EmailMessage applicantMessage = EmailMessage.builder()
                 .to(request.getEmail())
                 .subject(String.format(mail.acknowledgementSubject(), reference))
                 .htmlBody(htmlBody)
                 .plainTextBody(plainText)
                 .replyTo(mail.adminAddress())
+                .build();
+        dispatch(applicantMessage);
+
+        // 2. Dispatch internal confirmation record to the FABINS operations team
+        sendDeploymentAdminAcknowledgementReceipt(request);
+    }
+
+    /**
+     * Sends an internal notification record to the FABINS engineering desk confirming
+     * that the applicant's deployment request was officially acknowledged.
+     */
+    private void sendDeploymentAdminAcknowledgementReceipt(DeploymentRequest request) {
+        ApiProperties.Mail mail = getMailConfig();
+        String reference = request.getReferenceCode();
+
+        String subject = "[FABINS] Application Acknowledged: " + request.getMillName() + " [Ref: " + reference + "]";
+        String htmlBody = "<div style=\"font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e2e8f0; border-radius: 12px; background: #ffffff;\">"
+                + "<div style=\"background: #0f172a; padding: 16px 20px; border-radius: 8px 8px 0 0; border-bottom: 3px solid #0284c7; color: #ffffff;\">"
+                + "<strong style=\"font-size: 16px;\">FAB<span style=\"color: #38bdf8;\">INS</span> Operations</strong>"
+                + "<span style=\"float: right; font-size: 11px; background: #0369a1; padding: 3px 8px; border-radius: 4px;\">IN_REVIEW</span>"
+                + "</div>"
+                + "<div style=\"padding: 24px 20px;\">"
+                + "<h2 style=\"font-size: 18px; color: #0f172a; margin-top: 0;\">Application Officially Acknowledged</h2>"
+                + "<p style=\"color: #475569; font-size: 14px; line-height: 1.5;\">Deployment request <strong>" + reference + "</strong> for <strong>" + request.getMillName() + "</strong> has been officially acknowledged and moved to <strong>IN_REVIEW</strong>.</p>"
+                + "<div style=\"background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 14px; margin: 16px 0; font-size: 13px;\">"
+                + "<div style=\"margin-bottom: 6px;\"><strong>Tracking Ref:</strong> " + reference + "</div>"
+                + "<div style=\"margin-bottom: 6px;\"><strong>Mill / Factory:</strong> " + request.getMillName() + "</div>"
+                + "<div style=\"margin-bottom: 6px;\"><strong>Representative:</strong> " + request.getContactName() + "</div>"
+                + "<div style=\"margin-bottom: 6px;\"><strong>Applicant Email:</strong> <a href=\"mailto:" + request.getEmail() + "\" style=\"color: #0284c7;\">" + request.getEmail() + "</a></div>"
+                + "<div><strong>Status:</strong> <span style=\"color: #0284c7; font-weight: 700;\">IN_REVIEW</span></div>"
+                + "</div>"
+                + "<div style=\"background: #f0fdf4; border: 1px solid #bbf7d0; border-left: 3px solid #16a34a; padding: 10px 14px; border-radius: 4px; font-size: 12.5px; color: #166534;\">"
+                + "&#10003;&nbsp; An official acknowledgement email has been dispatched to the applicant. The deployment engineering team is assigned to follow up within 1–2 working days."
+                + "</div>"
+                + "</div>"
+                + "<div style=\"padding: 12px 20px; background: #f8fafc; border-top: 1px solid #e2e8f0; font-size: 11px; color: #64748b; border-radius: 0 0 8px 8px; text-align: center;\">"
+                + "FABINS Automation &bull; NEVOLYN Engineering Operations &bull; Automated System Record"
+                + "</div>"
+                + "</div>";
+
+        String plainText = "Deployment request " + reference + " for " + request.getMillName() + " has been acknowledged and marked as IN_REVIEW.\n"
+                + "Applicant: " + request.getContactName() + " (" + request.getEmail() + ")\n"
+                + "An acknowledgement email was sent to the applicant.";
+
+        EmailMessage message = EmailMessage.builder()
+                .to(mail.adminAddress())
+                .subject(subject)
+                .htmlBody(htmlBody)
+                .plainTextBody(plainText)
+                .replyTo(request.getEmail())
                 .build();
 
         dispatch(message);
@@ -343,8 +397,7 @@ public class EmailServiceImpl implements EmailService {
         ApiProperties.Mail mail = getMailConfig();
         String reference = inquiry.getReferenceCode();
 
-        log.info("Dispatching contact inquiry acknowledgement for id {} [Ref: {}]",
-                inquiry.getId(), reference);
+        log.info("Dispatching contact inquiry acknowledgement to both visitor and FABINS team [Ref: {}]", reference);
 
         Map<String, String> values = Map.of(
                 "name", inquiry.getName() != null ? inquiry.getName() : "Valued Partner",
@@ -356,12 +409,62 @@ public class EmailServiceImpl implements EmailService {
         String htmlBody = templateRenderer.render(TEMPLATE_CONTACT_ACKNOWLEDGEMENT, values);
         String plainText = templateRenderer.generatePlainText(htmlBody);
 
-        EmailMessage message = EmailMessage.builder()
+        // 1. Dispatch acknowledgement to the visitor
+        EmailMessage visitorMessage = EmailMessage.builder()
                 .to(inquiry.getEmail())
                 .subject("[FABINS] Inquiry Acknowledged [Ref: " + reference + "]")
                 .htmlBody(htmlBody)
                 .plainTextBody(plainText)
                 .replyTo(mail.adminAddress())
+                .build();
+        dispatch(visitorMessage);
+
+        // 2. Dispatch internal confirmation record to the FABINS operations team
+        sendContactAdminAcknowledgementReceipt(inquiry);
+    }
+
+    /**
+     * Sends an internal notification record to the FABINS engineering desk confirming
+     * that the visitor's contact inquiry was officially acknowledged.
+     */
+    private void sendContactAdminAcknowledgementReceipt(ContactInquiry inquiry) {
+        ApiProperties.Mail mail = getMailConfig();
+        String reference = inquiry.getReferenceCode() != null ? inquiry.getReferenceCode() : "N/A";
+
+        String subject = "[FABINS] Contact Inquiry Acknowledged: " + inquiry.getName() + " [Ref: " + reference + "]";
+        String htmlBody = "<div style=\"font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #e2e8f0; border-radius: 12px; background: #ffffff;\">"
+                + "<div style=\"background: #0f172a; padding: 16px 20px; border-radius: 8px 8px 0 0; border-bottom: 3px solid #0284c7; color: #ffffff;\">"
+                + "<strong style=\"font-size: 16px;\">FAB<span style=\"color: #38bdf8;\">INS</span> Operations</strong>"
+                + "<span style=\"float: right; font-size: 11px; background: #166534; padding: 3px 8px; border-radius: 4px; color: #ffffff;\">REPLIED</span>"
+                + "</div>"
+                + "<div style=\"padding: 24px 20px;\">"
+                + "<h2 style=\"font-size: 18px; color: #0f172a; margin-top: 0;\">Contact Inquiry Acknowledged</h2>"
+                + "<p style=\"color: #475569; font-size: 14px; line-height: 1.5;\">Contact inquiry <strong>" + reference + "</strong> from <strong>" + inquiry.getName() + "</strong> has been officially acknowledged.</p>"
+                + "<div style=\"background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 14px; margin: 16px 0; font-size: 13px;\">"
+                + "<div style=\"margin-bottom: 6px;\"><strong>Tracking Ref:</strong> " + reference + "</div>"
+                + "<div style=\"margin-bottom: 6px;\"><strong>Sender Name:</strong> " + inquiry.getName() + "</div>"
+                + "<div style=\"margin-bottom: 6px;\"><strong>Sender Email:</strong> <a href=\"mailto:" + inquiry.getEmail() + "\" style=\"color: #0284c7;\">" + inquiry.getEmail() + "</a></div>"
+                + "<div style=\"margin-bottom: 6px;\"><strong>Subject:</strong> " + (inquiry.getSubject() != null ? inquiry.getSubject() : "General Inquiry") + "</div>"
+                + "<div><strong>Status:</strong> <span style=\"color: #16a34a; font-weight: 700;\">REPLIED</span></div>"
+                + "</div>"
+                + "<div style=\"background: #f0fdf4; border: 1px solid #bbf7d0; border-left: 3px solid #16a34a; padding: 10px 14px; border-radius: 4px; font-size: 12.5px; color: #166534;\">"
+                + "&#10003;&nbsp; An official acknowledgement email has been dispatched to the visitor. Operations has recorded this status."
+                + "</div>"
+                + "</div>"
+                + "<div style=\"padding: 12px 20px; background: #f8fafc; border-top: 1px solid #e2e8f0; font-size: 11px; color: #64748b; border-radius: 0 0 8px 8px; text-align: center;\">"
+                + "FABINS Automation &bull; NEVOLYN Engineering Operations &bull; Automated System Record"
+                + "</div>"
+                + "</div>";
+
+        String plainText = "Contact inquiry " + reference + " from " + inquiry.getName() + " (" + inquiry.getEmail() + ") has been acknowledged and marked as REPLIED.\n"
+                + "An acknowledgement email was dispatched to the visitor.";
+
+        EmailMessage message = EmailMessage.builder()
+                .to(mail.adminAddress())
+                .subject(subject)
+                .htmlBody(htmlBody)
+                .plainTextBody(plainText)
+                .replyTo(inquiry.getEmail())
                 .build();
 
         dispatch(message);
@@ -450,18 +553,17 @@ public class EmailServiceImpl implements EmailService {
             // HTML email with UTF-8 encoding
             helper.setText(message.htmlBody(), true);
 
-            // Embed brand logos directly as inline MIME attachments (eliminates external
-            // web dependencies)
+            // Embed brand logos directly as inline MIME attachments from in-memory cache
             if (message.htmlBody() != null && message.htmlBody().contains("cid:fabinsLogo")) {
-                ClassPathResource fabinsLogo = new ClassPathResource("static/fabins-logo.png");
-                if (fabinsLogo.exists()) {
-                    helper.addInline("fabinsLogo", fabinsLogo, "image/png");
+                byte[] logoBytes = getCachedLogoBytes("static/fabins-logo.png");
+                if (logoBytes.length > 0) {
+                    helper.addInline("fabinsLogo", new ByteArrayResource(logoBytes), "image/png");
                 }
             }
             if (message.htmlBody() != null && message.htmlBody().contains("cid:nevolynIcon")) {
-                ClassPathResource nevolynIcon = new ClassPathResource("static/nevolyn-icon.png");
-                if (nevolynIcon.exists()) {
-                    helper.addInline("nevolynIcon", nevolynIcon, "image/png");
+                byte[] iconBytes = getCachedLogoBytes("static/nevolyn-icon.png");
+                if (iconBytes.length > 0) {
+                    helper.addInline("nevolynIcon", new ByteArrayResource(iconBytes), "image/png");
                 }
             }
 
@@ -496,5 +598,23 @@ public class EmailServiceImpl implements EmailService {
             return properties.mail().apiKey().trim();
         }
         return "";
+    }
+
+    private final java.util.concurrent.ConcurrentMap<String, byte[]> logoCache = new java.util.concurrent.ConcurrentHashMap<>();
+
+    private byte[] getCachedLogoBytes(String path) {
+        return logoCache.computeIfAbsent(path, p -> {
+            try {
+                ClassPathResource res = new ClassPathResource(p);
+                if (res.exists()) {
+                    try (InputStream is = res.getInputStream()) {
+                        return is.readAllBytes();
+                    }
+                }
+            } catch (Exception e) {
+                log.warn("Could not cache logo {}: {}", p, e.getMessage());
+            }
+            return new byte[0];
+        });
     }
 }
