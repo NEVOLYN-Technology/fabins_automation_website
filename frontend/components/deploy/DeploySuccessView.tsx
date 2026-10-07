@@ -1,9 +1,16 @@
 'use client'
 
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import Link from 'next/link'
 import { motion } from 'framer-motion'
-import { CheckCircle2, FileCheck2, Zap, Copy, Check, Download, Printer, Mail, ShieldCheck, Loader2 } from 'lucide-react'
+import {
+  CheckCircle2,
+  Copy,
+  Check,
+  Download,
+  Mail,
+  Loader2,
+} from 'lucide-react'
 import type { DeploymentRequest } from '@/lib/api/contact'
 import { fetchDeploymentPreviewPdfBlob, downloadBlob } from '@/lib/api/contact'
 
@@ -25,31 +32,42 @@ export function DeploySuccessView({
   formData,
 }: DeploySuccessViewProps) {
   const [isProcessingPdf, setIsProcessingPdf] = useState(false)
+  const [pdfBlobUrl, setPdfBlobUrl] = useState<string | null>(null)
+  const [pdfBlob, setPdfBlob] = useState<Blob | null>(null)
+
+  // Clean up Object URL on unmount to prevent memory leaks
+  useEffect(() => {
+    return () => {
+      if (pdfBlobUrl) {
+        URL.revokeObjectURL(pdfBlobUrl)
+      }
+    }
+  }, [pdfBlobUrl])
+
+  const loadPdf = async (): Promise<{ blob: Blob; url: string } | null> => {
+    if (!formData) return null
+    if (pdfBlob && pdfBlobUrl) {
+      return { blob: pdfBlob, url: pdfBlobUrl }
+    }
+
+    setIsProcessingPdf(true)
+    const res = await fetchDeploymentPreviewPdfBlob(formData)
+    setIsProcessingPdf(false)
+
+    if (res.ok) {
+      const url = URL.createObjectURL(res.blob)
+      setPdfBlob(res.blob)
+      setPdfBlobUrl(url)
+      return { blob: res.blob, url }
+    }
+    return null
+  }
 
   const handleDownloadPdf = async () => {
     if (!formData) return
-    setIsProcessingPdf(true)
-    const res = await fetchDeploymentPreviewPdfBlob(formData)
-    setIsProcessingPdf(false)
-    if (res.ok) {
-      downloadBlob(res.blob, `FABINS_Deployment_Assessment-${referenceCode}.pdf`)
-    }
-  }
-
-  const handlePrintPdf = async () => {
-    if (!formData) {
-      if (typeof window !== 'undefined') window.print()
-      return
-    }
-    setIsProcessingPdf(true)
-    const res = await fetchDeploymentPreviewPdfBlob(formData)
-    setIsProcessingPdf(false)
-    if (res.ok) {
-      const url = window.URL.createObjectURL(res.blob)
-      const printWindow = window.open(url, '_blank')
-      if (printWindow) {
-        printWindow.focus()
-      }
+    const loaded = await loadPdf()
+    if (loaded) {
+      downloadBlob(loaded.blob, `FABINS_Deployment_Assessment-${referenceCode}.pdf`)
     }
   }
 
@@ -61,7 +79,7 @@ export function DeploySuccessView({
       exit={{ opacity: 0, scale: 0.96 }}
       className="mx-auto max-w-3xl rounded-3xl border border-accent/40 bg-panel/95 p-6 sm:p-12 shadow-[0_25px_60px_-15px_rgba(8,145,178,0.35)] backdrop-blur-xl"
     >
-      {/* Header Icon */}
+      {/* Header Icon & Title */}
       <div className="text-center">
         <div className="mx-auto flex h-20 w-20 items-center justify-center rounded-full bg-accent/20 text-accent ring-8 ring-accent/10 shadow-[0_0_30px_rgba(34,211,238,0.4)]">
           <CheckCircle2 className="h-10 w-10 text-accent" />
@@ -70,14 +88,11 @@ export function DeploySuccessView({
         <h2 className="mt-6 text-2xl sm:text-3xl font-black text-ink font-heading">
           Assessment Registered &amp; Dispatched!
         </h2>
-        <p className="mt-2 text-sm text-ink-muted max-w-lg mx-auto">
-          Your mill specifications have been logged in the FABINS Industrial Register of NEVOLYN Technology.
-        </p>
       </div>
 
-      {/* Official Reference Receipt Card */}
-      <div className="mt-8 rounded-2xl border border-accent/30 bg-accent-quiet/40 p-5 sm:p-6 text-center shadow-xs">
-        <span className="text-[11px] font-mono uppercase tracking-widest text-ink-soft font-bold block mb-1">
+      {/* Official Reference Receipt & PDF Download Card */}
+      <div className="mt-8 rounded-2xl border border-accent/30 bg-accent-quiet/40 p-6 sm:p-7 text-center shadow-xs">
+        <span className="text-[11px] font-mono uppercase tracking-widest text-ink-muted font-bold block mb-1.5">
           Tracking Reference Code
         </span>
         <div className="flex items-center justify-center gap-3">
@@ -93,12 +108,38 @@ export function DeploySuccessView({
             {copiedCode ? (
               <>
                 <Check className="h-3.5 w-3.5 text-emerald-500" />
-                <span>Copied!</span>
+                <span className="text-emerald-500">Copied!</span>
               </>
             ) : (
               <>
                 <Copy className="h-3.5 w-3.5" />
                 <span>Copy</span>
+              </>
+            )}
+          </button>
+        </div>
+
+        {/* Subtle Divider */}
+        <div className="my-5 border-t border-accent/20 w-full max-w-sm mx-auto" />
+
+        {/* Download Action Inside Card */}
+        <div className="flex justify-center print:hidden">
+          <button
+            type="button"
+            disabled={isProcessingPdf}
+            onClick={handleDownloadPdf}
+            className="btn btn-primary w-full sm:w-auto !rounded-xl !px-8 !py-3 text-sm font-bold text-white shadow-md shadow-accent/25 hover:shadow-lg disabled:opacity-60 cursor-pointer flex items-center justify-center gap-2"
+            title="Download Official Assessment PDF"
+          >
+            {isProcessingPdf ? (
+              <>
+                <Loader2 className="h-4 w-4 animate-spin shrink-0 text-white" />
+                <span className="text-white">Generating PDF...</span>
+              </>
+            ) : (
+              <>
+                <Download className="h-4 w-4 shrink-0 text-white" />
+                <span className="text-white">Download Assessment PDF</span>
               </>
             )}
           </button>
@@ -122,66 +163,19 @@ export function DeploySuccessView({
         </div>
       </div>
 
-      {/* Next Steps Information */}
-      <div className="mt-6 grid grid-cols-1 sm:grid-cols-2 gap-4 text-left">
-        <div className="flex gap-3.5 rounded-2xl border border-line bg-panel-2 p-4.5">
-          <FileCheck2 className="h-5 w-5 text-accent shrink-0 mt-0.5" />
-          <div>
-            <strong className="block text-ink text-sm font-bold">Engineering Review Queue</strong>
-            <span className="text-xs text-ink-muted leading-relaxed">
-              Your retrofitting requirements and machine brand specifications are actively queued with the NEVOLYN automation desk.
-            </span>
-          </div>
-        </div>
-
-        <div className="flex gap-3.5 rounded-2xl border border-line bg-panel-2 p-4.5">
-          <Zap className="h-5 w-5 text-accent shrink-0 mt-0.5" />
-          <div>
-            <strong className="block text-ink text-sm font-bold">24-Hour Follow-Up</strong>
-            <span className="text-xs text-ink-muted leading-relaxed">
-              A dedicated vision engineer will reach out directly to coordinate optical frame mounting specs and scheduling.
-            </span>
-          </div>
-        </div>
-      </div>
-
-      {/* Action Buttons */}
-      <div className="mt-10 flex flex-col sm:flex-row items-center justify-center gap-3.5 print:hidden flex-wrap">
-        <button
-          type="button"
-          disabled={isProcessingPdf}
-          onClick={handleDownloadPdf}
-          className="inline-flex items-center justify-center gap-2 rounded-xl bg-accent hover:bg-accent-hover text-accent-fg px-6 py-3 text-xs sm:text-sm font-bold shadow-lg shadow-accent/25 transition-all active:scale-[0.98] w-full sm:w-auto disabled:opacity-60 cursor-pointer"
-        >
-          {isProcessingPdf ? (
-            <Loader2 className="h-4 w-4 animate-spin" />
-          ) : (
-            <Download className="h-4 w-4" />
-          )}
-          <span>Download Official Assessment PDF</span>
-        </button>
-
-        <button
-          type="button"
-          disabled={isProcessingPdf}
-          onClick={handlePrintPdf}
-          className="inline-flex items-center justify-center gap-2 rounded-xl border border-line bg-surface/90 hover:bg-surface text-ink px-6 py-3 text-xs sm:text-sm font-bold transition-all hover:border-accent/40 active:scale-[0.98] w-full sm:w-auto disabled:opacity-60 cursor-pointer"
-        >
-          <Printer className="h-4 w-4 text-accent" />
-          <span>Print / Open PDF</span>
-        </button>
-
+      {/* Secondary Navigation Actions */}
+      <div className="mt-8 flex flex-col sm:flex-row items-center justify-center gap-3 w-full max-w-xl mx-auto print:hidden">
         <button
           type="button"
           onClick={onResetForm}
-          className="btn btn-secondary w-full sm:w-auto px-6 py-3 text-xs sm:text-sm font-bold rounded-xl"
+          className="btn btn-secondary w-full sm:w-1/2 px-5 py-2.5 text-xs sm:text-sm font-bold rounded-xl"
         >
           Submit Another Assessment
         </button>
 
         <Link
           href="/"
-          className="btn btn-secondary w-full sm:w-auto px-7 py-3 text-xs sm:text-sm font-bold rounded-xl text-center"
+          className="btn btn-secondary w-full sm:w-1/2 px-5 py-2.5 text-xs sm:text-sm font-bold rounded-xl text-center"
         >
           Return to Homepage
         </Link>
