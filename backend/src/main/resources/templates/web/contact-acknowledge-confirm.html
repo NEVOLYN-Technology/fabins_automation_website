@@ -49,77 +49,10 @@
     .main-card {
       background: var(--bg-card);
       border: 1px solid var(--border);
+      border-top: 4px solid var(--accent);
       border-radius: 16px;
       box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.06), 0 8px 10px -6px rgba(15, 23, 42, 0.02);
       overflow: hidden;
-    }
-
-    /* ── Header Bar ─────────────────────────────────────────── */
-    .header-bar {
-      background: linear-gradient(135deg, #0f172a 0%, #1e293b 100%);
-      padding: 20px 24px;
-      border-bottom: 3px solid #0284c7;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      flex-wrap: wrap;
-      gap: 12px;
-    }
-
-    .brand-left {
-      display: flex;
-      align-items: center;
-      gap: 10px;
-    }
-
-    .brand-logo-badge {
-      width: 34px;
-      height: 34px;
-      background: rgba(255, 255, 255, 0.08);
-      border: 1px solid rgba(255, 255, 255, 0.15);
-      border-radius: 8px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-weight: 900;
-      color: #38bdf8;
-      font-size: 16px;
-    }
-
-    .brand-title-wrap {
-      display: flex;
-      flex-direction: column;
-    }
-
-    .brand-title {
-      font-size: 18px;
-      font-weight: 800;
-      color: #ffffff;
-      letter-spacing: -0.2px;
-      line-height: 1.2;
-    }
-
-    .brand-title span {
-      color: #38bdf8;
-    }
-
-    .brand-sub {
-      color: #94a3b8;
-      font-size: 10px;
-      font-weight: 600;
-      letter-spacing: 0.6px;
-      text-transform: uppercase;
-    }
-
-    .brand-right-badge {
-      background: rgba(56, 189, 248, 0.12);
-      border: 1px solid rgba(56, 189, 248, 0.3);
-      color: #38bdf8;
-      font-size: 11px;
-      font-weight: 700;
-      padding: 5px 12px;
-      border-radius: 999px;
-      letter-spacing: 0.3px;
     }
 
     /* ── Body Content ───────────────────────────────────────── */
@@ -356,10 +289,6 @@
         padding: 12px 8px;
       }
 
-      .header-bar {
-        padding: 16px 18px;
-      }
-
       .content-body {
         padding: 20px 16px;
       }
@@ -403,7 +332,7 @@
           </div>
           <div class="detail-grid">
             <div class="detail-item">
-              <span class="detail-label">Tracking Reference</span>
+              <span class="detail-label">Tracking Reference Code:</span>
               <span class="detail-val"><span class="ref-pill">{{referenceCode}}</span></span>
             </div>
             <div class="detail-item">
@@ -452,9 +381,7 @@
         <div class="alert-box">
           <div style="font-size: 16px; line-height: 1;">&#9432;</div>
           <div>
-            <strong>Dual Notification Protocol:</strong> Confirming will mark this inquiry as <strong>REPLIED</strong>,
-            deliver an official acknowledgement email to <strong>{{email}}</strong>, and record confirmation with the
-            FABINS operations desk.
+            <strong>Single-Acknowledgement Protection:</strong> Confirming will mark this inquiry as <strong>REPLIED</strong> and deliver an official acknowledgement email to <strong>{{email}}</strong>.
           </div>
         </div>
 
