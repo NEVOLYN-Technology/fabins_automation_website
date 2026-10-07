@@ -1,0 +1,711 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <title>FABINS Deployment Assessment</title>
+  <style>
+    @page {
+      size: A4 portrait;
+      margin: 10mm 14mm 10mm 14mm;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      color: #0f172a;
+      background-color: #ffffff;
+      line-height: 1.5;
+      font-size: 13px;
+      -webkit-print-color-adjust: exact;
+      print-color-adjust: exact;
+    }
+
+    .page-container {
+      width: 100%;
+      max-width: 800px;
+      margin: 0 auto;
+    }
+
+    /* ── 1. Header Lockup ─────────────────────────────────────── */
+    .header-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 8px;
+    }
+
+    .brand-col {
+      width: 48%;
+      vertical-align: middle;
+    }
+
+    .divider-col {
+      width: 4%;
+      text-align: center;
+      vertical-align: middle;
+    }
+
+    .vertical-divider {
+      display: inline-block;
+      width: 1px;
+      height: 48px;
+      background-color: #cbd5e1;
+    }
+
+    .brand-inner {
+      display: table;
+      width: 100%;
+    }
+
+    .brand-icon-cell {
+      display: table-cell;
+      width: 50px;
+      vertical-align: middle;
+      text-align: center;
+    }
+
+    .brand-icon-cell img {
+      width: 42px;
+      height: 42px;
+      object-fit: contain;
+    }
+
+    .brand-text-cell {
+      display: table-cell;
+      vertical-align: middle;
+      padding-left: 10px;
+    }
+
+    .brand-title {
+      font-size: 20px;
+      font-weight: 800;
+      letter-spacing: -0.5px;
+      line-height: 1.1;
+    }
+
+    .brand-title .accent {
+      color: #0284c7;
+    }
+
+    .brand-subtitle {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 8.5px;
+      font-weight: 700;
+      color: #475569;
+      letter-spacing: 0.5px;
+      margin-top: 3px;
+    }
+
+    .nev-power {
+      font-size: 8.5px;
+      font-weight: 700;
+      color: #64748b;
+      letter-spacing: 0.5px;
+      line-height: 1;
+      margin-bottom: 2px;
+    }
+
+    .nev-title {
+      font-size: 20px;
+      font-weight: 800;
+      color: #0284c7;
+      line-height: 1.1;
+      text-decoration: none;
+    }
+
+    .nev-sub {
+      font-size: 9px;
+      color: #64748b;
+      margin-top: 2px;
+    }
+
+    .status-line {
+      text-align: center;
+      font-size: 10px;
+      font-weight: 700;
+      color: #475569;
+      margin: 8px 0 6px 0;
+    }
+
+    .status-dot {
+      color: #10b981;
+      font-size: 12px;
+      margin-right: 4px;
+    }
+
+    .status-divider {
+      color: #cbd5e1;
+      margin: 0 8px;
+    }
+
+    .status-link {
+      color: #0284c7;
+      text-decoration: none;
+    }
+
+    .accent-rule {
+      height: 2.5px;
+      background-color: #0284c7;
+      width: 100%;
+      margin-bottom: 12px;
+    }
+
+    /* ── 2. Metadata Strip ────────────────────────────────────── */
+    .meta-table {
+      width: 100%;
+      border-collapse: separate;
+      border-spacing: 10px 0;
+      margin-bottom: 12px;
+      margin-left: -10px;
+      margin-right: -10px;
+    }
+
+    .meta-card {
+      background-color: #f8fafc;
+      border: 1px solid #cbd5e1;
+      border-radius: 6px;
+      padding: 8px 14px;
+      width: 50%;
+    }
+
+    .meta-label {
+      font-size: 9px;
+      font-weight: 700;
+      color: #475569;
+      letter-spacing: 0.5px;
+      margin-bottom: 3px;
+      text-transform: uppercase;
+    }
+
+    .meta-value-ref {
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 15px;
+      font-weight: 700;
+      color: #0284c7;
+    }
+
+    .meta-value-date {
+      font-size: 13.5px;
+      font-weight: 700;
+      color: #0f172a;
+    }
+
+    /* ── 3. Statement Box ─────────────────────────────────────── */
+    .statement-box {
+      background-color: #f8fafc;
+      border: 1px solid #cbd5e1;
+      border-radius: 6px;
+      padding: 11px 15px;
+      margin-bottom: 12px;
+    }
+
+    .statement-title {
+      font-size: 12px;
+      font-weight: 800;
+      color: #0f172a;
+      letter-spacing: 0.5px;
+      margin-bottom: 6px;
+      text-transform: uppercase;
+    }
+
+    .statement-body {
+      font-size: 11.5px;
+      line-height: 1.6;
+      color: #334155;
+    }
+
+    .statement-body strong {
+      color: #0f172a;
+    }
+
+    /* ── 4. Deployment Assessment Table ───────────────────────── */
+    .assessment-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-bottom: 12px;
+      border: 1px solid #cbd5e1;
+      border-radius: 6px;
+      overflow: hidden;
+    }
+
+    .assessment-header {
+      background-color: #dbe4ee;
+      color: #0f172a;
+      font-size: 12.5px;
+      font-weight: 800;
+      letter-spacing: 0.5px;
+      padding: 8px 12px;
+      text-align: left;
+      border-bottom: 1px solid #cbd5e1;
+    }
+
+    .assessment-row td {
+      padding: 7.5px 12px;
+      border-bottom: 1px solid #cbd5e1;
+      vertical-align: middle;
+      font-size: 10.5px;
+    }
+
+    .assessment-row:last-child td {
+      border-bottom: none;
+    }
+
+    .col-label {
+      width: 32%;
+      background-color: #f8fafc;
+      color: #475569;
+      font-weight: 700;
+      border-right: 1px solid #cbd5e1;
+    }
+
+    .col-value {
+      width: 68%;
+      background-color: #ffffff;
+      color: #0f172a;
+      font-weight: 700;
+    }
+
+    .col-value a {
+      color: #0284c7;
+      text-decoration: none;
+    }
+
+    /* ── 5. NDA Banner ────────────────────────────────────────── */
+    .nda-card {
+      background-color: #f0fdf4;
+      border: 1px solid #bbf7d0;
+      border-radius: 6px;
+      padding: 7px 12px;
+      display: table;
+      width: 100%;
+      margin-bottom: 12px;
+    }
+
+    .nda-lock-cell {
+      display: table-cell;
+      width: 28px;
+      vertical-align: middle;
+      text-align: center;
+    }
+
+    .nda-lock-badge {
+      display: inline-block;
+      width: 20px;
+      height: 20px;
+      background-color: #2f6b49;
+      color: #ffffff;
+      border-radius: 4px;
+      line-height: 20px;
+      font-size: 11px;
+      text-align: center;
+    }
+
+    .nda-text-cell {
+      display: table-cell;
+      vertical-align: middle;
+      padding-left: 8px;
+      font-size: 9.5px;
+      line-height: 1.4;
+      color: #14532d;
+    }
+
+    .nda-text-cell strong {
+      color: #166534;
+      font-weight: 700;
+    }
+
+    /* ── 6. Visit Us Footer (Stacked Brand Rows) ────────────── */
+    .visit-card {
+      width: 100%;
+      background-color: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 6px;
+      margin-bottom: 8px;
+      padding: 8px 12px 9px 12px;
+    }
+
+    .visit-header {
+      text-align: center;
+      font-size: 10px;
+      font-weight: 800;
+      color: #475569;
+      letter-spacing: 0.6px;
+      margin-bottom: 7px;
+      text-transform: uppercase;
+    }
+
+    .brand-row {
+      width: 100%;
+    }
+
+    .brand-row-header {
+      margin-bottom: 3px;
+      font-size: 10px;
+      line-height: 1.2;
+    }
+
+    .brand-row-name {
+      font-weight: 800;
+      color: #0f172a;
+    }
+
+    .brand-row-bullet {
+      color: #94a3b8;
+      margin: 0 4px;
+      font-size: 8px;
+    }
+
+    .brand-row-sub {
+      font-size: 8.5px;
+      color: #64748b;
+      font-weight: 500;
+    }
+
+    .brand-links-table {
+      width: 100%;
+      border-collapse: collapse;
+      table-layout: fixed;
+    }
+
+    .link-cell {
+      width: 25%;
+      vertical-align: middle;
+      font-size: 9px;
+      color: #334155;
+      padding: 2px 4px 2px 0;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .link-cell a {
+      color: #0284c7;
+      text-decoration: none;
+      font-weight: 700;
+      font-size: 9px;
+      vertical-align: middle;
+    }
+
+    .icon-badge {
+      display: inline-block;
+      width: 15px;
+      height: 15px;
+      line-height: 15px;
+      border-radius: 3px;
+      text-align: center;
+      vertical-align: middle;
+      margin-right: 4px;
+    }
+
+    .icon-badge svg {
+      vertical-align: middle;
+      margin-top: -2px;
+    }
+
+    .icon-web {
+      background-color: #e0f2fe;
+      color: #0284c7;
+    }
+
+    .icon-mail {
+      background-color: #f1f5f9;
+      color: #475569;
+    }
+
+    .icon-linkedin {
+      background-color: #e0e7ff;
+      color: #0a66c2;
+    }
+
+    .icon-facebook {
+      background-color: #dbeafe;
+      color: #1877f2;
+    }
+
+    .row-divider {
+      height: 1px;
+      background-color: #e2e8f0;
+      margin: 6px 0 7px 0;
+    }
+
+    /* ── 7. Classification Strip ──────────────────────────────── */
+    .classification-table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 8px;
+      color: #64748b;
+    }
+
+    .class-left {
+      text-align: left;
+    }
+
+    .class-right {
+      text-align: right;
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="page-container">
+
+    <!-- 1. Header Lockup -->
+    <table class="header-table">
+      <tr>
+        <!-- Left: FABINS -->
+        <td class="brand-col">
+          <div class="brand-inner">
+            <div class="brand-icon-cell">
+              <img src="../../static/fabins-logo.png" alt="FABINS Logo" onerror="this.style.display='none'">
+            </div>
+            <div class="brand-text-cell">
+              <div class="brand-title">FAB<span class="accent">INS</span></div>
+              <div class="brand-subtitle">FABRIC INSPECTION AUTOMATION</div>
+            </div>
+          </div>
+        </td>
+
+        <!-- Center Divider -->
+        <td class="divider-col">
+          <span class="vertical-divider"></span>
+        </td>
+
+        <!-- Right: NEVOLYN -->
+        <td class="brand-col" style="padding-left: 10px;">
+          <div class="brand-inner">
+            <div class="brand-icon-cell">
+              <img src="../../static/nevolyn-icon.png" alt="NEVOLYN Icon" onerror="this.style.display='none'">
+            </div>
+            <div class="brand-text-cell">
+              <div class="nev-power">POWERED BY</div>
+              <a href="https://nevolyn.com" target="_blank" class="nev-title">NEVOLYN</a>
+              <div class="nev-sub">Engineering What is Next</div>
+            </div>
+          </div>
+        </td>
+      </tr>
+    </table>
+
+    <!-- Subtitle Status Line -->
+    <div class="status-line">
+      <span class="status-dot">&#8226;</span> Official Technical Assessment
+      <span class="status-divider">|</span>
+      <a href="mailto:fabins@nevolyn.com" class="status-link">fabins@nevolyn.com</a>
+    </div>
+
+    <div class="accent-rule"></div>
+
+    <!-- 2. Metadata Strip -->
+    <table class="meta-table">
+      <tr>
+        <td class="meta-card">
+          <div class="meta-label">Tracking Reference Code</div>
+          <div class="meta-value-ref">{{referenceCode}}</div>
+        </td>
+        <td class="meta-card">
+          <div class="meta-label">Submission Timestamp</div>
+          <div class="meta-value-date">{{submittedAt}}</div>
+        </td>
+      </tr>
+    </table>
+
+    <!-- 3. Technical Statement Box -->
+    <div class="statement-box">
+      <div class="statement-title">Technical Assessment FABINS</div>
+      <div class="statement-body">
+        This application is willingly submitted by <strong>{{contactName}}</strong> on behalf of
+        <strong>{{millName}}</strong> to co-operate with the FABINS team at NEVOLYN for technical assessment.
+        All evaluations and deployment services are provided directly by NEVOLYN's dedicated FABINS team.
+        FABINS does not alter the core mechanical structure of the existing machine; it operates as an add-on
+        retrofitting solution where optical camera frames, a dedicated AI processing unit, and an operator monitor
+        are seamlessly integrated to make the machine smarter. Furthermore, if the client prefers a complete standalone
+        machine setup, the FABINS team is fully capable of providing complete turnkey automated fabric inspection
+        machinery.
+      </div>
+    </div>
+
+    <!-- 4. Deployment Assessment Table (8 Rows) -->
+    <table class="assessment-table">
+      <thead>
+        <tr>
+          <th colspan="2" class="assessment-header">DEPLOYMENT ASSESSMENT</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr class="assessment-row">
+          <td class="col-label">Mill / Factory Name</td>
+          <td class="col-value">{{millName}}</td>
+        </tr>
+        <tr class="assessment-row">
+          <td class="col-label">Machine / Frame Brand</td>
+          <td class="col-value">{{machineBrand}}</td>
+        </tr>
+        <tr class="assessment-row">
+          <td class="col-label">Factory Location / Zone</td>
+          <td class="col-value">{{location}}</td>
+        </tr>
+        <tr class="assessment-row">
+          <td class="col-label">Sector / Operation Type</td>
+          <td class="col-value">{{factoryType}}</td>
+        </tr>
+        <tr class="assessment-row">
+          <td class="col-label">Fabric Roll / Table Width</td>
+          <td class="col-value">{{rollWidth}}</td>
+        </tr>
+        <tr class="assessment-row">
+          <td class="col-label">Representative Name</td>
+          <td class="col-value">{{contactName}}</td>
+        </tr>
+        <tr class="assessment-row">
+          <td class="col-label">Phone / WhatsApp</td>
+          <td class="col-value">{{phone}}</td>
+        </tr>
+        <tr class="assessment-row">
+          <td class="col-label">Work Email Address</td>
+          <td class="col-value"><a href="mailto:{{email}}">{{email}}</a></td>
+        </tr>
+      </tbody>
+    </table>
+
+    <!-- 5. NDA Banner -->
+    <div class="nda-card">
+      <div class="nda-lock-cell">
+        <span class="nda-lock-badge">&#128274;</span>
+      </div>
+      <div class="nda-text-cell">
+        <strong>NDA</strong> &bull; Factory and project data are confidential under a Non-Disclosure Agreement (NDA).
+      </div>
+    </div>
+
+    <!-- 6. Visit Us Footer (Row 1: FABINS, Row 2: NEVOLYN) -->
+    <div class="visit-card">
+      <div class="visit-header">Visit Us</div>
+
+      <!-- Row 1: FABINS -->
+      <div class="brand-row">
+        <div class="brand-row-header">
+          <span class="brand-row-name">FABINS</span>
+          <span class="brand-row-bullet">&bull;</span>
+          <span class="brand-row-sub">Fabric Inspection Automation</span>
+        </div>
+        <table class="brand-links-table">
+          <tr>
+            <td class="link-cell">
+              <span class="icon-badge icon-web">
+                <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none"
+                  stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <circle cx="12" cy="12" r="10" />
+                  <line x1="2" y1="12" x2="22" y2="12" />
+                  <path
+                    d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />
+                </svg>
+              </span>
+              <a href="https://fabins.nevolyn.com/" target="_blank">fabins.nevolyn.com</a>
+            </td>
+            <td class="link-cell">
+              <span class="icon-badge icon-mail">
+                <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none"
+                  stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
+                  <polyline points="22,6 12,13 2,6" />
+                </svg>
+              </span>
+              <a href="mailto:fabins@nevolyn.com">fabins@nevolyn.com</a>
+            </td>
+            <td class="link-cell">
+              <span class="icon-badge icon-linkedin">
+                <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="currentColor">
+                  <path
+                    d="M19 3a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h14m-.5 15.5v-5.3a3.26 3.26 0 0 0-3.26-3.26c-.85 0-1.84.52-2.28 1.3v-1.11h-2.79v8.37h2.79v-4.93c0-.77.62-1.4 1.39-1.4a1.4 1.4 0 0 1 1.4 1.4v4.93h2.75M6.46 10.9v7.6H9.2v-7.6H6.46M7.83 6.64c-.88 0-1.6.72-1.6 1.6 0 .88.72 1.6 1.6 1.6.89 0 1.61-.72 1.61-1.6 0-.88-.72-1.6-1.61-1.6z" />
+                </svg>
+              </span>
+              <a href="https://www.linkedin.com/company/fabinsautomation/" target="_blank">fabinsautomation</a>
+            </td>
+            <td class="link-cell">
+              <span class="icon-badge icon-facebook">
+                <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="currentColor">
+                  <path
+                    d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
+                </svg>
+              </span>
+              <a href="https://www.facebook.com/fabinsautomation/" target="_blank">fabinsautomation</a>
+            </td>
+          </tr>
+        </table>
+      </div>
+
+      <div class="row-divider"></div>
+
+      <!-- Row 2: NEVOLYN -->
+      <div class="brand-row">
+        <div class="brand-row-header">
+          <span class="brand-row-name">NEVOLYN</span>
+          <span class="brand-row-bullet">&bull;</span>
+          <span class="brand-row-sub">Engineering What is Next</span>
+        </div>
+        <table class="brand-links-table">
+          <tr>
+            <td class="link-cell">
+              <span class="icon-badge icon-web">
+                <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none"
+                  stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <circle cx="12" cy="12" r="10" />
+                  <line x1="2" y1="12" x2="22" y2="12" />
+                  <path
+                    d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z" />
+                </svg>
+              </span>
+              <a href="https://nevolyn.com/" target="_blank">nevolyn.com</a>
+            </td>
+            <td class="link-cell">
+              <span class="icon-badge icon-mail">
+                <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="none"
+                  stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
+                  <polyline points="22,6 12,13 2,6" />
+                </svg>
+              </span>
+              <a href="mailto:info@nevolyn.com">info@nevolyn.com</a>
+            </td>
+            <td class="link-cell">
+              <span class="icon-badge icon-linkedin">
+                <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="currentColor">
+                  <path
+                    d="M19 3a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h14m-.5 15.5v-5.3a3.26 3.26 0 0 0-3.26-3.26c-.85 0-1.84.52-2.28 1.3v-1.11h-2.79v8.37h2.79v-4.93c0-.77.62-1.4 1.39-1.4a1.4 1.4 0 0 1 1.4 1.4v4.93h2.75M6.46 10.9v7.6H9.2v-7.6H6.46M7.83 6.64c-.88 0-1.6.72-1.6 1.6 0 .88.72 1.6 1.6 1.6.89 0 1.61-.72 1.61-1.6 0-.88-.72-1.6-1.61-1.6z" />
+                </svg>
+              </span>
+              <a href="https://www.linkedin.com/company/nevolyn/" target="_blank">nevolyn</a>
+            </td>
+            <td class="link-cell">
+              <span class="icon-badge icon-facebook">
+                <svg xmlns="http://www.w3.org/2000/svg" width="10" height="10" viewBox="0 0 24 24" fill="currentColor">
+                  <path
+                    d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z" />
+                </svg>
+              </span>
+              <a href="https://www.facebook.com/nevolyn/" target="_blank">nevolyn</a>
+            </td>
+          </tr>
+        </table>
+      </div>
+    </div>
+
+    <!-- 7. Document Classification Strip -->
+    <table class="classification-table">
+      <tr>
+        <td class="class-left">FABINS Industrial Assessment Specification</td>
+        <td class="class-right">System Generated</td>
+      </tr>
+    </table>
+
+  </div>
+
+</body>
+
+</html>
