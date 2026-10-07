@@ -33,18 +33,24 @@ import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 
 /**
- * Enterprise pure-Java PDF document builder for official FABINS deployment assessments.
+ * Enterprise pure-Java PDF document builder for official FABINS deployment
+ * assessments.
  *
  * <h2>Architectural Highlights</h2>
  * <ul>
- *   <li><strong>Direct OpenPDF Vector Pipeline:</strong> 100% native Java drawing without
- *       unreliable HTML/XHTML parsing or headless browser overhead.</li>
- *   <li><strong>Zero Disk I/O on Request Path:</strong> High-resolution brand assets and security
- *       badges are pre-cached in memory at application startup ({@code @PostConstruct}).</li>
- *   <li><strong>Sub-10ms Compilation:</strong> Compiles an executive A4 assessment in 5-10ms,
- *       ready for extreme concurrency.</li>
- *   <li><strong>Pixel-Perfect Single Page A4:</strong> Strictly balanced vertical rhythm guaranteed
- *       to fit on exactly 1 page without pagination overflow.</li>
+ * <li><strong>Direct OpenPDF Vector Pipeline:</strong> 100% native Java drawing
+ * without
+ * unreliable HTML/XHTML parsing or headless browser overhead.</li>
+ * <li><strong>Zero Disk I/O on Request Path:</strong> High-resolution brand
+ * assets and security
+ * badges are pre-cached in memory at application startup
+ * ({@code @PostConstruct}).</li>
+ * <li><strong>Sub-10ms Compilation:</strong> Compiles an executive A4
+ * assessment in 5-10ms,
+ * ready for extreme concurrency.</li>
+ * <li><strong>Pixel-Perfect Single Page A4:</strong> Strictly balanced vertical
+ * rhythm guaranteed
+ * to fit on exactly 1 page without pagination overflow.</li>
  * </ul>
  */
 @Component
@@ -53,23 +59,23 @@ public class DeploymentAssessmentPdfBuilder {
     private static final Logger log = LoggerFactory.getLogger(DeploymentAssessmentPdfBuilder.class);
 
     // ── Design Tokens & Color Palette ───────────────────────────────────────
-    private static final Color COLOR_PRIMARY = new Color(15, 23, 42);          // Slate 900 (#0f172a)
-    private static final Color COLOR_ACCENT = new Color(2, 132, 199);          // Sky 600 (#0284c7)
-    private static final Color COLOR_BORDER = new Color(203, 213, 225);        // Slate 300 (#cbd5e1)
-    private static final Color COLOR_TEXT_MUTED = new Color(71, 85, 105);      // Slate 600 (#475569)
-    private static final Color COLOR_TEXT_BODY = new Color(51, 65, 85);        // Slate 700 (#334155)
-    private static final Color COLOR_SUCCESS_DOT = new Color(16, 185, 129);    // Emerald 500
+    private static final Color COLOR_PRIMARY = new Color(15, 23, 42); // Slate 900 (#0f172a)
+    private static final Color COLOR_ACCENT = new Color(2, 132, 199); // Sky 600 (#0284c7)
+    private static final Color COLOR_BORDER = new Color(203, 213, 225); // Slate 300 (#cbd5e1)
+    private static final Color COLOR_TEXT_MUTED = new Color(71, 85, 105); // Slate 600 (#475569)
+    private static final Color COLOR_TEXT_BODY = new Color(51, 65, 85); // Slate 700 (#334155)
+    private static final Color COLOR_SUCCESS_DOT = new Color(16, 185, 129); // Emerald 500
 
     private static final Color COLOR_TABLE_HEADER_BG = new Color(219, 228, 238); // Soft Slate Blue (#dbe4ee)
-    private static final Color COLOR_TABLE_LABEL_BG = new Color(248, 250, 252);  // Slate 50
-    private static final Color COLOR_CARD_BG = new Color(248, 250, 252);         // Slate 50
+    private static final Color COLOR_TABLE_LABEL_BG = new Color(248, 250, 252); // Slate 50
+    private static final Color COLOR_CARD_BG = new Color(248, 250, 252); // Slate 50
 
-    private static final Color COLOR_NDA_BG = new Color(240, 253, 244);        // Emerald 50 (#f0fdf4)
-    private static final Color COLOR_NDA_BORDER = new Color(187, 247, 208);    // Emerald 200 (#bbf7d0)
-    private static final Color COLOR_NDA_TEXT = new Color(20, 83, 45);         // Emerald 900 (#14532d)
-    private static final Color COLOR_NDA_HEADING = new Color(22, 101, 52);     // Emerald 800 (#166534)
+    private static final Color COLOR_NDA_BG = new Color(240, 253, 244); // Emerald 50 (#f0fdf4)
+    private static final Color COLOR_NDA_BORDER = new Color(187, 247, 208); // Emerald 200 (#bbf7d0)
+    private static final Color COLOR_NDA_TEXT = new Color(20, 83, 45); // Emerald 900 (#14532d)
+    private static final Color COLOR_NDA_HEADING = new Color(22, 101, 52); // Emerald 800 (#166534)
 
-    private static final Color COLOR_FOOTER_BG = new Color(248, 250, 252);     // Slate 50 (#f8fafc)
+    private static final Color COLOR_FOOTER_BG = new Color(248, 250, 252); // Slate 50 (#f8fafc)
     private static final Color COLOR_FOOTER_BORDER = new Color(226, 232, 240); // Slate 200 (#e2e8f0)
     private static final Color COLOR_FOOTER_DIVIDER = new Color(226, 232, 240);// Slate 200
 
@@ -108,10 +114,12 @@ public class DeploymentAssessmentPdfBuilder {
     }
 
     /**
-     * Builds and compiles the deployment assessment report into an executive A4 PDF byte array.
+     * Builds and compiles the deployment assessment report into an executive A4 PDF
+     * byte array.
      */
     public byte[] build(DeploymentRequest request) {
-        // Fallback safety: ensure cache is ready even if called outside Spring lifecycle
+        // Fallback safety: ensure cache is ready even if called outside Spring
+        // lifecycle
         if (cachedFabinsLogoBytes == null || cachedNevolynIconBytes == null) {
             initAssetCache();
         }
@@ -174,7 +182,8 @@ public class DeploymentAssessmentPdfBuilder {
         fabText.add(new Chunk("FAB", font(21f, Font.BOLD, COLOR_PRIMARY)));
         fabText.add(new Chunk("INS", font(21f, Font.BOLD, COLOR_ACCENT)));
         fabText.add(Chunk.NEWLINE);
-        fabText.add(new Chunk("FABRIC INSPECTION AUTOMATION", new Font(Font.COURIER, 8.0f, Font.BOLD, COLOR_TEXT_MUTED)));
+        fabText.add(
+                new Chunk("FABRIC INSPECTION AUTOMATION", new Font(Font.COURIER, 8.0f, Font.BOLD, COLOR_TEXT_MUTED)));
         PdfPCell fabTextCell = new PdfPCell(fabText);
         styleBorderless(fabTextCell);
         fabTextCell.setVerticalAlignment(Element.ALIGN_MIDDLE);
@@ -255,8 +264,10 @@ public class DeploymentAssessmentPdfBuilder {
 
         Instant submitted = request.getSubmittedAt() != null ? request.getSubmittedAt() : Instant.now();
 
-        table.addCell(metaCell("TRACKING REFERENCE CODE", request.getReferenceCode(), labelFont, refValFont, COLOR_CARD_BG));
-        table.addCell(metaCell("SUBMISSION TIMESTAMP", DATE_FORMATTER.format(submitted), labelFont, dateValFont, COLOR_CARD_BG));
+        table.addCell(
+                metaCell("TRACKING REFERENCE CODE", request.getReferenceCode(), labelFont, refValFont, COLOR_CARD_BG));
+        table.addCell(metaCell("SUBMISSION TIMESTAMP", DATE_FORMATTER.format(submitted), labelFont, dateValFont,
+                COLOR_CARD_BG));
 
         document.add(table);
     }
@@ -314,7 +325,8 @@ public class DeploymentAssessmentPdfBuilder {
         p1.add(new Chunk("FABINS", fBold));
         p1.add(new Chunk(" team at ", fBody));
         p1.add(new Chunk("NEVOLYN", fBold));
-        p1.add(new Chunk(" for technical assessment. All evaluations and deployment services are provided directly by ", fBody));
+        p1.add(new Chunk(" for technical assessment. All evaluations and deployment services are provided directly by ",
+                fBody));
         p1.add(new Chunk("NEVOLYN", fBold));
         p1.add(new Chunk("'s dedicated ", fBody));
         p1.add(new Chunk("FABINS", fBold));
@@ -322,17 +334,18 @@ public class DeploymentAssessmentPdfBuilder {
         p1.setSpacingAfter(6f);
         cell.addElement(p1);
 
-        // Paragraph 2: Retrofitting technical scope and standalone capability (Justified & Bolded)
+        // Paragraph 2: Retrofitting technical scope and standalone capability
+        // (Justified & Bolded)
         Paragraph p2 = new Paragraph();
         p2.setLeading(17.5f);
         p2.setAlignment(Element.ALIGN_JUSTIFIED);
         p2.add(new Chunk("FABINS", fBold));
         p2.add(new Chunk(
-                " does not alter the core mechanical structure of the existing machine; it operates as an add-on retrofitting solution where optical camera frames, a dedicated AI processing unit, and an operator monitor are seamlessly integrated to make the machine smarter. Furthermore, if the client prefers a complete standalone machine setup, the ",
+                " does not alter the core mechanical structure of the existing machine; it operates as an add-on retrofitting solution where optical camera frames, a dedicated AI processing unit, and an operator monitor are seamlessly integrated to make the machine smarter. Furthermore, if the client prefers a complete machine setup, the ",
                 fBody));
         p2.add(new Chunk("FABINS", fBold));
         p2.add(new Chunk(
-                " team is fully capable of providing complete turnkey automated fabric inspection machinery.",
+                " team is fully capable of providing complete automated fabric inspection machine.",
                 fBody));
         cell.addElement(p2);
 
@@ -471,7 +484,8 @@ public class DeploymentAssessmentPdfBuilder {
         fabLinks.setWidthPercentage(100);
         addFooterChannelCell(fabLinks, "Web", "fabins.nevolyn.com", "https://fabins.nevolyn.com/");
         addFooterChannelCell(fabLinks, "Email", "fabins@nevolyn.com", "mailto:fabins@nevolyn.com");
-        addFooterChannelCell(fabLinks, "LinkedIn", "fabinsautomation", "https://www.linkedin.com/company/fabinsautomation/");
+        addFooterChannelCell(fabLinks, "LinkedIn", "fabinsautomation",
+                "https://www.linkedin.com/company/fabinsautomation/");
         addFooterChannelCell(fabLinks, "Facebook", "fabinsautomation", "https://www.facebook.com/fabinsautomation/");
         cell.addElement(fabLinks);
 
@@ -524,7 +538,8 @@ public class DeploymentAssessmentPdfBuilder {
         PdfPTable strip = new PdfPTable(new float[] { 70f, 30f });
         strip.setWidthPercentage(100);
 
-        Paragraph left = new Paragraph("FABINS Industrial Assessment Specification", font(7.2f, Font.NORMAL, COLOR_TEXT_MUTED));
+        Paragraph left = new Paragraph("FABINS Industrial Assessment Specification",
+                font(7.2f, Font.NORMAL, COLOR_TEXT_MUTED));
         PdfPCell leftCell = new PdfPCell(left);
         leftCell.setBorder(Rectangle.NO_BORDER);
         strip.addCell(leftCell);
