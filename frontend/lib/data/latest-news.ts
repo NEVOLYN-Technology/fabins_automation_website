@@ -5,15 +5,16 @@
  * Rendered in the "Latest News" section within `LatestNewsSection.tsx`.
  *
  * Strictly sorted in reverse chronological order (Newest -> Top, Oldest -> Bottom):
- * 1. 2026-09-14 — Bangladesh Innovation Fair 2026 — Award & Prize Recognition
- * 2. 2026-09-12 — Honorable Prime Minister Visits FABINS at Stall No. 15
- * 3. 2026-09-10 — Bangladesh Innovation Fair 2026 — Top 50 Selection
- * 4. 2026-09-09 — Strategic NDA Signed with Axentec PLC (A Robi Axiata Company)
- * 5. 2026-08-28 — Onboarded to Founders’ Leadership Program (FLP) Cohort 4 by NSU Startups Next
- * 6. 2026-07-28 — Exploring New Possibilities with Ontik Technology Leadership
- * 7. 2026-07-21 — First FABINS Prototype Showcased at BUET IRAB
- * 8. 2026-07-01 — Strategic Partnership with Saturn Textiles & Saturn R&D
- * 9. 2026-06-28 — First Working POC of FABINS Successfully Completed at Saturn
+ * 2026-09-29 — Needle Innovation Challenge 3.0 — Shortlisted (Existing Solutions)
+ * 2026-09-14 — Bangladesh Innovation Fair 2026 — Award & Prize Recognition
+ * 2026-09-12 — Honorable Prime Minister Visits FABINS at Stall No. 15
+ * 2026-09-10 — Bangladesh Innovation Fair 2026 — Top 50 Selection
+ * 2026-09-09 — Strategic NDA Signed with Axentec PLC (A Robi Axiata Company)
+ * 2026-08-28 — Onboarded to Founders’ Leadership Program (FLP) Cohort 4 by NSU Startups Next
+ * 2026-07-28 — Exploring New Possibilities with Ontik Technology Leadership
+ * 2026-07-21 — First FABINS Prototype Showcased at BUET IRAB
+ * 2026-07-01 — Strategic Partnership with Saturn Textiles & Saturn R&D
+ * 2026-06-28 — First Working POC of FABINS Successfully Completed at Saturn
  *
  * @module lib/data/latest-news
  */
@@ -47,6 +48,21 @@ export interface NewsItem {
  * Chronological news update feed ordered newest-first with verified NEVOLYN official links.
  */
 export const news: NewsItem[] = [
+  {
+    id: 'news-needle-innovation-challenge-3',
+    title: 'Needle Innovation Challenge 3.0 - Shortlisted (Existing Solutions)',
+    description:
+      'FABINS has been shortlisted for the next evaluation round of the Needle Innovation Challenge 3.0 (Existing Solutions), advancing AI-powered fabric inspection.',
+    content:
+      'A Proud Milestone for FABINS - Fabric Inspection Automation\n\nWe are proud to share that FABINS has been shortlisted for the next evaluation round of the Needle Innovation Challenge 3.0 (Existing Solutions).\n\nThis recognition marks an important milestone in our journey to transform traditional fabric inspection through AI-powered computer vision and industrial automation.\n\nAs a product of NEVOLYN, FABINS aims to make fabric inspection smarter, more accurate, and more efficient for the textile and RMG industry.\n\nWe are grateful for this opportunity and excited to continue our journey toward building innovative, technology-driven solutions from Bangladesh for the world.\n\nShortlisted | Needle Innovation Challenge 3.0\nCategory: Existing Solutions\n\nFABINS | Fabric Inspection Automation\nWebsite: https://fabins.nevolyn.com\nEmail: fabins@nevolyn.com\n\nNEVOLYN\nWebsite: https://nevolyn.com\nEmail: info@nevolyn.com',
+    category: 'Innovation Challenge',
+    date: '2026-09-29',
+    image: '/news_fabinsXneedle.jpg',
+    images: ['/news_fabinsXneedle.jpg'],
+    linkedinUrl:
+      'https://www.linkedin.com/feed/update/urn:li:activity:7514728635778506752',
+    facebookUrl: 'https://www.facebook.com/share/p/19TF7BYmSh/',
+  },
   {
     id: 'news-fair-award-top50',
     title: 'Bangladesh Innovation Fair 2026 - Award & Prize Recognition',
