@@ -27,8 +27,8 @@ import { InquiryDetailModal } from '@/components/admin/InquiryDetailModal'
  * FABINS Operations & Executive Control Center.
  * Route: /admin
  *
- * Orchestrates secure authentication, real-time data synchronization with Spring Boot REST API,
- * dynamic search & filtering, inline status workflows, and detailed record inspections.
+ * Implements the authentic FABINS light theme (engineering grid, canvas backdrop,
+ * teal/cyan brand accents, crisp white cards, and full status workflows).
  */
 export default function AdminDashboardPage() {
   // ── 1. Authentication State ───────────────────────────────────────────────
@@ -58,7 +58,7 @@ export default function AdminDashboardPage() {
   // ── 5. Lifecycle & Session Storage ────────────────────────────────────────
   useEffect(() => {
     if (typeof window !== 'undefined') {
-      document.title = 'FABINS Deployment - Executive Operations & Inquiries Dashboard'
+      document.title = 'FABINS Deployment — Executive Operations & Inquiries Dashboard'
       const savedAuth = sessionStorage.getItem('fabins_admin_auth')
       if (savedAuth) {
         try {
@@ -73,7 +73,7 @@ export default function AdminDashboardPage() {
     }
   }, [])
 
-  // Auto-dismiss feedback toast messages after 4 seconds
+  // Auto-dismiss toast feedback messages after 4 seconds
   useEffect(() => {
     if (toastMessage) {
       const timer = setTimeout(() => setToastMessage(null), 4000)
@@ -244,25 +244,38 @@ export default function AdminDashboardPage() {
   }
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col font-sans selection:bg-cyan-500/20">
-      {/* Toast Feedback Message */}
+    <div className="relative min-h-screen bg-canvas text-ink flex flex-col font-sans selection:bg-accent/20">
+      {/* Background Grid & Radial Glows (matching PageShell) */}
+      <div aria-hidden className="pointer-events-none fixed inset-0 -z-10 grid-bg opacity-70" />
+      <div
+        aria-hidden
+        className="pointer-events-none fixed -top-40 left-1/2 -z-10 h-[420px] w-[820px] -translate-x-1/2 rounded-full"
+        style={{ background: 'radial-gradient(ellipse at center, var(--glow-a) 0%, transparent 70%)' }}
+      />
+      <div
+        aria-hidden
+        className="pointer-events-none fixed bottom-0 right-0 -z-10 h-[380px] w-[520px] rounded-full"
+        style={{ background: 'radial-gradient(ellipse at center, var(--glow-b) 0%, transparent 70%)' }}
+      />
+
+      {/* Toast Feedback Alert */}
       <AnimatePresence>
         {toastMessage && (
           <motion.div
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
-            className={`fixed top-4 right-4 z-50 px-4 py-3 rounded-xl shadow-2xl border text-sm flex items-center gap-2.5 backdrop-blur-md ${toastMessage.type === 'success'
-                ? 'bg-emerald-950/80 border-emerald-500/40 text-emerald-200'
-                : 'bg-red-950/80 border-red-500/40 text-red-200'
+            className={`fixed top-4 right-4 z-50 px-4 py-3 rounded-xl shadow-card border text-sm flex items-center gap-2.5 backdrop-blur-md ${toastMessage.type === 'success'
+              ? 'bg-emerald-50 border-emerald-300 text-emerald-900'
+              : 'bg-red-50 border-red-300 text-red-900'
               }`}
           >
             {toastMessage.type === 'success' ? (
-              <CheckCircle className="w-4 h-4 text-emerald-400 shrink-0" />
+              <CheckCircle className="w-4 h-4 text-emerald-600 shrink-0" />
             ) : (
-              <AlertCircle className="w-4 h-4 text-red-400 shrink-0" />
+              <AlertCircle className="w-4 h-4 text-red-600 shrink-0" />
             )}
-            <span>{toastMessage.text}</span>
+            <span className="font-medium text-xs sm:text-sm">{toastMessage.text}</span>
           </motion.div>
         )}
       </AnimatePresence>
@@ -320,6 +333,14 @@ export default function AdminDashboardPage() {
           />
         )}
       </main>
+
+      {/* Sub-Footer Copyright */}
+      <footer className="border-t border-line bg-canvas-alt/40 py-4 mt-auto">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row items-center justify-between text-xs text-ink-soft gap-2">
+          <p>© {new Date().getFullYear()} FABINS · NEVOLYN. Executive Operations Portal.</p>
+          <p>Protected System — Authorized Personnel Only</p>
+        </div>
+      </footer>
 
       {/* Detail Inspection Modals */}
       <DeploymentDetailModal

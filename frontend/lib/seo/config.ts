@@ -67,6 +67,34 @@ export const SEO_TAXONOMY = {
     'Bangladeshi Automation',
   ],
 
+  /** Admin, operations, and portal search query taxonomy (English & Bangla) */
+  adminQueries: [
+    // English search variations & intents
+    'FABINS Admin',
+    'FABINS Admin Login',
+    'FABINS Deployment Admin',
+    'FABINS Portal Login',
+    'FABINS Staff Portal',
+    'FABINS Operations Dashboard',
+    'FABINS Management Portal',
+    'FABINS Control Center',
+    'NEVOLYN Admin Portal',
+    'NEVOLYN FABINS Login',
+    'NEVOLYN FABINS Admin',
+    // Bengali (Bangla) search variations & intents
+    'ফ্যাবিনস অ্যাডমিন',
+    'ফ্যাবিন্স এডমিন',
+    'ফ্যাবিনস অ্যাডমিন লগইন',
+    'ফ্যাবিন্স এডমিন লগইন',
+    'ফ্যাবিনস পোর্টাল লগইন',
+    'ফ্যাবিন্স লগিন',
+    'নেভোলিন অ্যাডমিন',
+    'নেভোলিন ফ্যাবিনস অ্যাডমিন',
+    'ফ্যাবিনস পোর্টাল',
+    'ফ্যাবিনস অপারেশনস ড্যাশবোর্ড',
+    'ফ্যাবিন্স কন্ট্রোল প্যানেল',
+  ],
+
   /** NEVOLYN parent entity brand variations */
   nevolynEnglishVariations: [
     'NEVOLYN',
@@ -122,6 +150,8 @@ export const SEO_TAXONOMY = {
     'NEVOLYN Textile Automation',
     'NEVOLYN Fabric Automation',
     'NEVOLYN Industrial Automation',
+    'NEVOLYN Bangladesh Automation',
+    'NEVOLYN FABINS Bangladesh',
     'FABINS by NEVOLYN',
     'FABINS Automation by NEVOLYN',
     'FABINS from NEVOLYN',
@@ -151,6 +181,7 @@ export const SEO_TAXONOMY = {
     'FABINS Bangladesh NEVOLYN',
     'FABINS Automation Bangladesh NEVOLYN',
     'Fabric Inspection Automation Bangladesh NEVOLYN',
+    'FABINS Automation Bangladesh NEVOLYN',
   ],
 
   /** Bengali script brand representations */
@@ -711,3 +742,76 @@ export const rootSiteMetadata: Metadata = {
     apple: SEO_CONFIG.assets.logo,
   },
 }
+
+// ----------------------------------------------------------------------------
+// Admin Portal SEO Metadata & Schema.org Graph
+// ----------------------------------------------------------------------------
+
+export const adminSiteMetadata: Metadata = {
+  ...rootSiteMetadata,
+  title: 'FABINS Admin Login — Executive Operations & Deployment Portal',
+  description:
+    'Official administrative login and operational control center for FABINS Automation by NEVOLYN. Manage RMG mill deployment requests, retrofit assessments, and general inquiries.',
+  keywords: [
+    ...SEO_TAXONOMY.adminQueries,
+    'fabins admin',
+    'fabins admin login',
+    'fabins deployment admin',
+    'nevolyn admin',
+    'fabins operations portal',
+  ],
+  alternates: {
+    canonical: `${SEO_CONFIG.siteUrl}/admin`,
+  },
+  openGraph: {
+    ...rootSiteMetadata.openGraph,
+    title: 'FABINS Admin Login — Executive Operations & Deployment Portal',
+    description:
+      'Official administrative control center for FABINS operations, RMG mill deployment assessments, and inquiries.',
+    url: `${SEO_CONFIG.siteUrl}/admin`,
+  },
+  twitter: {
+    ...rootSiteMetadata.twitter,
+    title: 'FABINS Admin Login',
+    description:
+      'Official administrative portal for FABINS operations and deployment assessments.',
+  },
+}
+
+/**
+ * Builds the Schema.org JSON-LD graph for the Admin Portal WebPage.
+ */
+export function buildAdminSchemaGraph() {
+  const base = buildSchemaGraph()
+  return {
+    ...base,
+    '@graph': [
+      ...base['@graph'],
+      {
+        '@type': 'WebPage',
+        '@id': `${SEO_CONFIG.siteUrl}/admin#webpage`,
+        url: `${SEO_CONFIG.siteUrl}/admin`,
+        name: 'FABINS Admin Login — Operations & Deployment Portal',
+        alternateName: [
+          'FABINS Admin',
+          'FABINS Admin Login',
+          'FABINS Deployment Admin',
+          'ফ্যাবিনস অ্যাডমিন',
+          'ফ্যাবিনস অ্যাডমিন লগইন',
+          'ফ্যাবিন্স এডমিন পোর্টাল',
+          'নেভোলিন অ্যাডমিন',
+        ],
+        description:
+          'Official administrative control center for FABINS operations, RMG mill deployment assessments, and inquiries.',
+        isPartOf: {
+          '@id': `${SEO_CONFIG.siteUrl}/#website`,
+        },
+        about: {
+          '@id': `${SEO_CONFIG.siteUrl}/#organization`,
+        },
+        inLanguage: ['en', 'bn'],
+      },
+    ],
+  }
+}
+

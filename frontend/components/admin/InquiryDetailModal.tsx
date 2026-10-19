@@ -11,8 +11,8 @@ interface InquiryDetailModalProps {
 }
 
 /**
- * General Inquiry Detail Modal.
- * Shows complete message text, sender details, status tag, and a direct email reply trigger.
+ * General Inquiry Detail Modal — Styled in authentic FABINS theme.
+ * Clean dialog with legible message card and one-click email reply button.
  */
 export function InquiryDetailModal({
   inquiry,
@@ -21,38 +21,38 @@ export function InquiryDetailModal({
   return (
     <AnimatePresence>
       {inquiry && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-xs">
           <motion.div
-            initial={{ opacity: 0, scale: 0.95 }}
+            initial={{ opacity: 0, scale: 0.96 }}
             animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 0.95 }}
-            className="w-full max-w-xl bg-slate-900 border border-slate-800 rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]"
+            exit={{ opacity: 0, scale: 0.96 }}
+            className="w-full max-w-xl bg-panel border border-line rounded-2xl shadow-lift overflow-hidden flex flex-col max-h-[90vh]"
           >
             {/* Modal Header */}
-            <div className="p-5 border-b border-slate-800 flex items-center justify-between bg-slate-900/80">
+            <div className="p-5 border-b border-line flex items-center justify-between bg-canvas/60">
               <div>
                 <div className="flex items-center gap-2">
-                  <span className="text-xs font-mono font-medium text-cyan-400">
+                  <span className="text-xs font-mono font-bold text-accent">
                     {inquiry.referenceCode}
                   </span>
                   <span
-                    className={`text-[10px] px-2 py-0.5 rounded font-medium ${
+                    className={`text-[10px] px-2 py-0.5 rounded font-semibold ${
                       inquiry.status === 'NEW'
-                        ? 'bg-rose-950/50 text-rose-300 border border-rose-600/30'
-                        : 'bg-emerald-950/50 text-emerald-300 border border-emerald-600/30'
+                        ? 'bg-rose-50 text-rose-800 border border-rose-300'
+                        : 'bg-emerald-50 text-emerald-800 border border-emerald-300'
                     }`}
                   >
                     {inquiry.status}
                   </span>
                 </div>
-                <h3 className="text-base font-bold text-white mt-1">
+                <h3 className="text-base font-bold text-ink mt-1">
                   {inquiry.subject}
                 </h3>
               </div>
 
               <button
                 onClick={onClose}
-                className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-colors cursor-pointer"
+                className="p-1.5 rounded-lg text-ink-soft hover:text-ink hover:bg-panel-2 transition-colors cursor-pointer"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -60,10 +60,10 @@ export function InquiryDetailModal({
 
             {/* Modal Body */}
             <div className="p-6 overflow-y-auto space-y-4 text-sm">
-              <div className="p-4 rounded-xl bg-slate-950 border border-slate-800/80">
-                <div className="flex items-center justify-between mb-2">
-                  <span className="font-semibold text-white">{inquiry.name}</span>
-                  <span className="text-xs text-slate-500">
+              <div className="p-4 rounded-xl bg-panel-2 border border-line">
+                <div className="flex items-center justify-between mb-1.5">
+                  <span className="font-bold text-ink text-sm">{inquiry.name}</span>
+                  <span className="text-xs text-ink-soft font-medium">
                     {new Date(inquiry.createdAt).toLocaleDateString('en-GB', {
                       day: 'numeric',
                       month: 'short',
@@ -75,28 +75,28 @@ export function InquiryDetailModal({
                 </div>
                 <a
                   href={`mailto:${inquiry.email}`}
-                  className="text-xs text-cyan-400 hover:underline flex items-center gap-1"
+                  className="text-xs text-accent hover:underline flex items-center gap-1 font-medium"
                 >
-                  <Mail className="w-3 h-3" />
+                  <Mail className="w-3.5 h-3.5" />
                   <span>{inquiry.email}</span>
                 </a>
               </div>
 
               <div>
-                <label className="text-xs font-semibold uppercase tracking-wider text-slate-400 block mb-2">
+                <label className="text-xs font-bold uppercase tracking-wider text-ink-muted block mb-2">
                   Message Body
                 </label>
-                <div className="p-4 rounded-xl bg-slate-950 border border-slate-800/80 text-slate-300 text-xs leading-relaxed whitespace-pre-wrap">
+                <div className="p-4 rounded-xl bg-panel-2 border border-line text-ink text-xs leading-relaxed whitespace-pre-wrap font-normal">
                   {inquiry.message || 'No message content provided.'}
                 </div>
               </div>
             </div>
 
             {/* Modal Footer */}
-            <div className="p-4 border-t border-slate-800 bg-slate-900/90 flex items-center justify-between">
+            <div className="p-4 border-t border-line bg-canvas/60 flex items-center justify-between">
               <a
                 href={`mailto:${inquiry.email}?subject=RE: ${encodeURIComponent(inquiry.subject)} [Ref: ${inquiry.referenceCode}]`}
-                className="px-4 py-2 rounded-xl bg-cyan-600 hover:bg-cyan-500 text-white text-xs font-medium inline-flex items-center gap-2 transition-colors"
+                className="px-4 py-2 rounded-xl bg-accent hover:bg-accent-bright text-white text-xs font-semibold inline-flex items-center gap-2 transition-colors shadow-xs"
               >
                 <Send className="w-3.5 h-3.5" />
                 <span>Reply via Email Client</span>
@@ -104,7 +104,7 @@ export function InquiryDetailModal({
 
               <button
                 onClick={onClose}
-                className="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white text-xs font-medium transition-colors cursor-pointer"
+                className="px-4 py-2 rounded-xl bg-panel hover:bg-panel-2 border border-line text-ink-muted hover:text-ink text-xs font-semibold transition-colors cursor-pointer shadow-xs"
               >
                 Close
               </button>

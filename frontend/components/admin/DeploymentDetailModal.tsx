@@ -11,8 +11,8 @@ interface DeploymentDetailModalProps {
 }
 
 /**
- * Mill Deployment Deep-Inspection Modal.
- * Displays all factory technical parameters, roll widths, representative contacts, and PDF actions.
+ * Mill Deployment Deep-Inspection Modal — Styled in authentic FABINS theme.
+ * Clean elevated dialog with crisp technical parameters and direct PDF download.
  */
 export function DeploymentDetailModal({
   deployment,
@@ -21,40 +21,40 @@ export function DeploymentDetailModal({
   return (
     <AnimatePresence>
       {deployment && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/80 backdrop-blur-sm">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/50 backdrop-blur-xs">
           <motion.div
-            initial={{ opacity: 0, scale: 0.95 }}
+            initial={{ opacity: 0, scale: 0.96 }}
             animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0, scale: 0.95 }}
-            className="w-full max-w-2xl bg-slate-900 border border-slate-800 rounded-2xl shadow-2xl overflow-hidden flex flex-col max-h-[90vh]"
+            exit={{ opacity: 0, scale: 0.96 }}
+            className="w-full max-w-2xl bg-panel border border-line rounded-2xl shadow-lift overflow-hidden flex flex-col max-h-[90vh]"
           >
             {/* Modal Header */}
-            <div className="p-5 border-b border-slate-800 flex items-center justify-between bg-slate-900/80">
+            <div className="p-5 border-b border-line flex items-center justify-between bg-canvas/60">
               <div>
                 <div className="flex items-center gap-2">
-                  <span className="text-xs font-mono font-medium text-cyan-400">
+                  <span className="text-xs font-mono font-bold text-accent">
                     {deployment.referenceCode}
                   </span>
                   <span
-                    className={`text-[10px] px-2 py-0.5 rounded font-medium ${
+                    className={`text-[10px] px-2 py-0.5 rounded font-semibold ${
                       deployment.status === 'NEW'
-                        ? 'bg-amber-950/50 text-amber-300 border border-amber-600/30'
+                        ? 'bg-amber-50 text-amber-800 border border-amber-300'
                         : deployment.status === 'IN_REVIEW'
-                        ? 'bg-blue-950/50 text-blue-300 border border-blue-600/30'
-                        : 'bg-emerald-950/50 text-emerald-300 border border-emerald-600/30'
+                        ? 'bg-blue-50 text-blue-800 border border-blue-300'
+                        : 'bg-emerald-50 text-emerald-800 border border-emerald-300'
                     }`}
                   >
                     {deployment.status}
                   </span>
                 </div>
-                <h3 className="text-lg font-bold text-white mt-1">
+                <h3 className="text-lg font-bold text-ink mt-1">
                   {deployment.millName}
                 </h3>
               </div>
 
               <button
                 onClick={onClose}
-                className="p-1.5 rounded-lg text-slate-400 hover:text-white hover:bg-slate-800 transition-colors cursor-pointer"
+                className="p-1.5 rounded-lg text-ink-soft hover:text-ink hover:bg-panel-2 transition-colors cursor-pointer"
               >
                 <X className="w-5 h-5" />
               </button>
@@ -64,34 +64,34 @@ export function DeploymentDetailModal({
             <div className="p-6 overflow-y-auto space-y-6 text-sm">
               {/* Technical Specifications */}
               <div>
-                <h4 className="text-xs uppercase tracking-wider text-slate-400 font-semibold mb-3">
+                <h4 className="text-xs uppercase tracking-wider text-ink-muted font-bold mb-3">
                   Factory & Technical Specifications
                 </h4>
                 <div className="grid grid-cols-2 gap-3 text-xs">
-                  <div className="p-3 rounded-xl bg-slate-950 border border-slate-800/80">
-                    <span className="text-slate-500 block mb-1">Factory Location</span>
-                    <span className="text-slate-200 font-medium text-sm">
+                  <div className="p-3 rounded-xl bg-panel-2 border border-line">
+                    <span className="text-ink-soft block mb-1 font-medium">Factory Location</span>
+                    <span className="text-ink font-bold text-sm">
                       {deployment.location}
                     </span>
                   </div>
 
-                  <div className="p-3 rounded-xl bg-slate-950 border border-slate-800/80">
-                    <span className="text-slate-500 block mb-1">Machine / Frame Brand</span>
-                    <span className="text-slate-200 font-medium text-sm">
+                  <div className="p-3 rounded-xl bg-panel-2 border border-line">
+                    <span className="text-ink-soft block mb-1 font-medium">Machine / Frame Brand</span>
+                    <span className="text-ink font-bold text-sm">
                       {deployment.machineBrand || 'Not specified'}
                     </span>
                   </div>
 
-                  <div className="p-3 rounded-xl bg-slate-950 border border-slate-800/80">
-                    <span className="text-slate-500 block mb-1">Operation Sector</span>
-                    <span className="text-slate-200 font-medium text-sm">
+                  <div className="p-3 rounded-xl bg-panel-2 border border-line">
+                    <span className="text-ink-soft block mb-1 font-medium">Operation Sector</span>
+                    <span className="text-ink font-bold text-sm">
                       {deployment.factoryType || 'General Textile Mill'}
                     </span>
                   </div>
 
-                  <div className="p-3 rounded-xl bg-slate-950 border border-slate-800/80">
-                    <span className="text-slate-500 block mb-1">Inspection Roll Width</span>
-                    <span className="text-slate-200 font-medium text-sm">
+                  <div className="p-3 rounded-xl bg-panel-2 border border-line">
+                    <span className="text-ink-soft block mb-1 font-medium">Inspection Roll Width</span>
+                    <span className="text-ink font-bold text-sm">
                       {deployment.rollWidth || 'Standard Width'}
                     </span>
                   </div>
@@ -100,22 +100,22 @@ export function DeploymentDetailModal({
 
               {/* Representative Information */}
               <div>
-                <h4 className="text-xs uppercase tracking-wider text-slate-400 font-semibold mb-3">
+                <h4 className="text-xs uppercase tracking-wider text-ink-muted font-bold mb-3">
                   Authorized Representative
                 </h4>
-                <div className="p-4 rounded-xl bg-slate-950 border border-slate-800/80 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+                <div className="p-4 rounded-xl bg-panel-2 border border-line flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                   <div>
-                    <p className="font-semibold text-white text-base">
+                    <p className="font-bold text-ink text-base">
                       {deployment.contactName}
                     </p>
-                    <p className="text-slate-400 text-xs mt-0.5">{deployment.email}</p>
-                    <p className="text-slate-400 text-xs">{deployment.phone}</p>
+                    <p className="text-ink-muted text-xs mt-0.5">{deployment.email}</p>
+                    <p className="text-ink-muted text-xs">{deployment.phone}</p>
                   </div>
 
                   <div className="flex gap-2">
                     <a
                       href={`mailto:${deployment.email}`}
-                      className="px-3 py-2 rounded-lg bg-cyan-600 hover:bg-cyan-500 text-white text-xs font-medium inline-flex items-center gap-1.5 transition-colors"
+                      className="px-3 py-2 rounded-xl bg-accent text-white hover:bg-accent-bright text-xs font-semibold inline-flex items-center gap-1.5 transition-colors shadow-2xs"
                     >
                       <Mail className="w-3.5 h-3.5" />
                       <span>Email Contact</span>
@@ -126,12 +126,12 @@ export function DeploymentDetailModal({
 
               {/* Timestamps */}
               <div>
-                <h4 className="text-xs uppercase tracking-wider text-slate-400 font-semibold mb-2">
+                <h4 className="text-xs uppercase tracking-wider text-ink-muted font-bold mb-2">
                   Timestamps
                 </h4>
-                <p className="text-xs text-slate-400">
+                <p className="text-xs text-ink-soft">
                   Submitted on:{' '}
-                  <span className="text-slate-200">
+                  <span className="text-ink font-medium">
                     {new Date(deployment.submittedAt).toUTCString()}
                   </span>
                 </p>
@@ -139,20 +139,20 @@ export function DeploymentDetailModal({
             </div>
 
             {/* Modal Actions Footer */}
-            <div className="p-4 border-t border-slate-800 bg-slate-900/90 flex items-center justify-between">
+            <div className="p-4 border-t border-line bg-canvas/60 flex items-center justify-between">
               <a
                 href={getPdfDownloadUrl(deployment.id)}
                 target="_blank"
                 rel="noreferrer"
-                className="px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 hover:text-white text-xs font-medium inline-flex items-center gap-2 transition-colors"
+                className="px-4 py-2 rounded-xl bg-panel hover:bg-panel-2 border border-line text-ink-muted hover:text-ink text-xs font-semibold inline-flex items-center gap-2 transition-colors shadow-xs"
               >
-                <Download className="w-3.5 h-3.5" />
+                <Download className="w-3.5 h-3.5 text-accent" />
                 <span>Download Official Assessment PDF</span>
               </a>
 
               <button
                 onClick={onClose}
-                className="px-4 py-2 rounded-xl bg-cyan-600 hover:bg-cyan-500 text-white text-xs font-medium transition-colors cursor-pointer"
+                className="px-4 py-2 rounded-xl bg-accent hover:bg-accent-bright text-white text-xs font-semibold transition-colors cursor-pointer shadow-xs"
               >
                 Close
               </button>

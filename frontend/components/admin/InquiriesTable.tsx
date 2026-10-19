@@ -18,8 +18,8 @@ interface InquiriesTableProps {
 }
 
 /**
- * General Inquiries Data Table.
- * Renders visitor inquiries with quick status toggle, message modal, mailto reply, and deletion.
+ * General Inquiries Data Table — Styled in authentic FABINS theme.
+ * Clean, readable white table with colored status indicators and quick-action buttons.
  */
 export function InquiriesTable({
   inquiries,
@@ -33,10 +33,12 @@ export function InquiriesTable({
 }: InquiriesTableProps) {
   if (inquiries.length === 0) {
     return (
-      <div className="bg-slate-900/60 border border-slate-800 rounded-2xl overflow-hidden shadow-xl text-center py-16 px-4">
-        <Inbox className="w-10 h-10 text-slate-600 mx-auto mb-3" />
-        <h3 className="text-base font-semibold text-slate-300">No contact inquiries found</h3>
-        <p className="text-xs text-slate-500 max-w-sm mx-auto mt-1">
+      <div className="bg-panel border border-line rounded-2xl overflow-hidden shadow-card text-center py-16 px-4">
+        <div className="w-12 h-12 rounded-2xl bg-panel-2 border border-line flex items-center justify-center mx-auto mb-3 text-ink-soft">
+          <Inbox className="w-6 h-6" />
+        </div>
+        <h3 className="text-base font-bold text-ink">No contact inquiries found</h3>
+        <p className="text-xs text-ink-muted max-w-sm mx-auto mt-1">
           {searchTerm || statusFilter !== 'ALL'
             ? 'Try clearing your search query or status filter.'
             : 'Submissions from the "Let\'s Connect" form will appear here.'}
@@ -46,11 +48,11 @@ export function InquiriesTable({
   }
 
   return (
-    <div className="bg-slate-900/60 border border-slate-800 rounded-2xl overflow-hidden shadow-xl">
+    <div className="bg-panel border border-line rounded-2xl overflow-hidden shadow-card">
       <div className="overflow-x-auto">
         <table className="w-full text-left border-collapse text-xs">
           <thead>
-            <tr className="border-b border-slate-800 bg-slate-900/90 text-slate-400 font-medium">
+            <tr className="border-b border-line bg-canvas-alt/70 text-ink-muted font-semibold">
               <th className="py-3 px-4">Tracking Ref</th>
               <th className="py-3 px-4">Visitor Name</th>
               <th className="py-3 px-4">Subject & Excerpt</th>
@@ -59,11 +61,11 @@ export function InquiriesTable({
               <th className="py-3 px-4 text-right">Actions</th>
             </tr>
           </thead>
-          <tbody className="divide-y divide-slate-800/60">
+          <tbody className="divide-y divide-line">
             {inquiries.map((i) => (
-              <tr key={i.id} className="hover:bg-slate-800/30 transition-colors">
+              <tr key={i.id} className="hover:bg-canvas/60 transition-colors">
                 {/* Reference Code */}
-                <td className="py-3.5 px-4 font-mono font-medium text-cyan-400 whitespace-nowrap">
+                <td className="py-3.5 px-4 font-mono font-semibold text-accent whitespace-nowrap">
                   <button
                     onClick={() => onCopy(i.referenceCode)}
                     className="hover:underline flex items-center gap-1.5 cursor-pointer text-left"
@@ -71,19 +73,19 @@ export function InquiriesTable({
                   >
                     <span>{i.referenceCode}</span>
                     {copiedId === i.referenceCode ? (
-                      <Check className="w-3 h-3 text-emerald-400" />
+                      <Check className="w-3 h-3 text-emerald-600" />
                     ) : (
-                      <Copy className="w-3 h-3 text-slate-600 hover:text-slate-400" />
+                      <Copy className="w-3 h-3 text-ink-soft hover:text-ink-muted" />
                     )}
                   </button>
                 </td>
 
                 {/* Submitter Details */}
                 <td className="py-3.5 px-4 whitespace-nowrap">
-                  <p className="font-semibold text-white text-sm">{i.name}</p>
+                  <p className="font-bold text-ink text-sm">{i.name}</p>
                   <a
                     href={`mailto:${i.email}`}
-                    className="text-cyan-400 hover:underline flex items-center gap-1 text-[11px] mt-0.5"
+                    className="text-accent hover:underline flex items-center gap-1 text-[11px] font-medium mt-0.5"
                   >
                     <Mail className="w-3 h-3" />
                     <span>{i.email}</span>
@@ -92,8 +94,8 @@ export function InquiriesTable({
 
                 {/* Subject & Excerpt */}
                 <td className="py-3.5 px-4 max-w-md">
-                  <p className="font-medium text-slate-200">{i.subject}</p>
-                  <p className="text-slate-400 text-[11px] line-clamp-1 mt-0.5">
+                  <p className="font-semibold text-ink">{i.subject}</p>
+                  <p className="text-ink-muted text-[11px] line-clamp-1 mt-0.5 font-normal">
                     {i.message}
                   </p>
                 </td>
@@ -105,14 +107,14 @@ export function InquiriesTable({
                     onChange={(e) =>
                       onStatusChange(i.id, e.target.value as InquiryRecord['status'])
                     }
-                    className={`text-xs px-2.5 py-1 rounded-lg border font-medium focus:outline-none cursor-pointer ${
+                    className={`text-xs px-2.5 py-1 rounded-lg border font-semibold focus:outline-none cursor-pointer transition-colors ${
                       i.status === 'NEW'
-                        ? 'bg-rose-950/40 text-rose-300 border-rose-600/40'
-                        : 'bg-emerald-950/40 text-emerald-300 border-emerald-600/40'
+                        ? 'bg-rose-50 text-rose-800 border-rose-300'
+                        : 'bg-emerald-50 text-emerald-800 border-emerald-300'
                     }`}
                   >
                     {INQUIRY_STATUS_OPTIONS.map((opt) => (
-                      <option key={opt} value={opt} className="bg-slate-900 text-white">
+                      <option key={opt} value={opt} className="bg-panel text-ink">
                         {opt}
                       </option>
                     ))}
@@ -120,7 +122,7 @@ export function InquiriesTable({
                 </td>
 
                 {/* Timestamp */}
-                <td className="py-3.5 px-4 text-slate-400 whitespace-nowrap">
+                <td className="py-3.5 px-4 text-ink-soft whitespace-nowrap font-medium">
                   {new Date(i.createdAt).toLocaleDateString('en-GB', {
                     day: 'numeric',
                     month: 'short',
@@ -136,7 +138,7 @@ export function InquiriesTable({
                     <button
                       onClick={() => onSelect(i)}
                       title="Read Full Inquiry Message"
-                      className="p-1.5 rounded-lg bg-slate-800/80 hover:bg-slate-700 text-slate-300 hover:text-white transition-colors cursor-pointer"
+                      className="p-1.5 rounded-lg bg-panel hover:bg-panel-2 border border-line text-ink-muted hover:text-ink transition-colors cursor-pointer shadow-2xs"
                     >
                       <Eye className="w-3.5 h-3.5" />
                     </button>
@@ -144,7 +146,7 @@ export function InquiriesTable({
                     <a
                       href={`mailto:${i.email}?subject=RE: ${encodeURIComponent(i.subject)} [Ref: ${i.referenceCode}]`}
                       title="Reply via Email Client"
-                      className="p-1.5 rounded-lg bg-blue-950/40 hover:bg-blue-900/60 border border-blue-800/50 text-blue-300 transition-colors inline-flex items-center"
+                      className="p-1.5 rounded-lg bg-blue-50 hover:bg-blue-100 border border-blue-200 text-blue-700 transition-colors inline-flex items-center shadow-2xs"
                     >
                       <Send className="w-3.5 h-3.5" />
                     </a>
@@ -152,7 +154,7 @@ export function InquiriesTable({
                     <button
                       onClick={() => onDelete(i.id, i.referenceCode)}
                       title="Delete Inquiry"
-                      className="p-1.5 rounded-lg bg-red-950/30 hover:bg-red-900/50 border border-red-900/40 text-red-400 transition-colors cursor-pointer"
+                      className="p-1.5 rounded-lg bg-red-50 hover:bg-red-100 border border-red-200 text-red-600 transition-colors cursor-pointer shadow-2xs"
                     >
                       <Trash2 className="w-3.5 h-3.5" />
                     </button>

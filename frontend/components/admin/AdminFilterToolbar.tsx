@@ -29,8 +29,8 @@ interface AdminFilterToolbarProps {
 }
 
 /**
- * Filter & Search Toolbar.
- * Provides tab switching, keyword search, status filtering chips, and chronological sorting.
+ * Filter & Search Toolbar — Styled in authentic FABINS theme.
+ * Clean segmented tab bar, light input controls, and crisp status chips.
  */
 export function AdminFilterToolbar({
   activeTab,
@@ -49,24 +49,24 @@ export function AdminFilterToolbar({
   return (
     <>
       {/* Tab Navigation & Sorter */}
-      <div className="flex items-center justify-between flex-wrap gap-4 border-b border-slate-800 pb-4 mb-6">
-        <div className="flex items-center gap-2 bg-slate-900 p-1 rounded-xl border border-slate-800">
+      <div className="flex items-center justify-between flex-wrap gap-4 border-b border-line pb-4 mb-6">
+        <div className="flex items-center gap-1.5 bg-panel-2 p-1 rounded-2xl border border-line">
           <button
             onClick={() => {
               setActiveTab('deployments')
               setSearchTerm('')
             }}
-            className={`px-4 py-2 rounded-lg text-xs font-medium transition-all flex items-center gap-2 cursor-pointer ${
+            className={`px-4 py-2 rounded-xl text-xs font-semibold transition-all flex items-center gap-2 cursor-pointer ${
               activeTab === 'deployments'
-                ? 'bg-cyan-600 text-white shadow-md shadow-cyan-900/30'
-                : 'text-slate-400 hover:text-white'
+                ? 'bg-panel text-ink shadow-sm border border-line/60'
+                : 'text-ink-muted hover:text-ink'
             }`}
           >
-            <Building className="w-3.5 h-3.5" />
+            <Building className={`w-3.5 h-3.5 ${activeTab === 'deployments' ? 'text-accent' : 'text-ink-soft'}`} />
             <span>Mill Deployments</span>
             <span
-              className={`px-1.5 py-0.2 rounded-full text-[10px] font-mono ${
-                activeTab === 'deployments' ? 'bg-cyan-800 text-cyan-100' : 'bg-slate-800 text-slate-300'
+              className={`px-1.5 py-0.2 rounded-md text-[10px] font-mono font-bold ${
+                activeTab === 'deployments' ? 'bg-accent-quiet text-accent' : 'bg-canvas text-ink-soft'
               }`}
             >
               {deploymentsCount}
@@ -78,17 +78,17 @@ export function AdminFilterToolbar({
               setActiveTab('inquiries')
               setSearchTerm('')
             }}
-            className={`px-4 py-2 rounded-lg text-xs font-medium transition-all flex items-center gap-2 cursor-pointer ${
+            className={`px-4 py-2 rounded-xl text-xs font-semibold transition-all flex items-center gap-2 cursor-pointer ${
               activeTab === 'inquiries'
-                ? 'bg-cyan-600 text-white shadow-md shadow-cyan-900/30'
-                : 'text-slate-400 hover:text-white'
+                ? 'bg-panel text-ink shadow-sm border border-line/60'
+                : 'text-ink-muted hover:text-ink'
             }`}
           >
-            <Inbox className="w-3.5 h-3.5" />
+            <Inbox className={`w-3.5 h-3.5 ${activeTab === 'inquiries' ? 'text-accent' : 'text-ink-soft'}`} />
             <span>General Inquiries</span>
             <span
-              className={`px-1.5 py-0.2 rounded-full text-[10px] font-mono ${
-                activeTab === 'inquiries' ? 'bg-cyan-800 text-cyan-100' : 'bg-slate-800 text-slate-300'
+              className={`px-1.5 py-0.2 rounded-md text-[10px] font-mono font-bold ${
+                activeTab === 'inquiries' ? 'bg-accent-quiet text-accent' : 'bg-canvas text-ink-soft'
               }`}
             >
               {inquiriesCount}
@@ -100,9 +100,9 @@ export function AdminFilterToolbar({
         <div className="flex items-center gap-2">
           <button
             onClick={() => setSortOrder(sortOrder === 'desc' ? 'asc' : 'desc')}
-            className="px-3 py-1.5 rounded-lg bg-slate-900 border border-slate-800 text-xs text-slate-300 hover:text-white flex items-center gap-1.5 transition-colors cursor-pointer"
+            className="px-3.5 py-2 rounded-xl bg-panel border border-line text-xs font-medium text-ink-muted hover:text-ink flex items-center gap-1.5 transition-colors cursor-pointer shadow-xs"
           >
-            <ArrowUpDown className="w-3.5 h-3.5 text-cyan-400" />
+            <ArrowUpDown className="w-3.5 h-3.5 text-accent" />
             <span>{sortOrder === 'desc' ? 'Newest First' : 'Oldest First'}</span>
           </button>
         </div>
@@ -112,22 +112,22 @@ export function AdminFilterToolbar({
       <div className="grid grid-cols-1 md:grid-cols-12 gap-3 mb-6">
         {/* Real-time search */}
         <div className="md:col-span-6 relative">
-          <Search className="w-4 h-4 text-slate-500 absolute left-3.5 top-1/2 -translate-y-1/2" />
+          <Search className="w-4 h-4 text-ink-soft absolute left-3.5 top-1/2 -translate-y-1/2" />
           <input
             type="text"
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
             placeholder={
               activeTab === 'deployments'
-                ? 'Search by mill name, contact, email, reference code, brand...'
-                : 'Search by visitor name, email, subject, keyword...'
+                ? 'Search mill, contact, email, reference code, machine brand...'
+                : 'Search visitor name, email, subject, message content...'
             }
-            className="w-full pl-10 pr-9 py-2.5 bg-slate-900 border border-slate-800 rounded-xl text-sm text-white placeholder-slate-500 focus:outline-none focus:border-cyan-500 transition-colors"
+            className="w-full pl-10 pr-9 py-2.5 bg-panel border border-line rounded-xl text-xs sm:text-sm text-ink placeholder-ink-soft focus:outline-none focus:border-accent focus:ring-1 focus:ring-accent transition-all shadow-xs"
           />
           {searchTerm && (
             <button
               onClick={() => setSearchTerm('')}
-              className="absolute right-3 top-1/2 -translate-y-1/2 text-slate-500 hover:text-slate-300 cursor-pointer"
+              className="absolute right-3 top-1/2 -translate-y-1/2 text-ink-soft hover:text-ink cursor-pointer"
             >
               <X className="w-4 h-4" />
             </button>
@@ -136,8 +136,8 @@ export function AdminFilterToolbar({
 
         {/* Status Filter Chips */}
         <div className="md:col-span-6 flex items-center gap-1.5 overflow-x-auto pb-1 md:pb-0">
-          <span className="text-xs text-slate-500 flex items-center gap-1 mr-1 shrink-0">
-            <Filter className="w-3 h-3" /> Filter:
+          <span className="text-xs text-ink-soft flex items-center gap-1 mr-1 shrink-0 font-medium">
+            <Filter className="w-3.5 h-3.5" /> Filter:
           </span>
 
           {activeTab === 'deployments' ? (
@@ -145,10 +145,10 @@ export function AdminFilterToolbar({
               <button
                 key={st}
                 onClick={() => setDeploymentStatusFilter(st)}
-                className={`px-3 py-1.5 rounded-lg text-xs font-medium whitespace-nowrap transition-colors cursor-pointer ${
+                className={`px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-colors cursor-pointer ${
                   deploymentStatusFilter === st
-                    ? 'bg-cyan-500/20 text-cyan-300 border border-cyan-500/40'
-                    : 'bg-slate-900 text-slate-400 border border-slate-800 hover:text-white'
+                    ? 'bg-accent text-white shadow-xs'
+                    : 'bg-panel text-ink-muted border border-line hover:text-ink hover:border-line-strong'
                 }`}
               >
                 {st}
@@ -159,10 +159,10 @@ export function AdminFilterToolbar({
               <button
                 key={st}
                 onClick={() => setInquiryStatusFilter(st)}
-                className={`px-3 py-1.5 rounded-lg text-xs font-medium whitespace-nowrap transition-colors cursor-pointer ${
+                className={`px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-colors cursor-pointer ${
                   inquiryStatusFilter === st
-                    ? 'bg-cyan-500/20 text-cyan-300 border border-cyan-500/40'
-                    : 'bg-slate-900 text-slate-400 border border-slate-800 hover:text-white'
+                    ? 'bg-accent text-white shadow-xs'
+                    : 'bg-panel text-ink-muted border border-line hover:text-ink hover:border-line-strong'
                 }`}
               >
                 {st}

@@ -1,6 +1,5 @@
 User-agent: *
 Allow: /
-Disallow: /admin
+Allow: /admin
 
 Sitemap: https://fabins.nevolyn.com/sitemap.xml
-
