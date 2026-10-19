@@ -58,4 +58,29 @@ public interface ContactInquiryService {
      * @throws com.fabins.exception.ResourceNotFoundException if no inquiry has that id
      */
     ContactInquiryResponse acknowledge(UUID id);
+
+    /**
+     * Lists contact inquiries with optional status filtering and pagination.
+     *
+     * @param status   optional filter by status
+     * @param pageable page number, size, and sorting
+     * @return a page of inquiry responses
+     */
+    com.fabins.dto.response.PageResponse<ContactInquiryResponse> list(com.fabins.entity.enums.ContactInquiryStatus status, org.springframework.data.domain.Pageable pageable);
+
+    /**
+     * Updates an inquiry's workflow status.
+     *
+     * @param id        the inquiry's UUID
+     * @param newStatus the new status
+     * @return the updated inquiry response
+     */
+    ContactInquiryResponse changeStatus(UUID id, com.fabins.entity.enums.ContactInquiryStatus newStatus);
+
+    /**
+     * Deletes a contact inquiry by id.
+     *
+     * @param id the inquiry's UUID
+     */
+    void deleteById(UUID id);
 }

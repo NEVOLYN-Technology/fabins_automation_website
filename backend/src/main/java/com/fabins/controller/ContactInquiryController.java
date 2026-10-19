@@ -1,7 +1,9 @@
 package com.fabins.controller;
 
+import com.fabins.dto.request.ChangeInquiryStatusRequest;
 import com.fabins.dto.request.CreateContactInquiry;
 import com.fabins.dto.response.ContactInquiryResponse;
+import com.fabins.dto.response.PageResponse;
 import com.fabins.entity.enums.ContactInquiryStatus;
 import com.fabins.service.ContactInquiryService;
 import com.fabins.service.mail.EmailTemplateRenderer;
@@ -9,16 +11,22 @@ import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.web.PageableDefault;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PatchMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.util.UriComponentsBuilder;
 
@@ -212,5 +220,68 @@ public class ContactInquiryController {
     return ResponseEntity.ok()
         .contentType(new MediaType(MediaType.TEXT_HTML, StandardCharsets.UTF_8))
         .body(html);
+  }
+
+  /**
+   * Lists inquiries, newest first. Admin only.
+   *
+   * @param status optional filter, e.g. ?status=NEW
+   * @param pageable page number, size, and sorting
+   */
+  @GetMapping
+  @Operation(summary = "List contact inquiries", security = @SecurityRequirement(name = "basicAuth"))
+  @ApiResponses({
+      @ApiResponse(responseCode = "200", description = "A page of inquiries"),
+      @ApiResponse(responseCode = "401", description = "Missing or invalid credentials", content = @Content())
+  })
+  public PageResponse<ContactInquiryResponse> list(
+      @RequestParam(required = false) ContactInquiryStatus status,
+      @PageableDefault(size = 20) Pageable pageable) {
+    return service.list(status, pageable);
+  }
+
+  /**
+   * Fetches a single contact inquiry by id. Admin only.
+   */
+  @GetMapping("/{id}")
+  @Operation(summary = "Get one contact inquiry", security = @SecurityRequirement(name = "basicAuth"))
+  @ApiResponses({
+      @ApiResponse(responseCode = "200", description = "The inquiry"),
+      @ApiResponse(responseCode = "401", description = "Missing or invalid credentials", content = @Content()),
+      @ApiResponse(responseCode = "404", description = "No inquiry with that id", content = @Content())
+  })
+  public ContactInquiryResponse getById(@PathVariable UUID id) {
+    return service.getById(id);
+  }
+
+  /**
+   * Updates an inquiry's status. Admin only.
+   */
+  @PatchMapping("/{id}/status")
+  @Operation(summary = "Change an inquiry's status", security = @SecurityRequirement(name = "basicAuth"))
+  @ApiResponses({
+      @ApiResponse(responseCode = "200", description = "Updated inquiry"),
+      @ApiResponse(responseCode = "401", description = "Missing or invalid credentials", content = @Content()),
+      @ApiResponse(responseCode = "404", description = "No inquiry with that id", content = @Content())
+  })
+  public ContactInquiryResponse changeStatus(
+      @PathVariable UUID id,
+      @Valid @RequestBody ChangeInquiryStatusRequest request) {
+    return service.changeStatus(id, request.status());
+  }
+
+  /**
+   * Deletes an inquiry. Admin only.
+   */
+  @DeleteMapping("/{id}")
+  @Operation(summary = "Delete a contact inquiry", security = @SecurityRequirement(name = "basicAuth"))
+  @ApiResponses({
+      @ApiResponse(responseCode = "204", description = "Inquiry deleted"),
+      @ApiResponse(responseCode = "401", description = "Missing or invalid credentials", content = @Content()),
+      @ApiResponse(responseCode = "404", description = "No inquiry with that id", content = @Content())
+  })
+  public ResponseEntity<Void> delete(@PathVariable UUID id) {
+    service.deleteById(id);
+    return ResponseEntity.noContent().build();
   }
 }

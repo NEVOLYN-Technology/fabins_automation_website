@@ -156,6 +156,15 @@ public class ContactInquiry {
         this.status = ContactInquiryStatus.REPLIED;
     }
 
+    /**
+     * Updates the status of the inquiry to a new stage.
+     *
+     * @param newStatus the new status
+     */
+    public void changeStatus(ContactInquiryStatus newStatus) {
+        this.status = java.util.Objects.requireNonNull(newStatus, "status must not be null");
+    }
+
     // ──────────────────────────────────────────────────────────────────────────
     // Getters — no setters; use the factory method and status transitions only
     // ──────────────────────────────────────────────────────────────────────────

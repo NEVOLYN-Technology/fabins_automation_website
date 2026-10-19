@@ -58,6 +58,7 @@ public class ContactInquiryMapper {
                 inquiry.getName(),
                 inquiry.getEmail(),
                 inquiry.getSubject(),
+                inquiry.getMessage(),
                 inquiry.getStatus(),
                 inquiry.getCreatedAt()
         );

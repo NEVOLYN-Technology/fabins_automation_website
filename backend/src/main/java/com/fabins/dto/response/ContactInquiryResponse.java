@@ -47,6 +47,9 @@ public record ContactInquiryResponse(
         /** Subject line as submitted. */
         String subject,
 
+        /** Free-text message body. */
+        String message,
+
         /**
          * Current workflow status of the inquiry.
          * {@link ContactInquiryStatus#NEW} on creation;

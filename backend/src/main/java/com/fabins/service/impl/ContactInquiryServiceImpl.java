@@ -2,6 +2,7 @@ package com.fabins.service.impl;
 
 import com.fabins.dto.request.CreateContactInquiry;
 import com.fabins.dto.response.ContactInquiryResponse;
+import com.fabins.dto.response.PageResponse;
 import com.fabins.entity.ContactInquiry;
 import com.fabins.entity.enums.ContactInquiryStatus;
 import com.fabins.exception.ResourceNotFoundException;
@@ -11,6 +12,8 @@ import com.fabins.service.ContactInquiryService;
 import com.fabins.service.EmailService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -165,5 +168,37 @@ public class ContactInquiryServiceImpl implements ContactInquiryService {
         return repository.findById(id)
                 .map(mapper::toResponse)
                 .orElseThrow(() -> new ResourceNotFoundException("Contact inquiry", id));
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public PageResponse<ContactInquiryResponse> list(ContactInquiryStatus status, Pageable pageable) {
+        Page<ContactInquiry> page = (status == null)
+                ? repository.findAllByOrderByCreatedAtDesc(pageable)
+                : repository.findByStatusOrderByCreatedAtDesc(status, pageable);
+
+        return PageResponse.from(page, mapper::toResponse);
+    }
+
+    @Override
+    @Transactional
+    public ContactInquiryResponse changeStatus(UUID id, ContactInquiryStatus newStatus) {
+        ContactInquiry inquiry = repository.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Contact inquiry", id));
+
+        ContactInquiryStatus previous = inquiry.getStatus();
+        inquiry.changeStatus(newStatus);
+        log.info("Contact inquiry {} status moved from {} to {}", id, previous, newStatus);
+        return mapper.toResponse(inquiry);
+    }
+
+    @Override
+    @Transactional
+    public void deleteById(UUID id) {
+        if (!repository.existsById(id)) {
+            throw new ResourceNotFoundException("Contact inquiry", id);
+        }
+        repository.deleteById(id);
+        log.info("Contact inquiry {} deleted", id);
     }
 }

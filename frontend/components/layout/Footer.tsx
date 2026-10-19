@@ -1,6 +1,7 @@
 'use client'
 
-import { Mail, MapPin, Phone, ShieldCheck, Zap } from 'lucide-react'
+import Link from 'next/link'
+import { Mail, MapPin, Phone, ShieldCheck, Zap, Lock } from 'lucide-react'
 import { SEO_CONFIG } from '@/lib/seo/config'
 import { scrollToSection } from '@/lib/scroll'
 import { Wordmark } from '@/components/ui/Wordmark'
@@ -234,9 +235,19 @@ export const Footer = () => {
         <div className="mt-5 flex flex-col items-center justify-between gap-2 border-t border-line pt-4 text-xs text-ink-soft sm:flex-row">
           {/* Year is computed at render so the notice never goes stale. */}
           <p>© {new Date().getFullYear()} FABINS · NEVOLYN . All rights reserved.</p>
-          <p className="flex items-center gap-1.5">
+          <div className="flex items-center gap-3">
             <span>Dhaka, Bangladesh</span>
-          </p>
+            <span className="text-line-strong">•</span>
+            <Link
+              href="/admin"
+              rel="nofollow"
+              className="inline-flex items-center gap-1 text-[11px] text-ink-soft/60 hover:text-accent transition-colors"
+              title="Operational Staff Portal"
+            >
+              <Lock className="w-3 h-3 opacity-60" />
+              <span>Admin Panel</span>
+            </Link>
+          </div>
         </div>
       </div>
     </footer>
