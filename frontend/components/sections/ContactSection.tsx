@@ -51,6 +51,17 @@ const FacebookIcon = ({ className = 'w-3.5 h-3.5 fill-current shrink-0' }: { cla
 export const ContactSection = () => {
   const { formData, setFormData, handleSubmit, isLoading, result, reset } = useContactForm()
 
+  const MAX_SUBJECT_CHARS = 200
+  const MAX_MESSAGE_CHARS = 5000
+  const isOverSubjectLimit = formData.subject.length > MAX_SUBJECT_CHARS
+  const isOverMessageLimit = formData.message.length > MAX_MESSAGE_CHARS
+
+  const handleFormSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault()
+    if (isOverSubjectLimit || isOverMessageLimit) return
+    await handleSubmit(e)
+  }
+
   /** Shared input class string — extracted to avoid repetition in JSX. */
   const inputClass =
     'w-full rounded-xl border border-line bg-surface px-4 py-3 text-sm text-ink placeholder:text-ink-soft ' +
@@ -257,7 +268,7 @@ export const ContactSection = () => {
               ) : (
                 <motion.form
                   key="form"
-                  onSubmit={handleSubmit}
+                  onSubmit={handleFormSubmit}
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   exit={{ opacity: 0 }}
@@ -329,9 +340,14 @@ export const ContactSection = () => {
 
                   {/* ── Subject ───────────────────────────────────────────── */}
                   <div className="space-y-1.5">
-                    <label htmlFor="contact-subject" className="text-xs font-semibold text-ink-muted uppercase tracking-wide">
-                      Subject <span className="text-accent">*</span>
-                    </label>
+                    <div className="flex justify-between items-center">
+                      <label htmlFor="contact-subject" className="text-xs font-semibold text-ink-muted uppercase tracking-wide">
+                        Subject <span className="text-accent">*</span>
+                      </label>
+                      <span className={`text-xs font-semibold ${isOverSubjectLimit ? 'text-rose-500 font-bold' : 'text-ink-soft'}`}>
+                        {formData.subject.length} / {MAX_SUBJECT_CHARS} characters
+                      </span>
+                    </div>
                     <input
                       id="contact-subject"
                       type="text"
@@ -340,33 +356,52 @@ export const ContactSection = () => {
                       placeholder="How can we help?"
                       value={formData.subject}
                       onChange={e => setFormData(p => ({ ...p, subject: e.target.value }))}
-                      className={inputClass}
+                      className={`${inputClass} ${
+                        isOverSubjectLimit ? '!border-rose-500 !ring-1 !ring-rose-500' : ''
+                      }`}
                     />
+                    {isOverSubjectLimit && (
+                      <p className="text-xs text-rose-500 mt-1 font-semibold">
+                        Subject cannot exceed {MAX_SUBJECT_CHARS} characters (currently {formData.subject.length} characters).
+                      </p>
+                    )}
                   </div>
 
                   {/* ── Message ───────────────────────────────────────────── */}
                   <div className="space-y-1.5">
-                    <label htmlFor="contact-message" className="text-xs font-semibold text-ink-muted uppercase tracking-wide">
-                      Message <span className="text-accent">*</span>
-                    </label>
+                    <div className="flex justify-between items-center">
+                      <label htmlFor="contact-message" className="text-xs font-semibold text-ink-muted uppercase tracking-wide">
+                        Message <span className="text-accent">*</span>
+                      </label>
+                      <span className={`text-xs font-semibold ${isOverMessageLimit ? 'text-rose-500 font-bold' : 'text-ink-soft'}`}>
+                        {formData.message.length.toLocaleString()} / {MAX_MESSAGE_CHARS.toLocaleString()} characters
+                      </span>
+                    </div>
                     <textarea
                       id="contact-message"
                       name="message"
                       rows={5}
                       required
-                      placeholder="Write your message here..."
+                      placeholder={`Write your message here (max ${MAX_MESSAGE_CHARS.toLocaleString()} characters)...`}
                       value={formData.message}
                       onChange={e => setFormData(p => ({ ...p, message: e.target.value }))}
-                      className={`${inputClass} resize-none`}
+                      className={`${inputClass} resize-none ${
+                        isOverMessageLimit ? '!border-rose-500 !ring-1 !ring-rose-500' : ''
+                      }`}
                     />
+                    {isOverMessageLimit && (
+                      <p className="text-xs text-rose-500 mt-1 font-semibold">
+                        Message cannot exceed {MAX_MESSAGE_CHARS.toLocaleString()} characters (currently {formData.message.length.toLocaleString()} characters).
+                      </p>
+                    )}
                   </div>
 
                   {/* ── Submit button ─────────────────────────────────────── */}
                   <button
                     type="submit"
-                    disabled={isLoading}
+                    disabled={isLoading || isOverSubjectLimit || isOverMessageLimit}
                     id="contact-submit-btn"
-                    className="btn btn-primary w-full justify-center !py-3.5 text-sm font-bold shadow-lg group disabled:opacity-60 disabled:cursor-not-allowed"
+                    className="btn btn-primary w-full justify-center !py-3.5 text-sm font-bold shadow-lg group disabled:opacity-60 disabled:cursor-not-allowed cursor-pointer"
                   >
                     {isLoading ? (
                       <>

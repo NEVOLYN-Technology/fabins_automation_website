@@ -50,13 +50,13 @@ public record CreateContactInquiry(
         /** Subject line of the inquiry. Required. */
         @Schema(example = "Partnership Inquiry — Knit Factory Automation")
         @NotBlank(message = "Subject is required")
-        @Size(max = 300, message = "Subject must be at most {max} characters")
+        @Size(max = 200, message = "Subject must be at most {max} characters")
         String subject,
 
         /** Free-text message body. Required. */
         @Schema(example = "We operate a knit composite mill in Gazipur and would like to discuss how FABINS could improve our current inspection workflow.")
         @NotBlank(message = "Message is required")
-        @Size(max = 4000, message = "Message must be at most {max} characters")
+        @Size(max = 5000, message = "Message must be at most {max} characters")
         String message,
 
         /**

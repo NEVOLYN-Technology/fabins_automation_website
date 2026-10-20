@@ -66,16 +66,17 @@ public class ContactInquiry {
 
     /**
      * Subject line of the inquiry (e.g. "Partnership Inquiry", "Technical Question").
-     * Mirrors the {@code @Size(max = 300)} on {@code CreateContactInquiry}.
+     * Mirrors the {@code @Size(max = 200)} on {@code CreateContactInquiry}.
      */
-    @Column(nullable = false, length = 300)
+    @Column(nullable = false, length = 200)
     private String subject;
 
     /**
      * Free-text message body.
-     * Mirrors the {@code @Size(max = 4000)} on {@code CreateContactInquiry}.
+     * Mirrors the {@code @Size(max = 5000)} on {@code CreateContactInquiry}.
+     * Stored as TEXT to support comprehensive inquiries without truncation.
      */
-    @Column(nullable = false, length = 4000)
+    @Column(nullable = false, columnDefinition = "TEXT")
     private String message;
 
     /**
