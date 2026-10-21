@@ -1,78 +1,196 @@
 'use client'
 
 import React from 'react'
-import { Building, Clock, Cpu, Inbox, Send } from 'lucide-react'
+import { Building, Clock, Cpu, Inbox, Send, CheckCircle2, PhoneCall, Archive, Users } from 'lucide-react'
+import { type AdminStats } from '@/lib/api/admin'
 
 interface AdminMetricsBannerProps {
-  metrics: {
-    depTotal: number
-    depNew: number
-    depInReview: number
-    inqTotal: number
-    inqNew: number
-  }
+  activeTab: 'deployments' | 'inquiries'
+  stats: AdminStats
+  deploymentStatusFilter: string
+  inquiryStatusFilter: string
+  setActiveTab: (tab: 'deployments' | 'inquiries') => void
+  setDeploymentStatusFilter: (status: string) => void
+  setInquiryStatusFilter: (status: string) => void
 }
 
 /**
- * KPI Statistics Banner — Styled in authentic FABINS theme.
- * Clean, elevated white metric cards with soft icons and contrasting counters.
+ * KPI Metrics Banner — Context-aware, clickable executive summary cards.
+ *
+ * Cards switch between Deployment and Inquiry metrics based on the active tab.
+ * Clicking a card switches to the relevant tab and applies that status filter.
+ * Active filter cards are highlighted with a teal accent ring.
  */
-export function AdminMetricsBanner({ metrics }: AdminMetricsBannerProps) {
+export function AdminMetricsBanner({
+  activeTab,
+  stats,
+  deploymentStatusFilter,
+  inquiryStatusFilter,
+  setActiveTab,
+  setDeploymentStatusFilter,
+  setInquiryStatusFilter,
+}: AdminMetricsBannerProps) {
+  // Deployment metric cards
+  const deploymentCards = [
+    {
+      label: 'Total Deployments',
+      value: stats.depTotal,
+      icon: <Building className="w-4 h-4" />,
+      iconBg: 'bg-cyan-50 text-accent',
+      valueClass: 'text-ink',
+      filter: 'ALL',
+      sub: 'All mill requests',
+    },
+    {
+      label: 'New Requests',
+      value: stats.depNew,
+      icon: <Clock className="w-4 h-4" />,
+      iconBg: 'bg-amber-50 text-amber-600',
+      valueClass: 'text-amber-600',
+      filter: 'NEW',
+      sub: 'Awaiting triage',
+    },
+    {
+      label: 'Under Review',
+      value: stats.depInReview,
+      icon: <Cpu className="w-4 h-4" />,
+      iconBg: 'bg-blue-50 text-blue-600',
+      valueClass: 'text-blue-600',
+      filter: 'IN_REVIEW',
+      sub: 'Engineering assessment',
+    },
+    {
+      label: 'Client Contacted',
+      value: stats.depContacted,
+      icon: <PhoneCall className="w-4 h-4" />,
+      iconBg: 'bg-indigo-50 text-indigo-600',
+      valueClass: 'text-indigo-600',
+      filter: 'CONTACTED',
+      sub: 'In follow-up',
+    },
+    {
+      label: 'Closed / Done',
+      value: stats.depClosed,
+      icon: <Archive className="w-4 h-4" />,
+      iconBg: 'bg-slate-100 text-slate-500',
+      valueClass: 'text-slate-500',
+      filter: 'CLOSED',
+      sub: 'Completed engagements',
+    },
+  ]
+
+  // Inquiry metric cards
+  const inquiryCards = [
+    {
+      label: 'Total Inquiries',
+      value: stats.inqTotal,
+      icon: <Inbox className="w-4 h-4" />,
+      iconBg: 'bg-indigo-50 text-indigo-600',
+      valueClass: 'text-ink',
+      filter: 'ALL',
+      sub: 'All visitor messages',
+    },
+    {
+      label: 'New Messages',
+      value: stats.inqNew,
+      icon: <Users className="w-4 h-4" />,
+      iconBg: 'bg-rose-50 text-rose-600',
+      valueClass: 'text-rose-600',
+      filter: 'NEW',
+      sub: 'Awaiting attention',
+    },
+    {
+      label: 'Acknowledged',
+      value: stats.inqAcknowledged,
+      icon: <CheckCircle2 className="w-4 h-4" />,
+      iconBg: 'bg-sky-50 text-sky-600',
+      valueClass: 'text-sky-600',
+      filter: 'ACKNOWLEDGED',
+      sub: 'Seen, not yet replied',
+    },
+    {
+      label: 'Replied',
+      value: stats.inqReplied,
+      icon: <Send className="w-4 h-4" />,
+      iconBg: 'bg-emerald-50 text-emerald-600',
+      valueClass: 'text-emerald-600',
+      filter: 'REPLIED',
+      sub: 'Response sent',
+    },
+  ]
+
+  const isDeploymentTab = activeTab === 'deployments'
+  const cards = isDeploymentTab ? deploymentCards : inquiryCards
+  const activeFilter = isDeploymentTab ? deploymentStatusFilter : inquiryStatusFilter
+
+  const handleCardClick = (filter: string) => {
+    if (isDeploymentTab) {
+      setDeploymentStatusFilter(filter)
+    } else {
+      setInquiryStatusFilter(filter)
+    }
+  }
+
+  const handleTabSwitchClick = (filter: string, tab: 'deployments' | 'inquiries') => {
+    setActiveTab(tab)
+    if (tab === 'deployments') setDeploymentStatusFilter(filter)
+    else setInquiryStatusFilter(filter)
+  }
+
   return (
-    <div className="grid grid-cols-2 lg:grid-cols-5 gap-3.5 mb-8">
-      {/* Total Deployments */}
-      <div className="p-4 rounded-2xl bg-panel border border-line shadow-card">
-        <div className="flex items-center justify-between text-ink-soft text-xs mb-1.5 font-medium">
-          <span>Total Deployments</span>
-          <div className="p-1.5 rounded-lg bg-cyan-50 text-accent">
-            <Building className="w-4 h-4" />
-          </div>
-        </div>
-        <p className="text-2xl font-bold text-ink tracking-tight">{metrics.depTotal}</p>
+    <div className="mb-8">
+      {/* Quick-switch summary row */}
+      <div className="flex items-center gap-2 mb-3">
+        <button
+          onClick={() => handleTabSwitchClick('ALL', 'deployments')}
+          className={`text-[11px] font-semibold px-3 py-1 rounded-lg transition-all cursor-pointer ${
+            isDeploymentTab
+              ? 'bg-accent text-white shadow-xs'
+              : 'bg-panel border border-line text-ink-muted hover:text-ink'
+          }`}
+        >
+          Mill Deployments
+        </button>
+        <button
+          onClick={() => handleTabSwitchClick('ALL', 'inquiries')}
+          className={`text-[11px] font-semibold px-3 py-1 rounded-lg transition-all cursor-pointer ${
+            !isDeploymentTab
+              ? 'bg-accent text-white shadow-xs'
+              : 'bg-panel border border-line text-ink-muted hover:text-ink'
+          }`}
+        >
+          Contact Inquiries
+        </button>
+        <span className="text-[11px] text-ink-muted ml-auto hidden sm:block">
+          Click a card to filter the table below
+        </span>
       </div>
 
-      {/* New Requests Pending */}
-      <div className="p-4 rounded-2xl bg-panel border border-line shadow-card">
-        <div className="flex items-center justify-between text-ink-soft text-xs mb-1.5 font-medium">
-          <span>New Mill Requests</span>
-          <div className="p-1.5 rounded-lg bg-amber-50 text-amber-600">
-            <Clock className="w-4 h-4" />
-          </div>
-        </div>
-        <p className="text-2xl font-bold text-amber-600 tracking-tight">{metrics.depNew}</p>
-      </div>
-
-      {/* Under Engineering Review */}
-      <div className="p-4 rounded-2xl bg-panel border border-line shadow-card">
-        <div className="flex items-center justify-between text-ink-soft text-xs mb-1.5 font-medium">
-          <span>Under Review</span>
-          <div className="p-1.5 rounded-lg bg-blue-50 text-blue-600">
-            <Cpu className="w-4 h-4" />
-          </div>
-        </div>
-        <p className="text-2xl font-bold text-blue-600 tracking-tight">{metrics.depInReview}</p>
-      </div>
-
-      {/* Total Inquiries */}
-      <div className="p-4 rounded-2xl bg-panel border border-line shadow-card">
-        <div className="flex items-center justify-between text-ink-soft text-xs mb-1.5 font-medium">
-          <span>Total Inquiries</span>
-          <div className="p-1.5 rounded-lg bg-indigo-50 text-indigo-600">
-            <Inbox className="w-4 h-4" />
-          </div>
-        </div>
-        <p className="text-2xl font-bold text-ink tracking-tight">{metrics.inqTotal}</p>
-      </div>
-
-      {/* Awaiting Reply */}
-      <div className="p-4 rounded-2xl bg-panel border border-line shadow-card col-span-2 lg:col-span-1">
-        <div className="flex items-center justify-between text-ink-soft text-xs mb-1.5 font-medium">
-          <span>Awaiting Reply</span>
-          <div className="p-1.5 rounded-lg bg-rose-50 text-rose-600">
-            <Send className="w-4 h-4" />
-          </div>
-        </div>
-        <p className="text-2xl font-bold text-rose-600 tracking-tight">{metrics.inqNew}</p>
+      {/* KPI Cards Grid */}
+      <div className={`grid gap-3 ${isDeploymentTab ? 'grid-cols-2 lg:grid-cols-5' : 'grid-cols-2 lg:grid-cols-4'}`}>
+        {cards.map((card) => {
+          const isActive = activeFilter === card.filter
+          return (
+            <button
+              key={card.label}
+              onClick={() => handleCardClick(card.filter)}
+              className={`p-4 rounded-2xl border text-left transition-all cursor-pointer group ${
+                isActive
+                  ? 'bg-panel border-accent shadow-md ring-2 ring-accent/20'
+                  : 'bg-panel border-line shadow-card hover:shadow-md hover:border-accent/30'
+              }`}
+            >
+              <div className="flex items-center justify-between text-ink-soft text-xs mb-2 font-medium">
+                <span className={isActive ? 'text-accent font-semibold' : ''}>{card.label}</span>
+                <div className={`p-1.5 rounded-lg transition-all ${card.iconBg} ${isActive ? 'scale-110' : 'group-hover:scale-105'}`}>
+                  {card.icon}
+                </div>
+              </div>
+              <p className={`text-2xl font-bold tracking-tight ${card.valueClass}`}>{card.value}</p>
+              <p className="text-[10px] text-ink-muted mt-1 font-normal">{card.sub}</p>
+            </button>
+          )
+        })}
       </div>
     </div>
   )

@@ -11,13 +11,15 @@ const DEPLOYMENT_STATUS_OPTIONS: Array<DeploymentRecord['status']> = [
   'CLOSED',
 ]
 
-const INQUIRY_STATUS_OPTIONS: Array<InquiryRecord['status']> = ['NEW', 'REPLIED']
+const INQUIRY_STATUS_OPTIONS: Array<InquiryRecord['status']> = ['NEW', 'ACKNOWLEDGED', 'REPLIED']
 
 interface AdminFilterToolbarProps {
   activeTab: 'deployments' | 'inquiries'
   setActiveTab: (tab: 'deployments' | 'inquiries') => void
   deploymentsCount: number
   inquiriesCount: number
+  filteredDeploymentCount: number
+  filteredInquiryCount: number
   searchTerm: string
   setSearchTerm: (q: string) => void
   deploymentStatusFilter: string
@@ -37,6 +39,8 @@ export function AdminFilterToolbar({
   setActiveTab,
   deploymentsCount,
   inquiriesCount,
+  filteredDeploymentCount,
+  filteredInquiryCount,
   searchTerm,
   setSearchTerm,
   deploymentStatusFilter,
@@ -46,6 +50,8 @@ export function AdminFilterToolbar({
   sortOrder,
   setSortOrder,
 }: AdminFilterToolbarProps) {
+  const filteredCount = activeTab === 'deployments' ? filteredDeploymentCount : filteredInquiryCount
+  const totalCount = activeTab === 'deployments' ? deploymentsCount : inquiriesCount
   return (
     <>
       {/* Tab Navigation & Sorter */}
@@ -96,8 +102,15 @@ export function AdminFilterToolbar({
           </button>
         </div>
 
-        {/* Date Sort Toggle */}
+        {/* Result Count + Sort */}
         <div className="flex items-center gap-2">
+          <span className="text-[11px] text-ink-soft hidden sm:block">
+            <span className="font-semibold text-ink">{filteredCount}</span>
+            {filteredCount !== totalCount && (
+              <span> of {totalCount}</span>
+            )}
+            {activeTab === 'deployments' ? ' deployments' : ' inquiries'}
+          </span>
           <button
             onClick={() => setSortOrder(sortOrder === 'desc' ? 'asc' : 'desc')}
             className="px-3.5 py-2 rounded-xl bg-panel border border-line text-xs font-medium text-ink-muted hover:text-ink flex items-center gap-1.5 transition-colors cursor-pointer shadow-xs"

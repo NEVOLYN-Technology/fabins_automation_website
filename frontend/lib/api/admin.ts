@@ -25,8 +25,20 @@ export interface InquiryRecord {
   email: string
   subject: string
   message: string
-  status: 'NEW' | 'REPLIED'
+  status: 'NEW' | 'ACKNOWLEDGED' | 'REPLIED'
   createdAt: string
+}
+
+export interface AdminStats {
+  depTotal: number
+  depNew: number
+  depInReview: number
+  depContacted: number
+  depClosed: number
+  inqTotal: number
+  inqNew: number
+  inqAcknowledged: number
+  inqReplied: number
 }
 
 export interface PageResult<T> {

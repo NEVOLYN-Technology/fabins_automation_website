@@ -4,7 +4,22 @@ import React from 'react'
 import { Inbox, Copy, Check, Mail, Eye, Send, Trash2 } from 'lucide-react'
 import { type InquiryRecord } from '@/lib/api/admin'
 
-const INQUIRY_STATUS_OPTIONS: Array<InquiryRecord['status']> = ['NEW', 'REPLIED']
+/**
+ * Status color utility — maps each inquiry status to its badge color classes.
+ * NEW = rose, ACKNOWLEDGED = sky, REPLIED = emerald (locked).
+ */
+function getStatusStyle(status: InquiryRecord['status']) {
+  switch (status) {
+    case 'NEW':
+      return 'bg-rose-50 text-rose-800 border-rose-300'
+    case 'ACKNOWLEDGED':
+      return 'bg-sky-50 text-sky-800 border-sky-300'
+    case 'REPLIED':
+      return 'bg-emerald-50 text-emerald-800 border-emerald-300'
+    default:
+      return 'bg-slate-50 text-slate-700 border-slate-300'
+  }
+}
 
 interface InquiriesTableProps {
   inquiries: InquiryRecord[]
@@ -19,7 +34,8 @@ interface InquiriesTableProps {
 
 /**
  * General Inquiries Data Table — Styled in authentic FABINS theme.
- * Clean, readable white table with colored status indicators and quick-action buttons.
+ * Supports full status lifecycle: NEW → ACKNOWLEDGED → REPLIED.
+ * REPLIED inquiries are locked (read-only) to prevent regression.
  */
 export function InquiriesTable({
   inquiries,
@@ -55,113 +71,123 @@ export function InquiriesTable({
             <tr className="border-b border-line bg-canvas-alt/70 text-ink-muted font-semibold">
               <th className="py-3 px-4">Tracking Ref</th>
               <th className="py-3 px-4">Visitor Name</th>
-              <th className="py-3 px-4">Subject & Excerpt</th>
+              <th className="py-3 px-4">Subject &amp; Excerpt</th>
               <th className="py-3 px-4">Status</th>
               <th className="py-3 px-4">Received (UTC)</th>
               <th className="py-3 px-4 text-right">Actions</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-line">
-            {inquiries.map((i) => (
-              <tr key={i.id} className="hover:bg-canvas/60 transition-colors">
-                {/* Reference Code */}
-                <td className="py-3.5 px-4 font-mono font-semibold text-accent whitespace-nowrap">
-                  <button
-                    onClick={() => onCopy(i.referenceCode)}
-                    className="hover:underline flex items-center gap-1.5 cursor-pointer text-left"
-                    title="Click to copy tracking code"
-                  >
-                    <span>{i.referenceCode}</span>
-                    {copiedId === i.referenceCode ? (
-                      <Check className="w-3 h-3 text-emerald-600" />
-                    ) : (
-                      <Copy className="w-3 h-3 text-ink-soft hover:text-ink-muted" />
-                    )}
-                  </button>
-                </td>
+            {inquiries.map((i) => {
+              const isReplied = i.status === 'REPLIED'
 
-                {/* Submitter Details */}
-                <td className="py-3.5 px-4 whitespace-nowrap">
-                  <p className="font-bold text-ink text-sm">{i.name}</p>
-                  <a
-                    href={`mailto:${i.email}`}
-                    className="text-accent hover:underline flex items-center gap-1 text-[11px] font-medium mt-0.5"
-                  >
-                    <Mail className="w-3 h-3" />
-                    <span>{i.email}</span>
-                  </a>
-                </td>
-
-                {/* Subject & Excerpt */}
-                <td className="py-3.5 px-4 max-w-md">
-                  <p className="font-semibold text-ink">{i.subject}</p>
-                  <p className="text-ink-muted text-[11px] line-clamp-1 mt-0.5 font-normal">
-                    {i.message}
-                  </p>
-                </td>
-
-                {/* Status Selector */}
-                <td className="py-3.5 px-4 whitespace-nowrap">
-                  <select
-                    value={i.status}
-                    onChange={(e) =>
-                      onStatusChange(i.id, e.target.value as InquiryRecord['status'])
-                    }
-                    className={`text-xs px-2.5 py-1 rounded-lg border font-semibold focus:outline-none cursor-pointer transition-colors ${
-                      i.status === 'NEW'
-                        ? 'bg-rose-50 text-rose-800 border-rose-300'
-                        : 'bg-emerald-50 text-emerald-800 border-emerald-300'
-                    }`}
-                  >
-                    {INQUIRY_STATUS_OPTIONS.map((opt) => (
-                      <option key={opt} value={opt} className="bg-panel text-ink">
-                        {opt}
-                      </option>
-                    ))}
-                  </select>
-                </td>
-
-                {/* Timestamp */}
-                <td className="py-3.5 px-4 text-ink-soft whitespace-nowrap font-medium">
-                  {new Date(i.createdAt).toLocaleDateString('en-GB', {
-                    day: 'numeric',
-                    month: 'short',
-                    year: 'numeric',
-                    hour: '2-digit',
-                    minute: '2-digit',
-                  })}
-                </td>
-
-                {/* Action Buttons */}
-                <td className="py-3.5 px-4 text-right whitespace-nowrap">
-                  <div className="flex items-center justify-end gap-1.5">
+              return (
+                <tr key={i.id} className="hover:bg-canvas/60 transition-colors">
+                  {/* Reference Code */}
+                  <td className="py-3.5 px-4 font-mono font-semibold text-accent whitespace-nowrap">
                     <button
-                      onClick={() => onSelect(i)}
-                      title="Read Full Inquiry Message"
-                      className="p-1.5 rounded-lg bg-panel hover:bg-panel-2 border border-line text-ink-muted hover:text-ink transition-colors cursor-pointer shadow-2xs"
+                      onClick={() => onCopy(i.referenceCode)}
+                      className="hover:underline flex items-center gap-1.5 cursor-pointer text-left"
+                      title="Click to copy tracking code"
                     >
-                      <Eye className="w-3.5 h-3.5" />
+                      <span>{i.referenceCode}</span>
+                      {copiedId === i.referenceCode ? (
+                        <Check className="w-3 h-3 text-emerald-600" />
+                      ) : (
+                        <Copy className="w-3 h-3 text-ink-soft hover:text-ink-muted" />
+                      )}
                     </button>
+                  </td>
 
+                  {/* Submitter Details */}
+                  <td className="py-3.5 px-4 whitespace-nowrap">
+                    <p className="font-bold text-ink text-sm">{i.name}</p>
                     <a
-                      href={`mailto:${i.email}?subject=RE: ${encodeURIComponent(i.subject)} [Ref: ${i.referenceCode}]`}
-                      title="Reply via Email Client"
-                      className="p-1.5 rounded-lg bg-blue-50 hover:bg-blue-100 border border-blue-200 text-blue-700 transition-colors inline-flex items-center shadow-2xs"
+                      href={`mailto:${i.email}`}
+                      className="text-accent hover:underline flex items-center gap-1 text-[11px] font-medium mt-0.5"
                     >
-                      <Send className="w-3.5 h-3.5" />
+                      <Mail className="w-3 h-3" />
+                      <span>{i.email}</span>
                     </a>
+                  </td>
 
-                    <button
-                      onClick={() => onDelete(i.id, i.referenceCode)}
-                      title="Delete Inquiry"
-                      className="p-1.5 rounded-lg bg-red-50 hover:bg-red-100 border border-red-200 text-red-600 transition-colors cursor-pointer shadow-2xs"
-                    >
-                      <Trash2 className="w-3.5 h-3.5" />
-                    </button>
-                  </div>
-                </td>
-              </tr>
-            ))}
+                  {/* Subject & Excerpt */}
+                  <td className="py-3.5 px-4 max-w-md">
+                    <p className="font-semibold text-ink">{i.subject}</p>
+                    <p className="text-ink-muted text-[11px] line-clamp-1 mt-0.5 font-normal">
+                      {i.message}
+                    </p>
+                  </td>
+
+                  {/* Status Badge / Selector */}
+                  <td className="py-3.5 px-4 whitespace-nowrap">
+                    {isReplied ? (
+                      // Locked badge — REPLIED is a terminal state
+                      <span
+                        className={`text-xs px-2.5 py-1 rounded-lg border font-semibold inline-block ${getStatusStyle(i.status)}`}
+                        title="Status is locked once replied"
+                      >
+                        {i.status}
+                      </span>
+                    ) : (
+                      <select
+                        value={i.status}
+                        onChange={(e) =>
+                          onStatusChange(i.id, e.target.value as InquiryRecord['status'])
+                        }
+                        className={`text-xs px-2.5 py-1 rounded-lg border font-semibold focus:outline-none cursor-pointer transition-colors ${getStatusStyle(i.status)}`}
+                      >
+                        {(['NEW', 'ACKNOWLEDGED', 'REPLIED'] as InquiryRecord['status'][]).map((opt) => (
+                          <option key={opt} value={opt} className="bg-panel text-ink">
+                            {opt}
+                          </option>
+                        ))}
+                      </select>
+                    )}
+                  </td>
+
+                  {/* Timestamp */}
+                  <td className="py-3.5 px-4 text-ink-soft whitespace-nowrap font-medium">
+                    {new Date(i.createdAt).toLocaleDateString('en-GB', {
+                      day: 'numeric',
+                      month: 'short',
+                      year: 'numeric',
+                      hour: '2-digit',
+                      minute: '2-digit',
+                    })}
+                  </td>
+
+                  {/* Action Buttons */}
+                  <td className="py-3.5 px-4 text-right whitespace-nowrap">
+                    <div className="flex items-center justify-end gap-1.5">
+                      <button
+                        onClick={() => onSelect(i)}
+                        title="Read Full Inquiry Message"
+                        className="p-1.5 rounded-lg bg-panel hover:bg-panel-2 border border-line text-ink-muted hover:text-ink transition-colors cursor-pointer shadow-2xs"
+                      >
+                        <Eye className="w-3.5 h-3.5" />
+                      </button>
+
+                      <a
+                        href={`mailto:${i.email}?subject=RE: ${encodeURIComponent(i.subject)} [Ref: ${i.referenceCode}]`}
+                        title="Reply via Email Client"
+                        className="p-1.5 rounded-lg bg-blue-50 hover:bg-blue-100 border border-blue-200 text-blue-700 transition-colors inline-flex items-center shadow-2xs"
+                      >
+                        <Send className="w-3.5 h-3.5" />
+                      </a>
+
+                      <button
+                        onClick={() => onDelete(i.id, i.referenceCode)}
+                        title="Delete Inquiry"
+                        className="p-1.5 rounded-lg bg-red-50 hover:bg-red-100 border border-red-200 text-red-600 transition-colors cursor-pointer shadow-2xs"
+                      >
+                        <Trash2 className="w-3.5 h-3.5" />
+                      </button>
+                    </div>
+                  </td>
+                </tr>
+              )
+            })}
           </tbody>
         </table>
       </div>

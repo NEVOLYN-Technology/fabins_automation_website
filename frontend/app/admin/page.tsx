@@ -6,6 +6,7 @@ import { CheckCircle, AlertCircle } from 'lucide-react'
 import {
   type DeploymentRecord,
   type InquiryRecord,
+  type AdminStats,
   type AdminCredentials,
   verifyAdminCredentials,
   fetchDeployments,
@@ -221,16 +222,20 @@ export default function AdminDashboardPage() {
       })
   }, [inquiries, inquiryStatusFilter, searchTerm, sortOrder])
 
-  // Summary Metrics
-  const metrics = useMemo(() => ({
+  // ── 10. Derived Admin Stats (computed from in-memory data) ─────────────────
+  const adminStats = useMemo((): AdminStats => ({
     depTotal: deployments.length,
     depNew: deployments.filter((d) => d.status === 'NEW').length,
     depInReview: deployments.filter((d) => d.status === 'IN_REVIEW').length,
+    depContacted: deployments.filter((d) => d.status === 'CONTACTED').length,
+    depClosed: deployments.filter((d) => d.status === 'CLOSED').length,
     inqTotal: inquiries.length,
     inqNew: inquiries.filter((i) => i.status === 'NEW').length,
+    inqAcknowledged: inquiries.filter((i) => i.status === 'ACKNOWLEDGED').length,
+    inqReplied: inquiries.filter((i) => i.status === 'REPLIED').length,
   }), [deployments, inquiries])
 
-  // ── 10. Render Auth Barrier or Dashboard ───────────────────────────────────
+  // ── 11. Render Auth Barrier or Dashboard ───────────────────────────────────
   if (!credentials) {
     return (
       <AdminLoginCard
@@ -290,8 +295,16 @@ export default function AdminDashboardPage() {
 
       {/* Main Dashboard Body */}
       <main className="flex-1 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full">
-        {/* KPI Metrics */}
-        <AdminMetricsBanner metrics={metrics} />
+        {/* Clickable KPI Metrics Banner */}
+        <AdminMetricsBanner
+          activeTab={activeTab}
+          stats={adminStats}
+          deploymentStatusFilter={deploymentStatusFilter}
+          inquiryStatusFilter={inquiryStatusFilter}
+          setActiveTab={setActiveTab}
+          setDeploymentStatusFilter={setDeploymentStatusFilter}
+          setInquiryStatusFilter={setInquiryStatusFilter}
+        />
 
         {/* Tab & Filter Toolbar */}
         <AdminFilterToolbar
@@ -299,6 +312,8 @@ export default function AdminDashboardPage() {
           setActiveTab={setActiveTab}
           deploymentsCount={deployments.length}
           inquiriesCount={inquiries.length}
+          filteredDeploymentCount={filteredDeployments.length}
+          filteredInquiryCount={filteredInquiries.length}
           searchTerm={searchTerm}
           setSearchTerm={setSearchTerm}
           deploymentStatusFilter={deploymentStatusFilter}

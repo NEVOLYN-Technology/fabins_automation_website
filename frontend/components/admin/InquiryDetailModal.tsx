@@ -39,6 +39,8 @@ export function InquiryDetailModal({
                     className={`text-[10px] px-2 py-0.5 rounded font-semibold ${
                       inquiry.status === 'NEW'
                         ? 'bg-rose-50 text-rose-800 border border-rose-300'
+                        : inquiry.status === 'ACKNOWLEDGED'
+                        ? 'bg-sky-50 text-sky-800 border border-sky-300'
                         : 'bg-emerald-50 text-emerald-800 border border-emerald-300'
                     }`}
                   >
