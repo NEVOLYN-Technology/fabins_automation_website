@@ -131,41 +131,8 @@ export function AdminMetricsBanner({
     }
   }
 
-  const handleTabSwitchClick = (filter: string, tab: 'deployments' | 'inquiries') => {
-    setActiveTab(tab)
-    if (tab === 'deployments') setDeploymentStatusFilter(filter)
-    else setInquiryStatusFilter(filter)
-  }
-
   return (
     <div className="mb-8">
-      {/* Quick-switch summary row */}
-      <div className="flex items-center gap-2 mb-3">
-        <button
-          onClick={() => handleTabSwitchClick('ALL', 'deployments')}
-          className={`text-[11px] font-semibold px-3 py-1 rounded-lg transition-all cursor-pointer ${
-            isDeploymentTab
-              ? 'bg-accent text-white shadow-xs'
-              : 'bg-panel border border-line text-ink-muted hover:text-ink'
-          }`}
-        >
-          Mill Deployments
-        </button>
-        <button
-          onClick={() => handleTabSwitchClick('ALL', 'inquiries')}
-          className={`text-[11px] font-semibold px-3 py-1 rounded-lg transition-all cursor-pointer ${
-            !isDeploymentTab
-              ? 'bg-accent text-white shadow-xs'
-              : 'bg-panel border border-line text-ink-muted hover:text-ink'
-          }`}
-        >
-          Contact Inquiries
-        </button>
-        <span className="text-[11px] text-ink-muted ml-auto hidden sm:block">
-          Click a card to filter the table below
-        </span>
-      </div>
-
       {/* KPI Cards Grid */}
       <div className={`grid gap-3 ${isDeploymentTab ? 'grid-cols-2 lg:grid-cols-5' : 'grid-cols-2 lg:grid-cols-4'}`}>
         {cards.map((card) => {
