@@ -5,6 +5,7 @@
  * Rendered in the "Latest News" section within `LatestNewsSection.tsx`.
  *
  * Strictly sorted in reverse chronological order (Newest -> Top, Oldest -> Bottom):
+ * 2026-10-20 — Bangladesh AI Business Summit 2026 — Selected to Showcase (DCCI & MoST)
  * 2026-09-29 — Needle Innovation Challenge 3.0 — Shortlisted (Existing Solutions)
  * 2026-09-14 — Bangladesh Innovation Fair 2026 — Award & Prize Recognition
  * 2026-09-12 — Honorable Prime Minister Visits FABINS at Stall No. 15
@@ -49,12 +50,27 @@ export interface NewsItem {
  */
 export const news: NewsItem[] = [
   {
+    id: 'news-dcci-ai-summit-2026',
+    title: 'Bangladesh AI Business Summit 2026 - Selected to Showcase',
+    description:
+      'FABINS has been selected to showcase its AI-powered fabric inspection solution at the Bangladesh AI Business Summit 2026, jointly organized by DCCI and the Ministry of Science and Technology (MoST).',
+    content:
+      'A Proud Milestone for FABINS - Fabric Inspection Automation\n\nWe are proud to share that FABINS has been selected to showcase its innovative solution at the Bangladesh AI Business Summit 2026, jointly organized by the Dhaka Chamber of Commerce & Industry (DCCI) and the Ministry of Science and Technology (MoST), Government of Bangladesh.\n\nThis recognition marks an important milestone in our journey to transform traditional fabric inspection through AI-powered computer vision and industrial automation.\n\nAs a product of NEVOLYN, FABINS aims to make fabric inspection smarter, more accurate, and more efficient for the textile and Ready-Made Garment (RMG) industry.\n\nWe are excited to showcase our innovation at this prestigious summit and contribute to the advancement of AI-driven industrial solutions in Bangladesh.\n\nSelected to Showcase | Bangladesh AI Business Summit 2026\nInnovation: AI-Powered Fabric Inspection Automation\nDate: November 5, 2026\nVenue: Bangladesh-China Friendship Conference Centre (BCFCC), Dhaka\n\nFABINS | Fabric Inspection Automation\nWebsite: https://fabins.nevolyn.com\nEmail: fabins@nevolyn.com\n\nNEVOLYN Technology\nWebsite: https://nevolyn.com\nEmail: info@nevolyn.com',
+    category: 'AI Summit Showcase',
+    date: '2026-10-20',
+    image: '/news_fabinsXdcci.jpg',
+    images: ['/news_fabinsXdcci.jpg'],
+    linkedinUrl:
+      'https://www.linkedin.com/feed/update/urn:li:activity:7518247649477562368',
+    facebookUrl: 'https://www.facebook.com/share/p/1DiBAhM4Lz/',
+  },
+  {
     id: 'news-needle-innovation-challenge-3',
     title: 'Needle Innovation Challenge 3.0 - Shortlisted (Existing Solutions)',
     description:
-      'FABINS has been shortlisted for the next evaluation round of the Needle Innovation Challenge 3.0 (Existing Solutions), advancing AI-powered fabric inspection.',
+      'FABINS has been shortlisted for the next evaluation round of the Needle Innovation Challenge 3.0 under the Existing Solutions category, advancing AI-powered fabric inspection.',
     content:
-      'A Proud Milestone for FABINS - Fabric Inspection Automation\n\nWe are proud to share that FABINS has been shortlisted for the next evaluation round of the Needle Innovation Challenge 3.0 (Existing Solutions).\n\nThis recognition marks an important milestone in our journey to transform traditional fabric inspection through AI-powered computer vision and industrial automation.\n\nAs a product of NEVOLYN, FABINS aims to make fabric inspection smarter, more accurate, and more efficient for the textile and RMG industry.\n\nWe are grateful for this opportunity and excited to continue our journey toward building innovative, technology-driven solutions from Bangladesh for the world.\n\nShortlisted | Needle Innovation Challenge 3.0\nCategory: Existing Solutions\n\nFABINS | Fabric Inspection Automation\nWebsite: https://fabins.nevolyn.com\nEmail: fabins@nevolyn.com\n\nNEVOLYN\nWebsite: https://nevolyn.com\nEmail: info@nevolyn.com',
+      'We’re proud to share that FABINS - Fabric Inspection Automation has been shortlisted for the next evaluation round of the Needle Innovation Challenge 3.0 under the Existing Solutions category.\n\nThis recognition marks another milestone for NEVOLYN’s journey to advance AI-powered fabric inspection and industrial automation for the textile and RMG industry.\n\nNeedle Innovation Challenge 3.0\nShortlisted for the Next Evaluation Round\nCategory: Existing Solutions\n\nFABINS | Fabric Inspection Automation\nWebsite: https://fabins.nevolyn.com\nEmail: fabins@nevolyn.com\n\nNEVOLYN\nWebsite: https://nevolyn.com\nEmail: info@nevolyn.com',
     category: 'Innovation Challenge',
     date: '2026-09-29',
     image: '/news_fabinsXneedle.jpg',
