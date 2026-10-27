@@ -23,7 +23,7 @@ export interface InnovatorMember {
   /** Full job title, shown on the card and in the modal header. */
   title: string
   /** Compact "role · department" line for the footer list. */
-  shortRole: string
+  shortRole?: string
   /** One-sentence summary shown on the card. */
   bio: string
   /** Bullet list in the profile modal. */
@@ -50,20 +50,19 @@ export const fabinsInnovators: InnovatorMember[] = [
   {
     id: 'rahin',
     name: 'Md Rahinur Rahman',
-    title: 'AI Systems Engineer',
-    shortRole: 'AI Systems Engineer · EEE, BUET',
-    bio: 'Design and development of industrial automation and AI systems for FABINS at NEVOLYN.',
+    title: 'Founder & AI Systems Engineer',
+    bio: 'Designing and engineering industrial AI systems and automation platforms at NEVOLYN.',
     extendedBio: [
-      'Design and development of AI-powered industrial automation solutions at NEVOLYN, specializing in computer vision, intelligent manufacturing systems, and production-ready AI technologies.',
+      'Rahin leads the design and development of AI-powered industrial automation solutions at NEVOLYN, specializing in computer vision, intelligent manufacturing systems, and production-ready AI technologies.',
       'He graduated in Electrical and Electronic Engineering (EEE) from Bangladesh University of Engineering and Technology (BUET), one of Bangladesh\'s top engineering schools, with a specialization in Communication and Signal Processing (CSP). His academic foundation provided a solid basis in digital signal processing, mathematical modeling, and pattern recognition, bridging deep engineering theory with practical AI systems.',
       'Throughout his academic and research work, he explored advanced signal analysis, embedded systems, and computer vision algorithms for real-world problems. His hands-on research in hardware-software co-design and intelligent imaging built the technical foundation for his current work in industrial automation, edge AI, and real-time inspection systems.'
     ],
     email: 'rahin.rahman11@gmail.com',
     responsibilities: [
-      'AI architecture and industrial automation initiatives',
+      'Lead AI architecture and industrial automation initiatives at NEVOLYN',
       'Computer vision and deep learning model development for FABINS',
       'Industrial camera integration & zero-latency trigger pipelines',
-      'Industrial imaging systems and smart manufacturing transformation at NEVOLYN Technology'
+      'Industrial imaging systems and digital transformation'
     ],
     social: {
       github: 'https://github.com/rahin11',
@@ -76,11 +75,10 @@ export const fabinsInnovators: InnovatorMember[] = [
   {
     id: 'ninad',
     name: 'Mohammad Ninad Mahmud Nobo',
-    title: 'AI Software Engineer',
-    shortRole: 'AI Software Engineer · CSE, BUET',
-    bio: 'Full-stack web development and machine learning model integration for FABINS at NEVOLYN.',
+    title: 'Co-Founder & AI Software Engineer',
+    bio: 'Engineering applied computer vision architectures and scalable full-stack web platforms at NEVOLYN.',
     extendedBio: [
-      'Full-stack web application development, production deployment, and machine learning model contributions for FABINS (Fabric Inspection System) at NEVOLYN Technology. His work integrates computer vision pipelines, interactive web dashboards, industrial camera controls, and scalable REST API architectures to modernize textile manufacturing.',
+      'Ninad leads full-stack web application development, production deployment, and machine learning model contributions for FABINS (Fabric Inspection System) and NEVOLYN. His work integrates computer vision pipelines, interactive web dashboards, industrial camera controls, and scalable REST API architectures.',
       'He graduated in Computer Science and Engineering from Bangladesh University of Engineering and Technology (BUET), one of Bangladesh\'s top engineering schools. There, he explored how AI could tackle complex, real-world challenges, from automated software testing to medical image analysis to Bangla speech processing. That foundation of rigorous research and hands-on building led him to industrial AI, where the software challenges are just as demanding, but the impact is immediate and visible on the factory floor.',
       'His research includes AutoTestGenX, a multi-agent system that writes and executes software tests autonomously, and MedCAR, which resolves conflicting AI readings of chest X-rays. Beyond FABINS, he has built impactful AI applications including MindTrace, providing caregivers simple tools for dementia support, and GemmaVetCare, delivering edge AI livestock health guidance for low-connectivity environments.'
     ],
@@ -100,5 +98,32 @@ export const fabinsInnovators: InnovatorMember[] = [
       orcid: 'https://orcid.org/0009-0006-2781-6693'
     },
     image: '/ninad-photo.png',
+  },
+  {
+    id: 'afzal',
+    name: 'Afzal Hossan',
+    title: 'AI Software Engineer',
+    bio: 'Engineering applied computer vision architectures and scalable full-stack web platforms at NEVOLYN.',
+    extendedBio: [
+      'Afzal leads full-stack web application development, production deployment, and machine learning model contributions for FABINS (Fabric Inspection System) and NEVOLYN. His work integrates computer vision pipelines, interactive web dashboards, industrial camera controls, and scalable REST API architectures.',
+      'He completed his undergraduate degree in Computer Science and Engineering at Bangladesh University of Engineering and Technology (BUET), where he developed a strong foundation in algorithms, computational methods, and software engineering. His academic achievements include a Dean’s List Award and the University Merit Scholarship. His undergraduate thesis introduced him to research-driven problem solving, strengthening his ability to analyze complex datasets, develop computational methods, and conduct systematic experiments.',
+      'His research focuses on Bioinformatics and Computational Biology, particularly the application of artificial intelligence and machine learning to biological data analysis. His work includes INCENT, a hierarchical optimal transport framework for aligning spatial transcriptomics data to investigate cellular correspondences and spatial tissue organization. Through his research and teaching, he aims to advance computational biology, contribute to scientific discovery, and help students develop the knowledge and problem-solving skills needed to address real-world challenges.'
+    ],
+    email: 'afzalhossan80@gmail.com',
+    responsibilities: [
+      'Full-stack development of NEVOLYN & FABINS web applications',
+      'Image processing, computer vision model training for FABINS',
+      'ML pipeline architecture & production deployment',
+      'API design, software quality standards, & DevOps automation'
+    ],
+    social: {
+      portfolio: 'https://afzal-hossan.me/',
+      github: 'https://github.com/AfzalHossan-2005021',
+      linkedin: 'https://www.linkedin.com/in/afzal-hossan/',
+      scholar: 'https://scholar.google.com/citations?user=Q9BkMvcAAAAJ&hl=en',
+      scholarName: 'Afzal Hossan',
+      orcid: 'https://orcid.org/0009-0008-1604-8822'
+    },
+    image: '/afzal-photo.jpg',
   },
 ]

@@ -110,7 +110,7 @@ export const HeroSection = () => (
               target="_blank"
               rel="noopener noreferrer"
               title="Visit NEVOLYN Technology"
-              className="group inline-flex items-center gap-1 sm:gap-2 rounded-full border border-accent/30 bg-white px-2 py-1 min-[375px]:px-2.5 min-[375px]:py-1.5 sm:px-4 sm:py-2 text-[8.5px] min-[375px]:text-[9.5px] sm:text-sm font-semibold text-accent shadow-sm transition-all duration-200 hover:bg-accent hover:text-white hover:border-accent hover:shadow-md hover:-translate-y-0.5 active:scale-95 cursor-pointer shrink-0 whitespace-nowrap"
+              className="group inline-flex items-center gap-1 sm:gap-2 rounded-full border border-accent/20 bg-accent/10 px-2 py-1 min-[375px]:px-2.5 min-[375px]:py-1.5 sm:px-4 sm:py-2 text-[8.5px] min-[375px]:text-[9.5px] sm:text-sm font-semibold text-accent/90 shadow-sm transition-all duration-300 hover:bg-accent hover:text-white hover:border-accent hover:shadow-md hover:-translate-y-0.5 active:scale-95 cursor-pointer shrink-0 whitespace-nowrap"
             >
               <Globe className="h-3 w-3 sm:h-4 sm:w-4 text-accent group-hover:text-white transition-colors shrink-0" />
               <span>A Nevolyn Product</span>

@@ -91,7 +91,7 @@ export const InnovatorsSection = () => {
           <motion.article
             key={member.id}
             {...fadeUpProps(index * 0.1)}
-            className="card card-hover group flex flex-col items-center text-center !p-4 min-[360px]:!p-5 sm:!p-7 h-full w-full"
+            className="card card-hover group flex flex-col items-center text-center !p-4 min-[360px]:!p-5 sm:!p-7 h-full w-full md:odd:last:col-span-2 md:odd:last:justify-self-center md:odd:last:max-w-[calc(50%-0.625rem)] lg:odd:last:max-w-[calc(50%-0.75rem)]"
           >
             {/* Person circular portrait with glowing accent ring */}
             <div className="relative mx-auto flex h-28 w-28 min-[360px]:h-32 min-[360px]:w-32 sm:h-36 sm:w-36 shrink-0 items-center justify-center rounded-full p-1 border-2 border-accent/80 shadow-[0_0_20px_rgba(14,116,144,0.2)] bg-panel transition-transform duration-500 group-hover:scale-[1.03]">
