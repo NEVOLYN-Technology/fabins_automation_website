@@ -47,12 +47,15 @@ const SCROLLED_THRESHOLD_PX = 16
 export function scrollToSection(sectionId: string): void {
   // 'home' is the top of the document rather than a section that needs offsetting.
   if (sectionId === 'home') {
+    window.history.replaceState(null, '', window.location.pathname)
     window.scrollTo({ top: 0, behavior: 'smooth' })
     return
   }
 
   const element = document.getElementById(sectionId)
   if (!element) return
+
+  window.history.replaceState(null, '', `${window.location.pathname}#${sectionId}`)
 
   // getBoundingClientRect() is viewport-relative, so add the current scroll
   // position to convert it to a document-absolute coordinate. This is correct
@@ -63,7 +66,8 @@ export function scrollToSection(sectionId: string): void {
 }
 
 /**
- * Tracks which section the visitor is currently looking at, for navbar highlighting.
+ * Tracks which section the visitor is currently looking at, for navbar highlighting
+ * and address-bar URL hash synchronisation.
  *
  * Walks the given ids from last to first and returns the first one whose top
  * edge has already passed the probe line — i.e. the deepest section the visitor
@@ -80,24 +84,41 @@ export function useActiveSection(sectionIds: readonly string[]): string {
   useEffect(() => {
     let ticking = false
 
+    const evaluateActiveSection = (syncHash: boolean) => {
+      const probeLine = window.scrollY + SPY_PROBE_OFFSET_PX
+      let current = sectionIds[0] ?? ''
+
+      for (let i = sectionIds.length - 1; i >= 0; i--) {
+        const element = document.getElementById(sectionIds[i])
+        if (!element) continue
+
+        const elementTop = element.getBoundingClientRect().top + window.scrollY
+        if (elementTop <= probeLine) {
+          current = sectionIds[i]
+          break
+        }
+      }
+
+      setActiveSection((prev) => (prev !== current ? current : prev))
+
+      if (
+        (syncHash || window.location.hash === `#${sectionIds[0]}`) &&
+        window.location.pathname === '/'
+      ) {
+        const newUrl =
+          current && current !== sectionIds[0]
+            ? `${window.location.pathname}#${current}`
+            : window.location.pathname
+        if (`${window.location.pathname}${window.location.hash}` !== newUrl) {
+          window.history.replaceState(null, '', newUrl)
+        }
+      }
+    }
+
     const handleScroll = () => {
       if (!ticking) {
         window.requestAnimationFrame(() => {
-          const probeLine = window.scrollY + SPY_PROBE_OFFSET_PX
-          let current = sectionIds[0] ?? ''
-
-          for (let i = sectionIds.length - 1; i >= 0; i--) {
-            const element = document.getElementById(sectionIds[i])
-            if (!element) continue
-
-            const elementTop = element.getBoundingClientRect().top + window.scrollY
-            if (elementTop <= probeLine) {
-              current = sectionIds[i]
-              break
-            }
-          }
-
-          setActiveSection((prev) => (prev !== current ? current : prev))
+          evaluateActiveSection(true)
           ticking = false
         })
         ticking = true
@@ -105,7 +126,7 @@ export function useActiveSection(sectionIds: readonly string[]): string {
     }
 
     window.addEventListener('scroll', handleScroll, { passive: true })
-    handleScroll() // Run once so the correct link is highlighted on first paint.
+    evaluateActiveSection(false) // Run once so the correct link is highlighted on first paint.
 
     return () => window.removeEventListener('scroll', handleScroll)
     // `sectionIds` is a module-level constant, so this effect runs exactly once.

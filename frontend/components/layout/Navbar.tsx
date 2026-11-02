@@ -18,7 +18,8 @@ import { Wordmark } from '@/components/ui/Wordmark'
  *
  * ─── BEHAVIOUR ──────────────────────────────────────────────────────────────
  *   - `useIsScrolled` swaps the bar from translucent to solid once the page moves.
- *   - `useActiveSection` highlights the link for the section in view.
+ *   - `useActiveSection` highlights the link for the section in view and syncs
+ *     the browser address bar hash (`/#about`, `/#system`, etc., or `/` at Home).
  *   - `usePathname` detects if the user is on the dedicated `/deploy` route,
  *     seamlessly delegating hash navigation back to `/#section`.
  *   - Clicks are intercepted on the single-page home view so navigation scrolls
@@ -59,7 +60,7 @@ export const Navbar = () => {
       >
         {/* Brand — scrolls back to top or home */}
         <Link
-          href="/#home"
+          href="/"
           onClick={(event) => handleNavigate(event, 'home')}
           className="group flex shrink-0 items-center gap-2 rounded-full py-1 pl-1 pr-3 transition-all duration-200 hover:-translate-y-0.5 hover:bg-panel-2"
         >
@@ -70,7 +71,8 @@ export const Navbar = () => {
         <nav className="hidden items-center gap-1 lg:flex">
           {NAV_LINKS.map((link) => {
             const isActive = !isDeployPage && activeSection === link.id
-            const href = isDeployPage ? `/#${link.id}` : `#${link.id}`
+            const href =
+              link.id === 'home' ? '/' : isDeployPage ? `/#${link.id}` : `#${link.id}`
 
             return (
               <Link
@@ -134,7 +136,8 @@ export const Navbar = () => {
             aria-controls="mobile-menu"
             className="flex h-10 w-10 items-center justify-center rounded-full border border-line bg-panel text-ink-muted transition-colors hover:border-line-strong hover:text-accent lg:hidden"
           >
-            {isMobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />}
+            {isMobileMenuOpen ? <X className="h-5 w-5" /> : <Menu className="h-5 w-5" />
+            }
           </button>
         </div>
       </div>
@@ -148,7 +151,7 @@ export const Navbar = () => {
           {NAV_LINKS.map((link) => (
             <Link
               key={link.id}
-              href={isDeployPage ? `/#${link.id}` : `#${link.id}`}
+              href={link.id === 'home' ? '/' : isDeployPage ? `/#${link.id}` : `#${link.id}`}
               onClick={(event) => handleNavigate(event, link.id)}
               className={cn(
                 'flex items-center justify-between rounded-2xl px-4 py-3 text-sm font-semibold transition-all duration-200',
