@@ -68,7 +68,9 @@ export const fabinsInnovators: InnovatorMember[] = [
       github: 'https://github.com/rahin11',
       linkedin: 'https://www.linkedin.com/in/rahin-rahman-94a8a0246',
       scholar: 'https://scholar.google.com/citations?user=Jq0HF_kAAAAJ',
-      scholarName: 'Md Rahinur Rahman'
+      scholarName: 'Md Rahinur Rahman',
+      orcid: 'https://orcid.org/0009-0004-8490-2358'
+
     },
     image: '/rahin-photo.png',
   },
@@ -98,32 +100,5 @@ export const fabinsInnovators: InnovatorMember[] = [
       orcid: 'https://orcid.org/0009-0006-2781-6693'
     },
     image: '/ninad-photo.png',
-  },
-  {
-    id: 'afzal',
-    name: 'Afzal Hossan',
-    title: 'AI Software Engineer',
-    bio: 'Engineering applied computer vision architectures and scalable full-stack web platforms at NEVOLYN.',
-    extendedBio: [
-      'Afzal leads full-stack web application development, production deployment, and machine learning model contributions for FABINS (Fabric Inspection System) and NEVOLYN. His work integrates computer vision pipelines, interactive web dashboards, industrial camera controls, and scalable REST API architectures.',
-      'He completed his undergraduate degree in Computer Science and Engineering at Bangladesh University of Engineering and Technology (BUET), where he developed a strong foundation in algorithms, computational methods, and software engineering. His academic achievements include a Dean’s List Award and the University Merit Scholarship. His undergraduate thesis introduced him to research-driven problem solving, strengthening his ability to analyze complex datasets, develop computational methods, and conduct systematic experiments.',
-      'His research focuses on Bioinformatics and Computational Biology, particularly the application of artificial intelligence and machine learning to biological data analysis. His work includes INCENT, a hierarchical optimal transport framework for aligning spatial transcriptomics data to investigate cellular correspondences and spatial tissue organization. Through his research and teaching, he aims to advance computational biology, contribute to scientific discovery, and help students develop the knowledge and problem-solving skills needed to address real-world challenges.'
-    ],
-    email: 'afzalhossan80@gmail.com',
-    responsibilities: [
-      'Full-stack development of NEVOLYN & FABINS web applications',
-      'Image processing, computer vision model training for FABINS',
-      'ML pipeline architecture & production deployment',
-      'API design, software quality standards, & DevOps automation'
-    ],
-    social: {
-      portfolio: 'https://afzal-hossan.me/',
-      github: 'https://github.com/AfzalHossan-2005021',
-      linkedin: 'https://www.linkedin.com/in/afzal-hossan/',
-      scholar: 'https://scholar.google.com/citations?user=Q9BkMvcAAAAJ&hl=en',
-      scholarName: 'Afzal Hossan',
-      orcid: 'https://orcid.org/0009-0008-1604-8822'
-    },
-    image: '/afzal-photo.jpg',
   },
 ]
