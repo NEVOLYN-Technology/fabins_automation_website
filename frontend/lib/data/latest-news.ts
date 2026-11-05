@@ -76,7 +76,14 @@ export const news: NewsItem[] = [
     category: 'AI Summit Showcase',
     date: '2026-10-20',
     image: '/news_fabinsXdcci.jpg',
-    images: ['/news_fabinsXdcci.jpg'],
+    secondaryImage: '/news_fabinsXdcci01.jpg',
+    images: [
+      '/news_fabinsXdcci.jpg',
+      '/news_fabinsXdcci01.jpg',
+      '/news_fabinsXdcci02.jpg',
+      '/news_fabinsXdcci03.jpg',
+      '/news_fabinsXdcci04.jpg',
+    ],
     linkedinUrl:
       'https://www.linkedin.com/feed/update/urn:li:activity:7518247649477562368',
     facebookUrl: 'https://www.facebook.com/share/p/1DiBAhM4Lz/',
