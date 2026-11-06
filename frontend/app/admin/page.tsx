@@ -60,24 +60,9 @@ export default function AdminDashboardPage() {
   useEffect(() => {
     if (typeof window !== 'undefined') {
       document.title = 'FABINS Admin'
-      // Strictly purge any persisted sessions — leaving or backing out forces fresh password
+      // Strictly purge any legacy stored admin credentials from browser storage
       sessionStorage.removeItem('fabins_admin_auth')
       localStorage.removeItem('fabins_admin_auth')
-
-      const handlePurge = () => {
-        setCredentials(null)
-        sessionStorage.removeItem('fabins_admin_auth')
-        localStorage.removeItem('fabins_admin_auth')
-      }
-
-      window.addEventListener('popstate', handlePurge)
-      window.addEventListener('pagehide', handlePurge)
-
-      return () => {
-        window.removeEventListener('popstate', handlePurge)
-        window.removeEventListener('pagehide', handlePurge)
-        handlePurge()
-      }
     }
   }, [])
 
@@ -99,7 +84,7 @@ export default function AdminDashboardPage() {
     setIsVerifying(false)
 
     if (valid) {
-      // Strictly in-memory credentials only for active view: zero storage persistence
+      // Credentials live strictly in React memory for the active view only
       setCredentials(authInput)
       sessionStorage.removeItem('fabins_admin_auth')
       localStorage.removeItem('fabins_admin_auth')

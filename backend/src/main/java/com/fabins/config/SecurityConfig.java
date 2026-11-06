@@ -86,7 +86,7 @@ public class SecurityConfig {
     public UserDetailsService userDetailsService(
             PasswordEncoder passwordEncoder,
             @org.springframework.beans.factory.annotation.Value("${SUPER_ADMIN_SHARED_PASSWORD:${SUPER_ADMIN_PASSWORD:${FABINS_ADMIN_PASSWORD:}}}") String superAdminSharedPassword,
-            @org.springframework.beans.factory.annotation.Value("${SUPER_ADMIN_1_USERNAME:}") String superAdmin1User,
+            @org.springframework.beans.factory.annotation.Value("${SUPER_ADMIN_1_USERNAME:${FABINS_ADMIN_USERNAME:}}") String superAdmin1User,
             @org.springframework.beans.factory.annotation.Value("${SUPER_ADMIN_1_EMPLOYEE_ID:}") String superAdmin1EmpId,
             @org.springframework.beans.factory.annotation.Value("${SUPER_ADMIN_2_USERNAME:}") String superAdmin2User,
             @org.springframework.beans.factory.annotation.Value("${SUPER_ADMIN_2_EMPLOYEE_ID:}") String superAdmin2EmpId
