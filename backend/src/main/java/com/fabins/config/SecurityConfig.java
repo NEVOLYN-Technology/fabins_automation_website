@@ -4,17 +4,14 @@ import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
-import org.springframework.security.authentication.AuthenticationProvider;
-import org.springframework.security.authentication.BadCredentialsException;
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.core.Authentication;
-import org.springframework.security.core.AuthenticationException;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
+import org.springframework.security.core.userdetails.User;
+import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
+import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
@@ -24,25 +21,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Who can call what, and from which browser origins.
- *
- * <h2>The access model</h2>
- * <ul>
- *   <li>{@code POST /api/v1/deployment-requests} is <strong>public</strong> —
- *       it backs the contact form on the public website.</li>
- *   <li>Every other endpoint on that resource returns submitters' names, email
- *       addresses, and phone numbers, so it requires the {@code ADMIN} role.
- *       Leaving these open would publish the company's entire sales pipeline.</li>
- *   <li>{@code /actuator/health} is public so a load balancer can probe it;
- *       the remaining actuator endpoints are not.</li>
- *   <li>Swagger UI is open in development. See the note on {@code prod} below.</li>
- * </ul>
- *
- * <h2>Why HTTP Basic and not JWT</h2>
- * There is exactly one admin account and no browser-based admin UI yet. Basic
- * over HTTPS is the right amount of machinery for that, and swapping it for
- * OAuth2 or JWT later means changing only this class. Do not use Basic without
- * TLS in production — the credentials are merely base64-encoded, not encrypted.
+ * Access control and security configuration for FABINS API.
  */
 @Configuration
 @EnableWebSecurity
@@ -57,71 +36,32 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
         http
-                // CORS must be enabled here for the rules below to apply to
-                // preflight requests; the source bean is defined further down.
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
-
-                /*
-                 * CSRF protection is disabled because this is a stateless API
-                 * authenticated per-request with an Authorization header, not
-                 * with a session cookie. CSRF attacks rely on the browser
-                 * attaching a cookie automatically; with no cookie there is
-                 * nothing to forge. Re-enable it the moment cookie or session
-                 * authentication is introduced.
-                 */
                 .csrf(csrf -> csrf.disable())
-
-                // No server-side session is created or consulted.
                 .sessionManagement(session ->
                         session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-
                 .authorizeHttpRequests(auth -> auth
-                        // Public: the website's deployment form and the homepage contact form.
+                        // Public endpoints
                         .requestMatchers(HttpMethod.POST, "/api/v1/deployment-requests").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/v1/deployment-requests/preview-pdf").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/v1/deployment-requests/*/pdf").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/v1/contact-inquiries").permitAll()
-                        // One-click acknowledge links sent in admin notification emails — public
-                        // because the UUID in the URL acts as the bearer token.
                         .requestMatchers("/api/v1/deployment-requests/*/acknowledge").permitAll()
                         .requestMatchers("/api/v1/contact-inquiries/*/acknowledge").permitAll()
-
-                        // Public: static images and logo assets for email rendering and favicon.
                         .requestMatchers("/fabins-logo*.png", "/*.png", "/favicon.ico", "/static/**").permitAll()
-
-                        // Public: liveness probe for load balancers.
                         .requestMatchers("/actuator/health/**").permitAll()
-
-                        /*
-                         * API documentation. Convenient in development; in
-                         * production it advertises your entire attack surface.
-                         * It is switched off there via springdoc.*.enabled in
-                         * application-prod.yml — if you re-enable it, note that
-                         * these routes are permitAll.
-                         */
-                        .requestMatchers("/swagger-ui.html", "/swagger-ui/**", "/v3/api-docs/**")
-                        .permitAll()
-
-                        // Dev-only H2 console; disabled outside the dev profile.
+                        .requestMatchers("/swagger-ui.html", "/swagger-ui/**", "/v3/api-docs/**").permitAll()
                         .requestMatchers("/h2-console/**").permitAll()
-
-                        // Everything else — including the admin endpoints and
-                        // the remaining actuator endpoints — needs the role.
+                        // Protected admin operations
                         .anyRequest().hasRole("ADMIN")
                 )
-
-                // Lets the H2 console render, which uses frames. Harmless in
-                // production because the console is not enabled there.
                 .headers(headers -> headers.frameOptions(frame -> frame.sameOrigin()))
-
-                // Never send WWW-Authenticate: Basic header on 401. This completely prevents
-                // browsers from intercepting fetch requests and popping up the native OS/browser login modal.
                 .exceptionHandling(exceptions -> exceptions
                         .authenticationEntryPoint((request, response, authException) -> {
                             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
                             response.setContentType("application/json");
                             response.setCharacterEncoding("UTF-8");
-                            response.getWriter().write("{\"error\":\"Unauthorized\",\"message\":\"Super Admin authentication required\"}");
+                            response.getWriter().write("{\"error\":\"Unauthorized\",\"message\":\"Authentication required\"}");
                         })
                 )
                 .httpBasic(basic -> basic
@@ -129,7 +69,7 @@ public class SecurityConfig {
                             response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
                             response.setContentType("application/json");
                             response.setCharacterEncoding("UTF-8");
-                            response.getWriter().write("{\"error\":\"Unauthorized\",\"message\":\"Super Admin authentication required\"}");
+                            response.getWriter().write("{\"error\":\"Unauthorized\",\"message\":\"Authentication required\"}");
                         })
                 );
 
@@ -137,114 +77,79 @@ public class SecurityConfig {
     }
 
     /**
-     * Authentication provider strictly for verified NEVOLYN Super Admin accounts.
-     *
-     * <p>Authorizes only the two designated Super Admins (Md Rahinur Rahman & Mohammad Ninad Mahmud Nobo)
-     * using either their usernames or verified Employee IDs. Robustly handles shell escaping, quote
-     * stripping, and Docker Compose variable interpolation.
+     * UserDetailsService managing Super Admin accounts dynamically from environment variables.
+     * Strictly zero hardcoded usernames or passwords in code.
      */
     @Bean
-    public AuthenticationProvider authenticationProvider(
+    public UserDetailsService userDetailsService(
             PasswordEncoder passwordEncoder,
             @org.springframework.beans.factory.annotation.Value("${SUPER_ADMIN_SHARED_PASSWORD:${SUPER_ADMIN_PASSWORD:}}") String superAdminSharedPassword,
-            @org.springframework.beans.factory.annotation.Value("${SUPER_ADMIN_1_USERNAME:rahinrahman}") String superAdmin1User,
-            @org.springframework.beans.factory.annotation.Value("${SUPER_ADMIN_1_EMPLOYEE_ID:nev_rahinrahman_2026-01-15}") String superAdmin1EmpId,
-            @org.springframework.beans.factory.annotation.Value("${SUPER_ADMIN_2_USERNAME:mninadmnobo}") String superAdmin2User,
-            @org.springframework.beans.factory.annotation.Value("${SUPER_ADMIN_2_EMPLOYEE_ID:nev_mninadmnobo_2026-07-01}") String superAdmin2EmpId
+            @org.springframework.beans.factory.annotation.Value("${SUPER_ADMIN_1_USERNAME:${FABINS_ADMIN_USERNAME:}}") String superAdmin1User,
+            @org.springframework.beans.factory.annotation.Value("${SUPER_ADMIN_1_EMPLOYEE_ID:}") String superAdmin1EmpId,
+            @org.springframework.beans.factory.annotation.Value("${SUPER_ADMIN_2_USERNAME:}") String superAdmin2User,
+            @org.springframework.beans.factory.annotation.Value("${SUPER_ADMIN_2_EMPLOYEE_ID:}") String superAdmin2EmpId
     ) {
-        return new AuthenticationProvider() {
-            @Override
-            public Authentication authenticate(Authentication authentication) throws AuthenticationException {
-                if (authentication == null || authentication.getName() == null) {
-                    throw new BadCredentialsException("Invalid administrator credentials");
-                }
+        InMemoryUserDetailsManager manager = new InMemoryUserDetailsManager();
 
-                String username = authentication.getName().trim();
-                String rawPassword = authentication.getCredentials() != null
-                        ? authentication.getCredentials().toString().trim()
-                        : "";
-
-                if (!isAuthorizedSuperAdmin(username, superAdmin1User, superAdmin1EmpId, superAdmin2User, superAdmin2EmpId)) {
-                    throw new BadCredentialsException("Invalid administrator credentials");
-                }
-
-                if (!isPasswordValid(rawPassword, superAdminSharedPassword, passwordEncoder)) {
-                    throw new BadCredentialsException("Invalid administrator credentials");
-                }
-
-                return new UsernamePasswordAuthenticationToken(
-                        username,
-                        null,
-                        List.of(new SimpleGrantedAuthority("ROLE_ADMIN"), new SimpleGrantedAuthority("ROLE_SUPER_ADMIN"))
-                );
-            }
-
-            @Override
-            public boolean supports(Class<?> authentication) {
-                return UsernamePasswordAuthenticationToken.class.isAssignableFrom(authentication);
-            }
-        };
-    }
-
-    private boolean isAuthorizedSuperAdmin(String inputUser, String... allowed) {
-        if (inputUser == null || inputUser.isBlank()) return false;
-        String normalized = stripQuotes(inputUser).toLowerCase();
-
-        // 1. Check against injected parameters
-        for (String candidate : allowed) {
-            if (candidate != null && !candidate.isBlank()) {
-                String clean = stripQuotes(candidate).toLowerCase();
-                if (normalized.equals(clean)) {
-                    return true;
-                }
-            }
-        }
-
-        // 2. Canonical Super Admin names and IDs
-        List<String> canonical = List.of(
-                "rahinrahman",
-                "nev_rahinrahman_2026-01-15",
-                "mninadmnobo",
-                "nev_mninadmnobo_2026-07-01"
-        );
-        return canonical.contains(normalized);
-    }
-
-    private boolean isPasswordValid(String inputPassword, String configuredPassword, PasswordEncoder passwordEncoder) {
-        if (inputPassword == null || inputPassword.isBlank()) return false;
-
-        String cleanInput = stripQuotes(inputPassword);
-
-        // Resolve raw configured password from parameter or environment
-        String rawConfigured = (configuredPassword != null && !configuredPassword.isBlank())
-                ? configuredPassword
+        String rawPass = (superAdminSharedPassword != null && !superAdminSharedPassword.isBlank())
+                ? superAdminSharedPassword
                 : System.getenv("SUPER_ADMIN_SHARED_PASSWORD");
 
-        if (rawConfigured == null || rawConfigured.isBlank()) {
-            rawConfigured = System.getenv("SUPER_ADMIN_PASSWORD");
+        if (rawPass == null || rawPass.isBlank()) {
+            rawPass = System.getenv("SUPER_ADMIN_PASSWORD");
         }
-
-        String cleanConfigured = stripQuotes(rawConfigured);
-
-        if (cleanConfigured != null && !cleanConfigured.isBlank()) {
-            // Direct verbatim match
-            if (cleanInput.equals(cleanConfigured)) return true;
-
-            // BCrypt comparison if stored as hash
-            if (cleanConfigured.startsWith("$2a$") || cleanConfigured.startsWith("$2b$") || cleanConfigured.startsWith("$2y$")) {
-                if (passwordEncoder.matches(cleanInput, cleanConfigured)) return true;
+        if (rawPass == null || rawPass.isBlank()) {
+            try {
+                if (properties != null && properties.admin() != null) {
+                    rawPass = properties.admin().password();
+                }
+            } catch (Exception ignored) {
             }
-
-            // Handles Docker Compose variable interpolation if $S4turn_N3v0Lyn was stripped by Compose
-            String strippedInput = cleanInput.replace("$S4turn_N3v0Lyn", "");
-            if (strippedInput.equals(cleanConfigured)) return true;
-
-            // Handles double-dollar escaping ($$S4turn_N3v0Lyn)
-            String unescapedConfigured = cleanConfigured.replace("$$", "$");
-            if (cleanInput.equals(unescapedConfigured)) return true;
         }
 
-        return false;
+        String pass = stripQuotes(rawPass);
+        if (pass == null || pass.isBlank()) {
+            return manager;
+        }
+
+        String encoded = passwordEncoder.encode(pass);
+
+        // Strictly collect usernames and Employee IDs dynamically from .env configuration
+        List<String> rawUsers = new ArrayList<>();
+        if (superAdmin1User != null && !superAdmin1User.isBlank()) rawUsers.add(superAdmin1User);
+        if (superAdmin1EmpId != null && !superAdmin1EmpId.isBlank()) rawUsers.add(superAdmin1EmpId);
+        if (superAdmin2User != null && !superAdmin2User.isBlank()) rawUsers.add(superAdmin2User);
+        if (superAdmin2EmpId != null && !superAdmin2EmpId.isBlank()) rawUsers.add(superAdmin2EmpId);
+
+        // Direct OS environment fallback from .env
+        String envUser1 = System.getenv("SUPER_ADMIN_1_USERNAME");
+        if (envUser1 != null && !envUser1.isBlank()) rawUsers.add(envUser1);
+        String envEmp1 = System.getenv("SUPER_ADMIN_1_EMPLOYEE_ID");
+        if (envEmp1 != null && !envEmp1.isBlank()) rawUsers.add(envEmp1);
+        String envUser2 = System.getenv("SUPER_ADMIN_2_USERNAME");
+        if (envUser2 != null && !envUser2.isBlank()) rawUsers.add(envUser2);
+        String envEmp2 = System.getenv("SUPER_ADMIN_2_EMPLOYEE_ID");
+        if (envEmp2 != null && !envEmp2.isBlank()) rawUsers.add(envEmp2);
+
+        for (String raw : rawUsers) {
+            String clean = stripQuotes(raw);
+            if (clean == null || clean.isBlank()) continue;
+            if (!manager.userExists(clean)) {
+                manager.createUser(User.withUsername(clean)
+                        .password(encoded)
+                        .roles("ADMIN", "SUPER_ADMIN")
+                        .build());
+            }
+            String lower = clean.toLowerCase();
+            if (!manager.userExists(lower)) {
+                manager.createUser(User.withUsername(lower)
+                        .password(encoded)
+                        .roles("ADMIN", "SUPER_ADMIN")
+                        .build());
+            }
+        }
+
+        return manager;
     }
 
     private static String stripQuotes(String value) {
@@ -263,17 +168,11 @@ public class SecurityConfig {
         return trimmed;
     }
 
-    /**
-     * BCrypt hashing for stored credentials.
-     */
     @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
 
-    /**
-     * Browser origin rules, driven by {@code fabins.cors.allowed-origins}.
-     */
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
@@ -288,7 +187,6 @@ public class SecurityConfig {
             }
         }
 
-        // Always guarantee production and local origins
         allowedPatterns.add("https://fabins.nevolyn.com");
         allowedPatterns.add("https://www.fabins.nevolyn.com");
         allowedPatterns.add("https://nevolyn.com");

@@ -398,7 +398,7 @@ class DeploymentRequestControllerTest {
                         .string(org.hamcrest.Matchers.containsString("Confirm &amp; Dispatch Acknowledgement")));
 
         // Verify status remains NEW (scanner did not trigger state change)
-        mockMvc().perform(get(ENDPOINT + "/" + id).with(org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user("admin").roles("ADMIN")))
+        mockMvc().perform(get(ENDPOINT + "/" + id).with(org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user("mninadmnobo").roles("ADMIN")))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.status").value("NEW"));
     }
@@ -421,7 +421,7 @@ class DeploymentRequestControllerTest {
                         .string(org.hamcrest.Matchers.containsString("Application Successfully Acknowledged")));
 
         // Verify status is now IN_REVIEW
-        mockMvc().perform(get(ENDPOINT + "/" + id).with(org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user("admin").roles("ADMIN")))
+        mockMvc().perform(get(ENDPOINT + "/" + id).with(org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user("mninadmnobo").roles("ADMIN")))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.status").value("IN_REVIEW"));
 

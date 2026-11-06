@@ -31,6 +31,9 @@ fabins:
     username: test-admin
     password: test-password
 
+SUPER_ADMIN_1_USERNAME: mninadmnobo
+SUPER_ADMIN_SHARED_PASSWORD: test-password
+
 logging:
   level:
     root: WARN
