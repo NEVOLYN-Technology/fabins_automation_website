@@ -1,6 +1,8 @@
 package com.fabins.config;
 
 import jakarta.servlet.http.HttpServletResponse;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
@@ -83,12 +85,13 @@ public class SecurityConfig {
     @Bean
     public UserDetailsService userDetailsService(
             PasswordEncoder passwordEncoder,
-            @org.springframework.beans.factory.annotation.Value("${SUPER_ADMIN_SHARED_PASSWORD:${SUPER_ADMIN_PASSWORD:}}") String superAdminSharedPassword,
-            @org.springframework.beans.factory.annotation.Value("${SUPER_ADMIN_1_USERNAME:${FABINS_ADMIN_USERNAME:}}") String superAdmin1User,
+            @org.springframework.beans.factory.annotation.Value("${SUPER_ADMIN_SHARED_PASSWORD:${SUPER_ADMIN_PASSWORD:${FABINS_ADMIN_PASSWORD:}}}") String superAdminSharedPassword,
+            @org.springframework.beans.factory.annotation.Value("${SUPER_ADMIN_1_USERNAME:}") String superAdmin1User,
             @org.springframework.beans.factory.annotation.Value("${SUPER_ADMIN_1_EMPLOYEE_ID:}") String superAdmin1EmpId,
             @org.springframework.beans.factory.annotation.Value("${SUPER_ADMIN_2_USERNAME:}") String superAdmin2User,
             @org.springframework.beans.factory.annotation.Value("${SUPER_ADMIN_2_EMPLOYEE_ID:}") String superAdmin2EmpId
     ) {
+        Logger logger = LoggerFactory.getLogger(SecurityConfig.class);
         InMemoryUserDetailsManager manager = new InMemoryUserDetailsManager();
 
         String rawPass = (superAdminSharedPassword != null && !superAdminSharedPassword.isBlank())
@@ -97,6 +100,9 @@ public class SecurityConfig {
 
         if (rawPass == null || rawPass.isBlank()) {
             rawPass = System.getenv("SUPER_ADMIN_PASSWORD");
+        }
+        if (rawPass == null || rawPass.isBlank()) {
+            rawPass = System.getenv("FABINS_ADMIN_PASSWORD");
         }
         if (rawPass == null || rawPass.isBlank()) {
             try {
@@ -109,6 +115,7 @@ public class SecurityConfig {
 
         String pass = stripQuotes(rawPass);
         if (pass == null || pass.isBlank()) {
+            logger.warn("[FABINS Security] No admin password configured in environment!");
             return manager;
         }
 
@@ -122,15 +129,21 @@ public class SecurityConfig {
         if (superAdmin2EmpId != null && !superAdmin2EmpId.isBlank()) rawUsers.add(superAdmin2EmpId);
 
         // Direct OS environment fallback from .env
-        String envUser1 = System.getenv("SUPER_ADMIN_1_USERNAME");
-        if (envUser1 != null && !envUser1.isBlank()) rawUsers.add(envUser1);
-        String envEmp1 = System.getenv("SUPER_ADMIN_1_EMPLOYEE_ID");
-        if (envEmp1 != null && !envEmp1.isBlank()) rawUsers.add(envEmp1);
-        String envUser2 = System.getenv("SUPER_ADMIN_2_USERNAME");
-        if (envUser2 != null && !envUser2.isBlank()) rawUsers.add(envUser2);
-        String envEmp2 = System.getenv("SUPER_ADMIN_2_EMPLOYEE_ID");
-        if (envEmp2 != null && !envEmp2.isBlank()) rawUsers.add(envEmp2);
+        String[] envKeys = {
+            "SUPER_ADMIN_1_USERNAME",
+            "SUPER_ADMIN_1_EMPLOYEE_ID",
+            "SUPER_ADMIN_2_USERNAME",
+            "SUPER_ADMIN_2_EMPLOYEE_ID",
+            "FABINS_ADMIN_USERNAME"
+        };
+        for (String k : envKeys) {
+            String val = System.getenv(k);
+            if (val != null && !val.isBlank()) {
+                rawUsers.add(val);
+            }
+        }
 
+        List<String> registered = new ArrayList<>();
         for (String raw : rawUsers) {
             String clean = stripQuotes(raw);
             if (clean == null || clean.isBlank()) continue;
@@ -139,6 +152,7 @@ public class SecurityConfig {
                         .password(encoded)
                         .roles("ADMIN", "SUPER_ADMIN")
                         .build());
+                registered.add(clean);
             }
             String lower = clean.toLowerCase();
             if (!manager.userExists(lower)) {
@@ -146,8 +160,12 @@ public class SecurityConfig {
                         .password(encoded)
                         .roles("ADMIN", "SUPER_ADMIN")
                         .build());
+                registered.add(lower);
             }
         }
+
+        logger.info("[FABINS Security] Registered Super Admin users: {}", registered);
+        logger.info("[FABINS Security] Super Admin Password initialized (length: {} chars)", pass.length());
 
         return manager;
     }
@@ -170,7 +188,44 @@ public class SecurityConfig {
 
     @Bean
     public PasswordEncoder passwordEncoder() {
-        return new BCryptPasswordEncoder();
+        BCryptPasswordEncoder bcrypt = new BCryptPasswordEncoder();
+        return new PasswordEncoder() {
+            @Override
+            public String encode(CharSequence rawPassword) {
+                return bcrypt.encode(rawPassword);
+            }
+
+            @Override
+            public boolean matches(CharSequence rawPassword, String encodedPassword) {
+                if (rawPassword == null || encodedPassword == null) {
+                    return false;
+                }
+                // 1. Direct standard match
+                if (bcrypt.matches(rawPassword, encodedPassword)) {
+                    return true;
+                }
+                String raw = rawPassword.toString();
+                // 2. Unquoted match
+                String unquoted = stripQuotes(raw);
+                if (unquoted != null && !unquoted.equals(raw) && bcrypt.matches(unquoted, encodedPassword)) {
+                    return true;
+                }
+                // 3. Match $ vs $$ mismatch
+                if (raw.contains("$")) {
+                    String withDouble = raw.replace("$$", "$").replace("$", "$$");
+                    if (bcrypt.matches(withDouble, encodedPassword)) {
+                        return true;
+                    }
+                }
+                if (raw.contains("$$")) {
+                    String withSingle = raw.replace("$$", "$");
+                    if (bcrypt.matches(withSingle, encodedPassword)) {
+                        return true;
+                    }
+                }
+                return false;
+            }
+        };
     }
 
     @Bean
