@@ -53,7 +53,7 @@ spring:
     # never reached on Render, which always supplies DATABASE_URL.
     url: ${SPRING_DATASOURCE_URL:${DATABASE_URL}}
     username: ${SPRING_DATASOURCE_USERNAME:${DATABASE_USERNAME:${POSTGRES_USER:fabins_user}}}
-    password: ${SPRING_DATASOURCE_PASSWORD:${DATABASE_PASSWORD:${POSTGRES_PASSWORD:fabins_secret_pass_2026!}}}
+    password: ${SPRING_DATASOURCE_PASSWORD:${DATABASE_PASSWORD:${POSTGRES_PASSWORD:}}}
     driver-class-name: org.postgresql.Driver
     hikari:
       # Pool sizing. More is not better: every connection is a live process on
