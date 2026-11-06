@@ -1,9 +1,9 @@
 package com.fabins.config;
 
+import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
-import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
@@ -110,7 +110,24 @@ public class SecurityConfig {
                 // production because the console is not enabled there.
                 .headers(headers -> headers.frameOptions(frame -> frame.sameOrigin()))
 
-                .httpBasic(Customizer.withDefaults());
+                // Never send WWW-Authenticate: Basic header on 401. This completely prevents
+                // browsers from intercepting fetch requests and popping up the native OS/browser login modal.
+                .exceptionHandling(exceptions -> exceptions
+                        .authenticationEntryPoint((request, response, authException) -> {
+                            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                            response.setContentType("application/json");
+                            response.setCharacterEncoding("UTF-8");
+                            response.getWriter().write("{\"error\":\"Unauthorized\",\"message\":\"Super Admin authentication required\"}");
+                        })
+                )
+                .httpBasic(basic -> basic
+                        .authenticationEntryPoint((request, response, authException) -> {
+                            response.setStatus(HttpServletResponse.SC_UNAUTHORIZED);
+                            response.setContentType("application/json");
+                            response.setCharacterEncoding("UTF-8");
+                            response.getWriter().write("{\"error\":\"Unauthorized\",\"message\":\"Super Admin authentication required\"}");
+                        })
+                );
 
         return http.build();
     }
@@ -133,44 +150,60 @@ public class SecurityConfig {
     ) {
         InMemoryUserDetailsManager manager = new InMemoryUserDetailsManager();
 
-        // Resolve Super Admin password strictly from environment variable
-        String superPass = (superAdminSharedPassword != null && !superAdminSharedPassword.isBlank())
-                ? superAdminSharedPassword.trim()
-                : null;
+        // Resolve Super Admin password strictly from environment variable or system property
+        String rawPass = (superAdminSharedPassword != null && !superAdminSharedPassword.isBlank())
+                ? superAdminSharedPassword
+                : System.getenv("SUPER_ADMIN_SHARED_PASSWORD");
+
+        if (rawPass == null || rawPass.isBlank()) {
+            rawPass = System.getenv("SUPER_ADMIN_PASSWORD");
+        }
+
+        String superPass = stripQuotes(rawPass);
 
         if (superPass != null && !superPass.isBlank()) {
             String encodedSuperPass = passwordEncoder.encode(superPass);
 
             // Super Admin 1: Md Rahinur Rahman
-            if (superAdmin1User != null && !superAdmin1User.isBlank()) {
-                manager.createUser(User.withUsername(superAdmin1User.trim())
-                        .password(encodedSuperPass)
-                        .roles("ADMIN", "SUPER_ADMIN")
-                        .build());
-            }
-            if (superAdmin1EmpId != null && !superAdmin1EmpId.isBlank() && !superAdmin1EmpId.equalsIgnoreCase(superAdmin1User)) {
-                manager.createUser(User.withUsername(superAdmin1EmpId.trim())
-                        .password(encodedSuperPass)
-                        .roles("ADMIN", "SUPER_ADMIN")
-                        .build());
-            }
+            registerSuperAdmin(manager, superAdmin1User, encodedSuperPass);
+            registerSuperAdmin(manager, superAdmin1EmpId, encodedSuperPass);
 
             // Super Admin 2: Mohammad Ninad Mahmud Nobo
-            if (superAdmin2User != null && !superAdmin2User.isBlank()) {
-                manager.createUser(User.withUsername(superAdmin2User.trim())
-                        .password(encodedSuperPass)
-                        .roles("ADMIN", "SUPER_ADMIN")
-                        .build());
-            }
-            if (superAdmin2EmpId != null && !superAdmin2EmpId.isBlank() && !superAdmin2EmpId.equalsIgnoreCase(superAdmin2User)) {
-                manager.createUser(User.withUsername(superAdmin2EmpId.trim())
-                        .password(encodedSuperPass)
-                        .roles("ADMIN", "SUPER_ADMIN")
-                        .build());
-            }
+            registerSuperAdmin(manager, superAdmin2User, encodedSuperPass);
+            registerSuperAdmin(manager, superAdmin2EmpId, encodedSuperPass);
         }
 
         return manager;
+    }
+
+    private void registerSuperAdmin(InMemoryUserDetailsManager manager, String identifier, String encodedPassword) {
+        if (identifier == null || identifier.isBlank()) return;
+        String cleanId = stripQuotes(identifier);
+        if (!manager.userExists(cleanId)) {
+            manager.createUser(User.withUsername(cleanId)
+                    .password(encodedPassword)
+                    .roles("ADMIN", "SUPER_ADMIN")
+                    .build());
+        }
+        String lowerId = cleanId.toLowerCase();
+        if (!manager.userExists(lowerId)) {
+            manager.createUser(User.withUsername(lowerId)
+                    .password(encodedPassword)
+                    .roles("ADMIN", "SUPER_ADMIN")
+                    .build());
+        }
+    }
+
+    private static String stripQuotes(String value) {
+        if (value == null) return null;
+        String trimmed = value.trim();
+        if ((trimmed.startsWith("'") && trimmed.endsWith("'")) ||
+            (trimmed.startsWith("\"") && trimmed.endsWith("\""))) {
+            if (trimmed.length() >= 2) {
+                return trimmed.substring(1, trimmed.length() - 1).trim();
+            }
+        }
+        return trimmed;
     }
 
     /**

@@ -749,7 +749,7 @@ export const rootSiteMetadata: Metadata = {
 
 export const adminSiteMetadata: Metadata = {
   ...rootSiteMetadata,
-  title: 'FABINS Admin Login — Executive Operations & Deployment Portal',
+  title: 'FABINS Admin',
   description:
     'Official administrative login and operational control center for FABINS Automation by NEVOLYN. Manage RMG mill deployment requests, retrofit assessments, and general inquiries.',
   keywords: [

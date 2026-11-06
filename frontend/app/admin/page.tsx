@@ -59,7 +59,7 @@ export default function AdminDashboardPage() {
   // ── 5. Lifecycle & Session Storage ────────────────────────────────────────
   useEffect(() => {
     if (typeof window !== 'undefined') {
-      document.title = 'FABINS Deployment — Executive Operations & Inquiries Dashboard'
+      document.title = 'FABINS Admin'
       const savedAuth = sessionStorage.getItem('fabins_admin_auth')
       if (savedAuth) {
         try {
