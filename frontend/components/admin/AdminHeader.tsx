@@ -2,7 +2,7 @@
 
 import React from 'react'
 import Link from 'next/link'
-import { RefreshCw, ExternalLink, LogOut, CheckCircle } from 'lucide-react'
+import { RefreshCw, ExternalLink, LogOut, CheckCircle, Building2 } from 'lucide-react'
 import { FabinsLogo } from '@/components/ui/FabinsLogo'
 
 interface AdminHeaderProps {
@@ -51,6 +51,18 @@ export function AdminHeader({
           >
             <RefreshCw className={`w-4 h-4 ${isLoading ? 'animate-spin text-accent' : ''}`} />
           </button>
+
+          <a
+            href="https://nevolyn.com/office/login"
+            target="_blank"
+            rel="noopener noreferrer"
+            title="Open NEVOLYN Office & HRM Management Portal"
+            className="inline-flex items-center gap-1.5 text-xs font-semibold text-emerald-800 hover:text-white px-3 py-1.5 rounded-xl border border-emerald-300/80 bg-gradient-to-r from-emerald-50 to-teal-50/80 hover:from-emerald-500 hover:to-teal-600 hover:border-transparent transition-all shadow-xs"
+          >
+            <Building2 className="w-3.5 h-3.5 shrink-0" />
+            <span>Office Portal</span>
+            <ExternalLink className="w-3 h-3 opacity-80 hidden sm:inline shrink-0" />
+          </a>
 
           <Link
             href="/"

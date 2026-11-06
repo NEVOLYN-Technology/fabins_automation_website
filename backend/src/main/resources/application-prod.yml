@@ -130,11 +130,8 @@ fabins:
   backend-url: ${FABINS_BACKEND_URL:https://fabins-api.onrender.com}
 
   admin:
-    username: ${FABINS_ADMIN_USERNAME:admin}
-    # The fallback exists so a misconfigured deploy still boots and serves the
-    # public contact form. Always set FABINS_ADMIN_PASSWORD on the platform —
-    # a value committed to a public repository is not a password.
-    password: ${FABINS_ADMIN_PASSWORD:SuperSecureAdminPassword2026!}
+    username: ${SUPER_ADMIN_1_USERNAME:rahinrahman}
+    password: "${SUPER_ADMIN_SHARED_PASSWORD:}"
 
 springdoc:
   # Interactive API docs are disabled in production — they advertise every

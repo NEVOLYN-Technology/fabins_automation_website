@@ -63,9 +63,11 @@ export const API_BASE_URL: string = (() => {
 })()
 
 function getAuthHeader(credentials: AdminCredentials): string {
+  const username = credentials.username.trim()
+  const password = credentials.password.trim()
   const token = typeof window !== 'undefined' 
-    ? window.btoa(`${credentials.username}:${credentials.password}`)
-    : Buffer.from(`${credentials.username}:${credentials.password}`).toString('base64')
+    ? window.btoa(`${username}:${password}`)
+    : Buffer.from(`${username}:${password}`).toString('base64')
   return `Basic ${token}`
 }
 

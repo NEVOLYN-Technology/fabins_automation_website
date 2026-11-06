@@ -116,22 +116,61 @@ public class SecurityConfig {
     }
 
     /**
-     * The single admin account, loaded from configuration.
+     * In-memory authentication provider strictly for verified NEVOLYN Super Admin accounts.
      *
-     * <p>In-memory is appropriate while there is one operator. When real user
-     * management is needed, replace this bean with one backed by a database —
-     * nothing else in the application refers to it.
+     * <p>Only the two designated Super Admins (Md Rahinur Rahman & Mohammad Ninad Mahmud Nobo)
+     * are authorized to access FABINS operations. Credentials are dynamically loaded from
+     * environment variables (.env).
      */
     @Bean
-    public UserDetailsService userDetailsService(PasswordEncoder passwordEncoder) {
-        ApiProperties.Admin admin = properties.admin();
+    public UserDetailsService userDetailsService(
+            PasswordEncoder passwordEncoder,
+            @org.springframework.beans.factory.annotation.Value("${SUPER_ADMIN_SHARED_PASSWORD:${SUPER_ADMIN_PASSWORD:}}") String superAdminSharedPassword,
+            @org.springframework.beans.factory.annotation.Value("${SUPER_ADMIN_1_USERNAME:rahinrahman}") String superAdmin1User,
+            @org.springframework.beans.factory.annotation.Value("${SUPER_ADMIN_1_EMPLOYEE_ID:nev_rahinrahman_2026-01-15}") String superAdmin1EmpId,
+            @org.springframework.beans.factory.annotation.Value("${SUPER_ADMIN_2_USERNAME:mninadmnobo}") String superAdmin2User,
+            @org.springframework.beans.factory.annotation.Value("${SUPER_ADMIN_2_EMPLOYEE_ID:nev_mninadmnobo_2026-07-01}") String superAdmin2EmpId
+    ) {
+        InMemoryUserDetailsManager manager = new InMemoryUserDetailsManager();
 
-        return new InMemoryUserDetailsManager(
-                User.withUsername(admin.username())
-                        .password(passwordEncoder.encode(admin.password()))
-                        .roles("ADMIN")
-                        .build()
-        );
+        // Resolve Super Admin password strictly from environment variable
+        String superPass = (superAdminSharedPassword != null && !superAdminSharedPassword.isBlank())
+                ? superAdminSharedPassword.trim()
+                : null;
+
+        if (superPass != null && !superPass.isBlank()) {
+            String encodedSuperPass = passwordEncoder.encode(superPass);
+
+            // Super Admin 1: Md Rahinur Rahman
+            if (superAdmin1User != null && !superAdmin1User.isBlank()) {
+                manager.createUser(User.withUsername(superAdmin1User.trim())
+                        .password(encodedSuperPass)
+                        .roles("ADMIN", "SUPER_ADMIN")
+                        .build());
+            }
+            if (superAdmin1EmpId != null && !superAdmin1EmpId.isBlank() && !superAdmin1EmpId.equalsIgnoreCase(superAdmin1User)) {
+                manager.createUser(User.withUsername(superAdmin1EmpId.trim())
+                        .password(encodedSuperPass)
+                        .roles("ADMIN", "SUPER_ADMIN")
+                        .build());
+            }
+
+            // Super Admin 2: Mohammad Ninad Mahmud Nobo
+            if (superAdmin2User != null && !superAdmin2User.isBlank()) {
+                manager.createUser(User.withUsername(superAdmin2User.trim())
+                        .password(encodedSuperPass)
+                        .roles("ADMIN", "SUPER_ADMIN")
+                        .build());
+            }
+            if (superAdmin2EmpId != null && !superAdmin2EmpId.isBlank() && !superAdmin2EmpId.equalsIgnoreCase(superAdmin2User)) {
+                manager.createUser(User.withUsername(superAdmin2EmpId.trim())
+                        .password(encodedSuperPass)
+                        .roles("ADMIN", "SUPER_ADMIN")
+                        .build());
+            }
+        }
+
+        return manager;
     }
 
     /**

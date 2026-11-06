@@ -1,7 +1,7 @@
 'use client'
 
 import Link from 'next/link'
-import { Mail, MapPin, Phone, ShieldCheck, Zap, Lock } from 'lucide-react'
+import { Mail, MapPin, Phone, ShieldCheck, Zap, Lock, Building2 } from 'lucide-react'
 import { SEO_CONFIG } from '@/lib/seo/config'
 import { scrollToSection } from '@/lib/scroll'
 import { Wordmark } from '@/components/ui/Wordmark'
@@ -237,6 +237,17 @@ export const Footer = () => {
           <p>© {new Date().getFullYear()} FABINS · NEVOLYN . All rights reserved.</p>
           <div className="flex items-center gap-3">
             <span>Dhaka, Bangladesh</span>
+            <span className="text-line-strong">•</span>
+            <a
+              href="https://nevolyn.com/office/login"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="inline-flex items-center gap-1 text-[11px] text-ink-soft/70 hover:text-accent transition-colors font-medium"
+              title="NEVOLYN Office Management & HRM Portal"
+            >
+              <Building2 className="w-3 h-3 text-sky-500" />
+              <span>Office Portal</span>
+            </a>
             <span className="text-line-strong">•</span>
             <Link
               href="/admin"

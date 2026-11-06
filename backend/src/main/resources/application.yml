@@ -162,9 +162,8 @@ fabins:
   backend-url: ${FABINS_BACKEND_URL:http://localhost:8080}
 
   admin:
-    username: ${FABINS_ADMIN_USERNAME:admin}
-    # Development-only default, overridden in application-prod.yml.
-    password: ${FABINS_ADMIN_PASSWORD:change-me-in-production}
+    username: ${SUPER_ADMIN_1_USERNAME:rahinrahman}
+    password: "${SUPER_ADMIN_SHARED_PASSWORD:}"
 
   mail:
     # Internal recipient — where new-enquiry alerts land.

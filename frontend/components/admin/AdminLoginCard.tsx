@@ -3,7 +3,7 @@
 import React from 'react'
 import Link from 'next/link'
 import { motion } from 'framer-motion'
-import { ShieldCheck, Lock, User, RefreshCw, AlertCircle, ExternalLink } from 'lucide-react'
+import { ShieldCheck, Lock, User, RefreshCw, AlertCircle, ExternalLink, Building2 } from 'lucide-react'
 import { type AdminCredentials } from '@/lib/api/admin'
 import { FabinsLogo } from '@/components/ui/FabinsLogo'
 
@@ -52,15 +52,15 @@ export function AdminLoginCard({
           <div className="inline-flex items-center justify-center mb-4">
             <FabinsLogo className="h-16 w-auto" />
           </div>
-          <h1 className="text-2xl font-bold tracking-tight text-ink">FABINS Deployment</h1>
-          <p className="text-xs text-ink-muted mt-1 font-medium">Executive Operations & Inquiries Dashboard</p>
+          <h1 className="text-2xl font-bold tracking-tight text-ink">FABINS Operations</h1>
+          <p className="text-xs text-ink-muted mt-1 font-medium">Executive Dashboard — Super Admin Restricted</p>
         </div>
 
         {/* Credentials Form Card */}
         <div className="bg-panel border border-line rounded-2xl p-6 sm:p-8 shadow-card">
           <div className="flex items-center gap-2 mb-6 text-xs uppercase tracking-wider text-accent font-semibold">
             <Lock className="w-3.5 h-3.5" />
-            <span>Admin Authentication Required</span>
+            <span>Super Admin Authentication Required</span>
           </div>
 
           {authError && (
@@ -77,7 +77,7 @@ export function AdminLoginCard({
           <form onSubmit={onLogin} className="space-y-4">
             <div>
               <label className="block text-xs font-semibold text-ink-muted mb-1.5">
-                Administrator Username
+                Super Admin Username / Employee ID
               </label>
               <div className="relative">
                 <User className="w-4 h-4 text-ink-soft absolute left-3.5 top-1/2 -translate-y-1/2" />
@@ -86,7 +86,7 @@ export function AdminLoginCard({
                   required
                   value={authInput.username}
                   onChange={(e) => setAuthInput({ ...authInput, username: e.target.value })}
-                  placeholder="admin"
+                  placeholder="Enter Super Admin username or Employee ID"
                   className="w-full pl-10 pr-3.5 py-2.5 bg-panel-2 border border-line rounded-xl text-ink placeholder-ink-soft text-sm focus:outline-none focus:border-accent focus:bg-panel transition-all"
                 />
               </div>
@@ -128,14 +128,26 @@ export function AdminLoginCard({
             </button>
           </form>
 
-          <div className="mt-6 pt-5 border-t border-line text-center">
+          <div className="mt-6 pt-5 border-t border-line flex flex-wrap items-center justify-between gap-3 text-xs">
             <Link
               href="/"
-              className="text-xs text-ink-soft hover:text-accent transition-colors inline-flex items-center gap-1.5"
+              className="text-ink-soft hover:text-accent transition-colors inline-flex items-center gap-1.5"
             >
               <span>Return to Public Website</span>
               <ExternalLink className="w-3 h-3" />
             </Link>
+
+            <a
+              href="https://nevolyn.com/office/login"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="text-emerald-700 hover:text-emerald-800 font-semibold inline-flex items-center gap-1.5 transition-colors"
+              title="NEVOLYN Office Management & HRM Portal"
+            >
+              <Building2 className="w-3.5 h-3.5 text-emerald-600" />
+              <span>Office Portal</span>
+              <ExternalLink className="w-3 h-3 opacity-70" />
+            </a>
           </div>
         </div>
       </motion.div>
