@@ -146,7 +146,9 @@ public class SecurityConfig {
         List<String> registered = new ArrayList<>();
         for (String raw : rawUsers) {
             String clean = stripQuotes(raw);
-            if (clean == null || clean.isBlank()) continue;
+            if (clean == null || clean.isBlank()) {
+                continue;
+            }
             if (!manager.userExists(clean)) {
                 manager.createUser(User.withUsername(clean)
                         .password(encoded)
