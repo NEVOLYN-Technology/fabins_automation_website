@@ -56,20 +56,27 @@ export default function AdminDashboardPage() {
   const [selectedInquiry, setSelectedInquiry] = useState<InquiryRecord | null>(null)
   const [copiedId, setCopiedId] = useState<string | null>(null)
 
-  // ── 5. Lifecycle & Session Storage ────────────────────────────────────────
+  // ── 5. Lifecycle & Zero-Persistence Security ─────────────────────────────
   useEffect(() => {
     if (typeof window !== 'undefined') {
       document.title = 'FABINS Admin'
-      const savedAuth = sessionStorage.getItem('fabins_admin_auth')
-      if (savedAuth) {
-        try {
-          const parsed = JSON.parse(savedAuth)
-          if (parsed.username && parsed.password) {
-            setCredentials(parsed)
-          }
-        } catch {
-          sessionStorage.removeItem('fabins_admin_auth')
-        }
+      // Strictly purge any persisted sessions — leaving or backing out forces fresh password
+      sessionStorage.removeItem('fabins_admin_auth')
+      localStorage.removeItem('fabins_admin_auth')
+
+      const handlePurge = () => {
+        setCredentials(null)
+        sessionStorage.removeItem('fabins_admin_auth')
+        localStorage.removeItem('fabins_admin_auth')
+      }
+
+      window.addEventListener('popstate', handlePurge)
+      window.addEventListener('pagehide', handlePurge)
+
+      return () => {
+        window.removeEventListener('popstate', handlePurge)
+        window.removeEventListener('pagehide', handlePurge)
+        handlePurge()
       }
     }
   }, [])
@@ -92,8 +99,10 @@ export default function AdminDashboardPage() {
     setIsVerifying(false)
 
     if (valid) {
+      // Strictly in-memory credentials only for active view: zero storage persistence
       setCredentials(authInput)
-      sessionStorage.setItem('fabins_admin_auth', JSON.stringify(authInput))
+      sessionStorage.removeItem('fabins_admin_auth')
+      localStorage.removeItem('fabins_admin_auth')
     } else {
       setAuthError('Invalid administrator credentials. Access refused.')
     }
@@ -101,7 +110,9 @@ export default function AdminDashboardPage() {
 
   const handleLogout = () => {
     setCredentials(null)
+    setAuthInput({ username: '', password: '' })
     sessionStorage.removeItem('fabins_admin_auth')
+    localStorage.removeItem('fabins_admin_auth')
     setDeployments([])
     setInquiries([])
   }
