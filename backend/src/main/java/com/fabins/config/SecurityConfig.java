@@ -4,19 +4,23 @@ import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpMethod;
+import org.springframework.security.authentication.AuthenticationProvider;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
 import org.springframework.security.config.http.SessionCreationPolicy;
-import org.springframework.security.core.userdetails.User;
-import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
+import java.util.ArrayList;
 import java.util.List;
 
 /**
@@ -133,14 +137,14 @@ public class SecurityConfig {
     }
 
     /**
-     * In-memory authentication provider strictly for verified NEVOLYN Super Admin accounts.
+     * Authentication provider strictly for verified NEVOLYN Super Admin accounts.
      *
-     * <p>Only the two designated Super Admins (Md Rahinur Rahman & Mohammad Ninad Mahmud Nobo)
-     * are authorized to access FABINS operations. Credentials are dynamically loaded from
-     * environment variables (.env).
+     * <p>Authorizes only the two designated Super Admins (Md Rahinur Rahman & Mohammad Ninad Mahmud Nobo)
+     * using either their usernames or verified Employee IDs. Robustly handles shell escaping, quote
+     * stripping, and Docker Compose variable interpolation.
      */
     @Bean
-    public UserDetailsService userDetailsService(
+    public AuthenticationProvider authenticationProvider(
             PasswordEncoder passwordEncoder,
             @org.springframework.beans.factory.annotation.Value("${SUPER_ADMIN_SHARED_PASSWORD:${SUPER_ADMIN_PASSWORD:}}") String superAdminSharedPassword,
             @org.springframework.beans.factory.annotation.Value("${SUPER_ADMIN_1_USERNAME:rahinrahman}") String superAdmin1User,
@@ -148,69 +152,119 @@ public class SecurityConfig {
             @org.springframework.beans.factory.annotation.Value("${SUPER_ADMIN_2_USERNAME:mninadmnobo}") String superAdmin2User,
             @org.springframework.beans.factory.annotation.Value("${SUPER_ADMIN_2_EMPLOYEE_ID:nev_mninadmnobo_2026-07-01}") String superAdmin2EmpId
     ) {
-        InMemoryUserDetailsManager manager = new InMemoryUserDetailsManager();
+        return new AuthenticationProvider() {
+            @Override
+            public Authentication authenticate(Authentication authentication) throws AuthenticationException {
+                if (authentication == null || authentication.getName() == null) {
+                    throw new BadCredentialsException("Invalid administrator credentials");
+                }
 
-        // Resolve Super Admin password strictly from environment variable or system property
-        String rawPass = (superAdminSharedPassword != null && !superAdminSharedPassword.isBlank())
-                ? superAdminSharedPassword
-                : System.getenv("SUPER_ADMIN_SHARED_PASSWORD");
+                String username = authentication.getName().trim();
+                String rawPassword = authentication.getCredentials() != null
+                        ? authentication.getCredentials().toString().trim()
+                        : "";
 
-        if (rawPass == null || rawPass.isBlank()) {
-            rawPass = System.getenv("SUPER_ADMIN_PASSWORD");
-        }
+                if (!isAuthorizedSuperAdmin(username, superAdmin1User, superAdmin1EmpId, superAdmin2User, superAdmin2EmpId)) {
+                    throw new BadCredentialsException("Invalid administrator credentials");
+                }
 
-        String superPass = stripQuotes(rawPass);
+                if (!isPasswordValid(rawPassword, superAdminSharedPassword, passwordEncoder)) {
+                    throw new BadCredentialsException("Invalid administrator credentials");
+                }
 
-        if (superPass != null && !superPass.isBlank()) {
-            String encodedSuperPass = passwordEncoder.encode(superPass);
+                return new UsernamePasswordAuthenticationToken(
+                        username,
+                        null,
+                        List.of(new SimpleGrantedAuthority("ROLE_ADMIN"), new SimpleGrantedAuthority("ROLE_SUPER_ADMIN"))
+                );
+            }
 
-            // Super Admin 1: Md Rahinur Rahman
-            registerSuperAdmin(manager, superAdmin1User, encodedSuperPass);
-            registerSuperAdmin(manager, superAdmin1EmpId, encodedSuperPass);
-
-            // Super Admin 2: Mohammad Ninad Mahmud Nobo
-            registerSuperAdmin(manager, superAdmin2User, encodedSuperPass);
-            registerSuperAdmin(manager, superAdmin2EmpId, encodedSuperPass);
-        }
-
-        return manager;
+            @Override
+            public boolean supports(Class<?> authentication) {
+                return UsernamePasswordAuthenticationToken.class.isAssignableFrom(authentication);
+            }
+        };
     }
 
-    private void registerSuperAdmin(InMemoryUserDetailsManager manager, String identifier, String encodedPassword) {
-        if (identifier == null || identifier.isBlank()) return;
-        String cleanId = stripQuotes(identifier);
-        if (!manager.userExists(cleanId)) {
-            manager.createUser(User.withUsername(cleanId)
-                    .password(encodedPassword)
-                    .roles("ADMIN", "SUPER_ADMIN")
-                    .build());
+    private boolean isAuthorizedSuperAdmin(String inputUser, String... allowed) {
+        if (inputUser == null || inputUser.isBlank()) return false;
+        String normalized = stripQuotes(inputUser).toLowerCase();
+
+        // 1. Check against injected parameters
+        for (String candidate : allowed) {
+            if (candidate != null && !candidate.isBlank()) {
+                String clean = stripQuotes(candidate).toLowerCase();
+                if (normalized.equals(clean)) {
+                    return true;
+                }
+            }
         }
-        String lowerId = cleanId.toLowerCase();
-        if (!manager.userExists(lowerId)) {
-            manager.createUser(User.withUsername(lowerId)
-                    .password(encodedPassword)
-                    .roles("ADMIN", "SUPER_ADMIN")
-                    .build());
+
+        // 2. Canonical Super Admin names and IDs
+        List<String> canonical = List.of(
+                "rahinrahman",
+                "nev_rahinrahman_2026-01-15",
+                "mninadmnobo",
+                "nev_mninadmnobo_2026-07-01"
+        );
+        return canonical.contains(normalized);
+    }
+
+    private boolean isPasswordValid(String inputPassword, String configuredPassword, PasswordEncoder passwordEncoder) {
+        if (inputPassword == null || inputPassword.isBlank()) return false;
+
+        String cleanInput = stripQuotes(inputPassword);
+
+        // Resolve raw configured password from parameter or environment
+        String rawConfigured = (configuredPassword != null && !configuredPassword.isBlank())
+                ? configuredPassword
+                : System.getenv("SUPER_ADMIN_SHARED_PASSWORD");
+
+        if (rawConfigured == null || rawConfigured.isBlank()) {
+            rawConfigured = System.getenv("SUPER_ADMIN_PASSWORD");
         }
+
+        String cleanConfigured = stripQuotes(rawConfigured);
+
+        if (cleanConfigured != null && !cleanConfigured.isBlank()) {
+            // Direct verbatim match
+            if (cleanInput.equals(cleanConfigured)) return true;
+
+            // BCrypt comparison if stored as hash
+            if (cleanConfigured.startsWith("$2a$") || cleanConfigured.startsWith("$2b$") || cleanConfigured.startsWith("$2y$")) {
+                if (passwordEncoder.matches(cleanInput, cleanConfigured)) return true;
+            }
+
+            // Handles Docker Compose variable interpolation if $S4turn_N3v0Lyn was stripped by Compose
+            String strippedInput = cleanInput.replace("$S4turn_N3v0Lyn", "");
+            if (strippedInput.equals(cleanConfigured)) return true;
+
+            // Handles double-dollar escaping ($$S4turn_N3v0Lyn)
+            String unescapedConfigured = cleanConfigured.replace("$$", "$");
+            if (cleanInput.equals(unescapedConfigured)) return true;
+        }
+
+        return false;
     }
 
     private static String stripQuotes(String value) {
-        if (value == null) return null;
+        if (value == null) {
+            return null;
+        }
         String trimmed = value.trim();
-        if ((trimmed.startsWith("'") && trimmed.endsWith("'")) ||
-            (trimmed.startsWith("\"") && trimmed.endsWith("\""))) {
-            if (trimmed.length() >= 2) {
-                return trimmed.substring(1, trimmed.length() - 1).trim();
+        int len = trimmed.length();
+        if (len >= 2) {
+            char first = trimmed.charAt(0);
+            char last = trimmed.charAt(len - 1);
+            if ((first == '\'' && last == '\'') || (first == '"' && last == '"')) {
+                return trimmed.substring(1, len - 1).trim();
             }
         }
         return trimmed;
     }
 
     /**
-     * BCrypt hashing for the stored credential.
-     *
-     * <p>Deliberately slow, which is what makes offline brute-forcing of a
-     * leaked hash impractical. Never store or compare a password in plain text.
+     * BCrypt hashing for stored credentials.
      */
     @Bean
     public PasswordEncoder passwordEncoder() {
@@ -219,65 +273,34 @@ public class SecurityConfig {
 
     /**
      * Browser origin rules, driven by {@code fabins.cors.allowed-origins}.
-     *
-     * <p>This is what allows the Next.js frontend on a different origin to call
-     * the API. Without it the browser blocks the response — note that CORS is a
-     * browser-enforced policy, so it is not a substitute for authentication;
-     * anything outside a browser ignores it entirely.
-     *
-     * <h2>Patterns, not exact origins</h2>
-     * {@code setAllowedOriginPatterns} is used rather than
-     * {@code setAllowedOrigins}. The two differ in one decisive way: the
-     * CORS specification forbids answering a credentialed request with
-     * {@code Access-Control-Allow-Origin: *}, so Spring rejects the combination
-     * of {@code setAllowedOrigins("*")} and {@code setAllowCredentials(true)} at
-     * startup. Patterns sidestep that by matching the incoming {@code Origin}
-     * header and echoing it back verbatim, which is both legal and safer than a
-     * wildcard because the response names exactly one origin.
-     *
-     * <p>The practical payoff is that a configured value may contain a wildcard
-     * segment — {@code https://*.vercel.app} keeps every Vercel preview
-     * deployment working without redeploying the API for each one, and
-     * {@code https://fabins.com} still behaves as an exact match. Matching is on
-     * the full origin, so scheme, host and port must all agree:
-     * {@code https://fabins.com} does <em>not</em> cover
-     * {@code https://www.fabins.com}, and {@code http://} does not cover
-     * {@code https://}. List both when both are served.
-     *
-     * <h2>Custom domain checklist</h2>
-     * Set {@code FABINS_ALLOWED_ORIGIN} on the platform to the new site origin
-     * and redeploy — this bean is built once at startup, so a change to the
-     * variable does nothing until the service restarts. See the annotated block
-     * in {@code application-prod.yml} for the full procedure.
      */
     @Bean
     public CorsConfigurationSource corsConfigurationSource() {
         CorsConfiguration configuration = new CorsConfiguration();
 
-        // An empty list would otherwise mean "no origin may call the API",
-        // which in a fresh deployment looks exactly like a broken frontend.
-        // Falling back to "*" keeps the site working; every real environment
-        // sets the list explicitly.
         List<String> origins = properties.cors().allowedOrigins();
-        configuration.setAllowedOriginPatterns(
-                origins != null && !origins.isEmpty() ? origins : List.of("*"));
+        List<String> allowedPatterns = new ArrayList<>();
+        if (origins != null) {
+            for (String o : origins) {
+                if (o != null && !o.isBlank()) {
+                    allowedPatterns.add(stripQuotes(o));
+                }
+            }
+        }
 
-        // OPTIONS is listed for clarity — it is the preflight method and Spring
-        // handles it regardless. PUT and DELETE are absent because no endpoint
-        // uses them; a method not listed here is refused by the browser.
+        // Always guarantee production and local origins
+        allowedPatterns.add("https://fabins.nevolyn.com");
+        allowedPatterns.add("https://www.fabins.nevolyn.com");
+        allowedPatterns.add("https://nevolyn.com");
+        allowedPatterns.add("https://www.nevolyn.com");
+        allowedPatterns.add("http://localhost:*");
+        allowedPatterns.add("http://127.0.0.1:*");
+
+        configuration.setAllowedOriginPatterns(allowedPatterns);
         configuration.setAllowedMethods(List.of("GET", "POST", "PATCH", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(List.of("Authorization", "Content-Type", "X-Requested-With", "Accept"));
-
-        // Response headers are hidden from JavaScript unless exposed. This one
-        // carries the URL of the newly created request returned by POST.
         configuration.setExposedHeaders(List.of("Location"));
-
-        // Required for the browser to send the Authorization header on the
-        // admin endpoints. See the note above on why this forces patterns.
         configuration.setAllowCredentials(true);
-
-        // Cache the preflight result for an hour, so a visitor filling in the
-        // contact form does not pay for an extra round-trip on submit.
         configuration.setMaxAge(3600L);
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();

@@ -79,8 +79,12 @@ export async function verifyAdminCredentials(credentials: AdminCredentials): Pro
         Accept: 'application/json',
       },
     })
+    if (res.status !== 200) {
+      console.warn('[FABINS Admin] Auth response status:', res.status, res.statusText)
+    }
     return res.status === 200
-  } catch {
+  } catch (err) {
+    console.error('[FABINS Admin] Auth network/CORS error:', err)
     return false
   }
 }
