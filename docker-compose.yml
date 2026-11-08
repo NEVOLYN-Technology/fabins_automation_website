@@ -55,6 +55,12 @@ services:
       DATABASE_URL: jdbc:postgresql://postgres:5432/${POSTGRES_DB:-fabins}
       DATABASE_USERNAME: ${POSTGRES_USER:-fabins_user}
       DATABASE_PASSWORD: ${POSTGRES_PASSWORD}
+      SUPER_ADMIN_SHARED_PASSWORD: ${SUPER_ADMIN_SHARED_PASSWORD}
+      SUPER_ADMIN_PASSWORD: ${SUPER_ADMIN_PASSWORD}
+      SUPER_ADMIN_1_USERNAME: ${SUPER_ADMIN_1_USERNAME}
+      SUPER_ADMIN_1_EMPLOYEE_ID: ${SUPER_ADMIN_1_EMPLOYEE_ID}
+      SUPER_ADMIN_2_USERNAME: ${SUPER_ADMIN_2_USERNAME}
+      SUPER_ADMIN_2_EMPLOYEE_ID: ${SUPER_ADMIN_2_EMPLOYEE_ID}
       FABINS_ALLOWED_ORIGIN: ${FABINS_ALLOWED_ORIGIN:-http://localhost:3000}
       # Origin used to build acknowledge links inside emails. Points at the
       # host's published port, not the container's, because the link is opened
