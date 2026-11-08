@@ -744,37 +744,24 @@ export const rootSiteMetadata: Metadata = {
 }
 
 // ----------------------------------------------------------------------------
-// Admin Portal SEO Metadata & Schema.org Graph
+// Admin Portal SEO Metadata & Search Exclusion
 // ----------------------------------------------------------------------------
 
 export const adminSiteMetadata: Metadata = {
-  ...rootSiteMetadata,
   title: 'FABINS Admin',
-  description:
-    'Official administrative login and operational control center for FABINS Automation by NEVOLYN. Manage RMG mill deployment requests, retrofit assessments, and general inquiries.',
-  keywords: [
-    ...SEO_TAXONOMY.adminQueries,
-    'fabins admin',
-    'fabins admin login',
-    'fabins deployment admin',
-    'nevolyn admin',
-    'fabins operations portal',
-  ],
-  alternates: {
-    canonical: `${SEO_CONFIG.siteUrl}/admin`,
-  },
-  openGraph: {
-    ...rootSiteMetadata.openGraph,
-    title: 'FABINS Admin Login — Executive Operations & Deployment Portal',
-    description:
-      'Official administrative control center for FABINS operations, RMG mill deployment assessments, and inquiries.',
-    url: `${SEO_CONFIG.siteUrl}/admin`,
-  },
-  twitter: {
-    ...rootSiteMetadata.twitter,
-    title: 'FABINS Admin Login',
-    description:
-      'Official administrative portal for FABINS operations and deployment assessments.',
+  description: 'Confidential administrative portal for authorized personnel only.',
+  robots: {
+    index: false,
+    follow: false,
+    nocache: true,
+    googleBot: {
+      index: false,
+      follow: false,
+      noimageindex: true,
+      'max-video-preview': -1,
+      'max-image-preview': 'none',
+      'max-snippet': -1,
+    },
   },
 }
 
