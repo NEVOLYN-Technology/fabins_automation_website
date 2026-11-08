@@ -175,7 +175,7 @@ export const Footer = () => {
               <li className="flex items-start gap-2">
                 <MapPin className="h-4 w-4 mt-0.5 shrink-0 text-emerald-600" />
                 <a
-                  href="https://share.google/mfrpkoU9Wq0tKRrfB"
+                  href="https://www.google.com/maps/place/NEVOLYN/@23.9250899,90.3904398,17z/data=!3m1!4b1!4m6!3m5!1s0x3755c554bdcff14f:0x591c436a33915bae!8m2!3d23.9250899!4d90.3904398!16s%2Fg%2F11z_c1p6hs"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="hover:text-accent transition-colors leading-relaxed"
