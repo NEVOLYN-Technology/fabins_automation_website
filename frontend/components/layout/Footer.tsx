@@ -175,13 +175,16 @@ export const Footer = () => {
               <li className="flex items-start gap-2">
                 <MapPin className="h-4 w-4 mt-0.5 shrink-0 text-emerald-600" />
                 <a
-                  href="https://maps.app.goo.gl/TNcbozMxhhjg29gP8"
+                  href="https://share.google/mfrpkoU9Wq0tKRrfB"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="hover:text-accent transition-colors"
-                  aria-label="Location Map Link"
+                  className="hover:text-accent transition-colors leading-relaxed"
+                  title="View NEVOLYN location on Google Maps"
                 >
-                  13/2, Abdus Sattar Master Road, Tongi, Gazipur
+                  <span className="font-semibold text-ink hover:text-accent transition-colors">NEVOLYN</span>
+                  <span className="block text-xs text-ink-muted">
+                    Level 5, Jaroms Textile Building, 13/2 Abdus Sattar Master Road, Tongi 1710
+                  </span>
                 </a>
               </li>
 
