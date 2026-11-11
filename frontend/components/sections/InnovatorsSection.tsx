@@ -60,6 +60,14 @@ export const InnovatorsSection = () => {
         const found = findInnovatorBySlug(match[1])
         if (found) {
           setSelectedMember(found)
+          // Align background page to innovators section so closing modal reveals innovators cards
+          setTimeout(() => {
+            const section = document.getElementById('innovators')
+            if (section) {
+              const targetTop = section.getBoundingClientRect().top + window.scrollY - 96
+              window.scrollTo({ top: Math.max(0, targetTop), behavior: 'instant' })
+            }
+          }, 20)
           return
         }
       }

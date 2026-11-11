@@ -62,12 +62,20 @@ export function useModalHistory({ isOpen, onClose, modalId = 'modal', hash }: Us
     try {
       const currentState = window.history.state || {}
       const targetUrl = hash ? `${window.location.pathname}${hash.startsWith('#') ? hash : `#${hash}`}` : ''
-      if (hash && window.location.hash === (hash.startsWith('#') ? hash : `#${hash}`)) {
-        window.history.replaceState({ ...currentState, [modalId]: true }, '', targetUrl)
+      const isDirectDeepLink = Boolean(hash && window.location.hash === (hash.startsWith('#') ? hash : `#${hash}`))
+
+      if (isDirectDeepLink) {
+        // Direct arrival from shared link: establish the base section in history first,
+        // then push the modal state so clicking Close/Back returns to the team section on site
+        // instead of kicking the visitor out to the previous external site.
+        const parentHash = hash?.split('/')[0] || '#innovators'
+        window.history.replaceState({ ...currentState, isBase: true }, '', `${window.location.pathname}${parentHash}`)
+        window.history.pushState({ ...currentState, [modalId]: true }, '', targetUrl)
+        hasPushedStateRef.current = true
       } else {
         window.history.pushState({ ...currentState, [modalId]: true }, '', targetUrl)
+        hasPushedStateRef.current = true
       }
-      hasPushedStateRef.current = true
     } catch {
       // Fallback if pushState is restricted
       hasPushedStateRef.current = false
