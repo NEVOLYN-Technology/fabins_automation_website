@@ -19,6 +19,10 @@
 export interface InnovatorMember {
   /** Stable key, used as the React list key. */
   id: string
+  /** URL slug for direct deep-linking, e.g. 'mninadmnobo' or 'rahinrahman'. */
+  slug: string
+  /** Optional secondary slugs or aliases that also resolve to this member (e.g. ['ninad', 'nobo']). */
+  aliases?: string[]
   name: string
   /** Full job title, shown on the card and in the modal header. */
   title: string
@@ -45,10 +49,11 @@ export interface InnovatorMember {
   }
 }
 
-
 export const fabinsInnovators: InnovatorMember[] = [
   {
     id: 'rahin',
+    slug: 'rahinrahman',
+    aliases: ['rahin', 'rahin11'],
     name: 'Md Rahinur Rahman',
     title: 'Founder & AI Systems Engineer',
     bio: 'Designing and engineering industrial AI systems and automation platforms at NEVOLYN.',
@@ -76,6 +81,8 @@ export const fabinsInnovators: InnovatorMember[] = [
   },
   {
     id: 'ninad',
+    slug: 'mninadmnobo',
+    aliases: ['ninad', 'nobo'],
     name: 'Mohammad Ninad Mahmud Nobo',
     title: 'Co-Founder & AI Software Engineer',
     bio: 'Engineering applied computer vision architectures and scalable full-stack web platforms at NEVOLYN.',
@@ -102,3 +109,18 @@ export const fabinsInnovators: InnovatorMember[] = [
     image: '/ninad-photo.png',
   },
 ]
+
+/**
+ * Resolves any team member dynamically by their URL slug, id, or aliases (case-insensitive).
+ * Fully generic: works automatically for any number of innovators added to `fabinsInnovators`.
+ */
+export function findInnovatorBySlug(slug: string): InnovatorMember | undefined {
+  if (!slug) return undefined
+  const query = slug.toLowerCase().trim().replace(/^#/, '').replace(/^innovators\//, '')
+  return fabinsInnovators.find((member) => {
+    if (member.slug.toLowerCase() === query) return true
+    if (member.id.toLowerCase() === query) return true
+    if (member.aliases?.some((alias) => alias.toLowerCase() === query)) return true
+    return false
+  })
+}

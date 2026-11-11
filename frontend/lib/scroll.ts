@@ -101,6 +101,12 @@ export function useActiveSection(sectionIds: readonly string[]): string {
 
       setActiveSection((prev) => (prev !== current ? current : prev))
 
+      // Do not overwrite deep sub-hashes (e.g. #innovators/mninadmnobo) during scroll-spy
+      const currentHash = typeof window !== 'undefined' ? window.location.hash : ''
+      if (currentHash.includes('/') || (current && currentHash.startsWith(`#${current}/`))) {
+        return
+      }
+
       if (
         (syncHash || window.location.hash === `#${sectionIds[0]}`) &&
         window.location.pathname === '/'

@@ -1,10 +1,10 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import Link from 'next/link'
 import { User, ChevronDown } from 'lucide-react'
-import { fabinsInnovators, type InnovatorMember } from '@/lib/data/innovators'
+import { fabinsInnovators, findInnovatorBySlug, type InnovatorMember } from '@/lib/data/innovators'
 import { InnovatorDetails } from '@/components/ui/InnovatorDetails'
 import { Section } from '@/components/ui/Section'
 import { SectionHeader } from '@/components/ui/SectionHeader'
@@ -52,6 +52,27 @@ export const InnovatorsSection = () => {
   /** The member whose profile modal is open, or `null` when none is. */
   const [selectedMember, setSelectedMember] = useState<InnovatorMember | null>(null)
 
+  // Direct deep link & browser back/forward support (e.g. #innovators/mninadmnobo)
+  useEffect(() => {
+    const syncFromHash = () => {
+      const match = window.location.hash.match(/^#innovators\/([^/?#]+)/)
+      if (match) {
+        const found = findInnovatorBySlug(match[1])
+        if (found) {
+          setSelectedMember(found)
+          return
+        }
+      }
+      if (window.location.hash === '#innovators' || !window.location.hash.startsWith('#innovators/')) {
+        setSelectedMember(null)
+      }
+    }
+
+    syncFromHash()
+    window.addEventListener('hashchange', syncFromHash)
+    return () => window.removeEventListener('hashchange', syncFromHash)
+  }, [])
+
   return (
     <Section id="innovators">
       <SectionHeader
@@ -79,7 +100,7 @@ export const InnovatorsSection = () => {
               rel="noopener noreferrer"
               className="font-bold text-ink underline decoration-accent/40 underline-offset-4 transition-colors hover:text-accent"
             >
-              Nevolyn Technology
+              NEVOLYN
             </Link>.
           </>
         }
@@ -130,14 +151,18 @@ export const InnovatorsSection = () => {
 
             {/* Bottom Actions pinned to bottom of card so both are on the exact same level */}
             <div className="mt-auto flex flex-col items-center w-full">
-              {/* Pill-shaped VIEW DETAILS button */}
-              <button
-                onClick={() => setSelectedMember(member)}
+              {/* Pill-shaped VIEW DETAILS link */}
+              <a
+                href={`#innovators/${member.slug || member.id}`}
+                onClick={(e) => {
+                  e.preventDefault()
+                  setSelectedMember(member)
+                }}
                 className="inline-flex cursor-pointer items-center justify-center gap-1.5 rounded-full border border-accent/40 bg-accent/5 px-5 py-2 text-[11px] font-bold uppercase tracking-wider text-accent transition-all duration-300 hover:border-accent hover:bg-accent/15 hover:scale-105 active:scale-95 shadow-xs"
               >
                 <span>VIEW DETAILS</span>
                 <ChevronDown className="h-3.5 w-3.5 transition-transform duration-300 group-hover:translate-y-0.5" />
-              </button>
+              </a>
 
               {member.social?.linkedin && (
                 <>

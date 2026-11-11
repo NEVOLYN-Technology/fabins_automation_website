@@ -6,6 +6,7 @@ interface UseModalHistoryOptions {
   isOpen: boolean
   onClose: () => void
   modalId?: string
+  hash?: string
 }
 
 /**
@@ -23,7 +24,7 @@ interface UseModalHistoryOptions {
  *    call `window.history.back()`, cleanly popping the history state and closing the modal.
  * 4. Manages body scroll locking and keyboard Escape handling.
  */
-export function useModalHistory({ isOpen, onClose, modalId = 'modal' }: UseModalHistoryOptions) {
+export function useModalHistory({ isOpen, onClose, modalId = 'modal', hash }: UseModalHistoryOptions) {
   const hasPushedStateRef = useRef(false)
   const isClosingRef = useRef(false)
 
@@ -40,8 +41,13 @@ export function useModalHistory({ isOpen, onClose, modalId = 'modal' }: UseModal
       }
     }
 
+    if (typeof window !== 'undefined' && hash && window.location.hash.includes('/')) {
+      const parentHash = window.location.hash.split('/')[0] || ''
+      window.history.replaceState(null, '', `${window.location.pathname}${parentHash}`)
+    }
+
     onClose()
-  }, [onClose, modalId])
+  }, [onClose, modalId, hash])
 
   useEffect(() => {
     if (!isOpen) {
@@ -52,10 +58,15 @@ export function useModalHistory({ isOpen, onClose, modalId = 'modal' }: UseModal
 
     isClosingRef.current = false
 
-    // Push history entry for mobile back-button handling
+    // Push history entry for deep-link URL and mobile back-button handling
     try {
       const currentState = window.history.state || {}
-      window.history.pushState({ ...currentState, [modalId]: true }, '')
+      const targetUrl = hash ? `${window.location.pathname}${hash.startsWith('#') ? hash : `#${hash}`}` : ''
+      if (hash && window.location.hash === (hash.startsWith('#') ? hash : `#${hash}`)) {
+        window.history.replaceState({ ...currentState, [modalId]: true }, '', targetUrl)
+      } else {
+        window.history.pushState({ ...currentState, [modalId]: true }, '', targetUrl)
+      }
       hasPushedStateRef.current = true
     } catch {
       // Fallback if pushState is restricted

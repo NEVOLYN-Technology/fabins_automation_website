@@ -58,11 +58,12 @@ export function InnovatorDetails({ member, onClose }: InnovatorDetailsProps) {
   const panelRef = useRef<HTMLDivElement>(null)
   const headingId = useId()
 
-  // Integrates browser history so phone back button / edge swipe closes the modal smoothly
+  // Integrates browser history & deep link so phone back button / edge swipe closes the modal smoothly
   const { handleClose } = useModalHistory({
     isOpen: true,
     onClose,
     modalId: 'innovator-details',
+    hash: `#innovators/${member.slug || member.id}`,
   })
 
   // Fall back to the one-line card bio if no long-form biography was written.
