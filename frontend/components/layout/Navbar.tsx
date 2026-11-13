@@ -1,9 +1,9 @@
 'use client'
 
-import { useState } from 'react'
+import { useState, useRef, useEffect } from 'react'
 import Link from 'next/link'
 import { usePathname } from 'next/navigation'
-import { motion } from 'framer-motion'
+import { motion, AnimatePresence } from 'framer-motion'
 import { Menu, X, Mail } from 'lucide-react'
 import { NAV_LINKS, PRIMARY_CTA, SECTION_IDS } from '@/lib/data/site'
 import { scrollToSection, useActiveSection, useIsScrolled } from '@/lib/scroll'
@@ -32,8 +32,45 @@ export const Navbar = () => {
   const isScrolled = useIsScrolled()
   const activeSection = useActiveSection(SECTION_IDS)
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
+  const headerRef = useRef<HTMLElement>(null)
   const pathname = usePathname()
   const isDeployPage = pathname === '/deploy'
+
+  // Close mobile menu when touching or clicking outside, or on Escape key
+  useEffect(() => {
+    if (!isMobileMenuOpen) return
+
+    const handleOutsideClick = (event: MouseEvent | TouchEvent) => {
+      // If the touch or click happened outside the header container, close mobile menu
+      if (headerRef.current && !headerRef.current.contains(event.target as Node)) {
+        setIsMobileMenuOpen(false)
+      }
+    }
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        setIsMobileMenuOpen(false)
+      }
+    }
+
+    const handleResize = () => {
+      if (window.innerWidth >= 1024) {
+        setIsMobileMenuOpen(false)
+      }
+    }
+
+    document.addEventListener('touchstart', handleOutsideClick, { passive: true })
+    document.addEventListener('mousedown', handleOutsideClick)
+    document.addEventListener('keydown', handleKeyDown)
+    window.addEventListener('resize', handleResize)
+
+    return () => {
+      document.removeEventListener('touchstart', handleOutsideClick)
+      document.removeEventListener('mousedown', handleOutsideClick)
+      document.removeEventListener('keydown', handleKeyDown)
+      window.removeEventListener('resize', handleResize)
+    }
+  }, [isMobileMenuOpen])
 
   /** Scrolls to a section and closes the mobile menu if it is open. */
   const handleNavigate = (event: React.MouseEvent, sectionId: string) => {
@@ -47,7 +84,7 @@ export const Navbar = () => {
   }
 
   return (
-    <header className="fixed inset-x-0 top-0 z-50 px-4 pt-4 sm:px-6">
+    <header ref={headerRef} className="fixed inset-x-0 top-0 z-50 px-4 pt-4 sm:px-6">
       <div
         className={cn(
           'mx-auto flex max-w-7xl items-center justify-between gap-4 rounded-full border backdrop-blur-xl transition-all duration-300',
@@ -142,50 +179,72 @@ export const Navbar = () => {
         </div>
       </div>
 
-      {/* Mobile menu */}
-      {isMobileMenuOpen && (
-        <div
-          id="mobile-menu"
-          className="mx-auto mt-2 max-w-7xl rounded-3xl border border-line bg-panel/95 p-3 shadow-[0_20px_50px_-30px_rgba(0,0,0,0.6)] backdrop-blur-xl lg:hidden"
-        >
-          {NAV_LINKS.map((link) => (
-            <Link
-              key={link.id}
-              href={link.id === 'home' ? '/' : isDeployPage ? `/#${link.id}` : `#${link.id}`}
-              onClick={(event) => handleNavigate(event, link.id)}
-              className={cn(
-                'flex items-center justify-between rounded-2xl px-4 py-3 text-sm font-semibold transition-all duration-200',
-                !isDeployPage && activeSection === link.id
-                  ? 'bg-gradient-to-r from-[var(--btn-from)] to-[var(--btn-to)] text-[var(--btn-ink)] shadow-[0_8px_25px_-8px_var(--btn-from)]'
-                  : 'text-ink-muted hover:bg-panel-2 hover:text-ink'
-              )}
-            >
-              {link.name}
-            </Link>
-          ))}
+      {/* Mobile backdrop overlay - touch/click outside to dismiss */}
+      <AnimatePresence>
+        {isMobileMenuOpen && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.18 }}
+            onClick={() => setIsMobileMenuOpen(false)}
+            onTouchStart={() => setIsMobileMenuOpen(false)}
+            aria-hidden="true"
+            className="fixed inset-0 z-[-1] bg-slate-950/20 backdrop-blur-[2px] lg:hidden"
+          />
+        )}
+      </AnimatePresence>
 
-          {(() => {
-            const isContactActive = !isDeployPage && activeSection === 'contact'
-            return (
+      {/* Mobile menu dropdown */}
+      <AnimatePresence>
+        {isMobileMenuOpen && (
+          <motion.div
+            id="mobile-menu"
+            initial={{ opacity: 0, y: -8, scale: 0.98 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: -8, scale: 0.98 }}
+            transition={{ duration: 0.2, ease: 'easeOut' }}
+            className="mx-auto mt-2 max-w-7xl rounded-3xl border border-line bg-panel/95 p-3 shadow-[0_20px_50px_-30px_rgba(0,0,0,0.6)] backdrop-blur-xl lg:hidden"
+          >
+            {NAV_LINKS.map((link) => (
               <Link
-                href={isDeployPage ? '/#contact' : '#contact'}
-                onClick={(e) => { if (!isDeployPage) handleNavigate(e, 'contact'); setIsMobileMenuOpen(false); }}
+                key={link.id}
+                href={link.id === 'home' ? '/' : isDeployPage ? `/#${link.id}` : `#${link.id}`}
+                onClick={(event) => handleNavigate(event, link.id)}
                 className={cn(
-                  'flex items-center justify-between rounded-2xl px-4 py-3 text-sm font-semibold transition-all duration-200 mt-1',
-                  isContactActive
+                  'flex items-center justify-between rounded-2xl px-4 py-3 text-sm font-semibold transition-all duration-200',
+                  !isDeployPage && activeSection === link.id
                     ? 'bg-gradient-to-r from-[var(--btn-from)] to-[var(--btn-to)] text-[var(--btn-ink)] shadow-[0_8px_25px_-8px_var(--btn-from)]'
                     : 'text-ink-muted hover:bg-panel-2 hover:text-ink'
                 )}
               >
-                <span className="flex items-center gap-2">
-                  <Mail className="h-4 w-4" />
-                  Let&#39;s Connect
-                </span>
+                {link.name}
               </Link>
-            )
-          })()}
-        </div>
-      )}
+            ))}
+
+            {(() => {
+              const isContactActive = !isDeployPage && activeSection === 'contact'
+              return (
+                <Link
+                  href={isDeployPage ? '/#contact' : '#contact'}
+                  onClick={(e) => { if (!isDeployPage) handleNavigate(e, 'contact'); setIsMobileMenuOpen(false); }}
+                  className={cn(
+                    'flex items-center justify-between rounded-2xl px-4 py-3 text-sm font-semibold transition-all duration-200 mt-1',
+                    isContactActive
+                      ? 'bg-gradient-to-r from-[var(--btn-from)] to-[var(--btn-to)] text-[var(--btn-ink)] shadow-[0_8px_25px_-8px_var(--btn-from)]'
+                      : 'text-ink-muted hover:bg-panel-2 hover:text-ink'
+                  )}
+                >
+                  <span className="flex items-center gap-2">
+                    <Mail className="h-4 w-4" />
+                    Let&#39;s Connect
+                  </span>
+                </Link>
+              )
+            })()}
+          </motion.div>
+        )}
+      </AnimatePresence>
     </header>
   )
 }
