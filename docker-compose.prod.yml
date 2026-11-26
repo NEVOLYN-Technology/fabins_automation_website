@@ -1,0 +1,94 @@
+# =============================================================================
+# FABINS — Production Docker Compose Configuration
+# Used by VPS deploy-site script
+# =============================================================================
+
+services:
+  # ---------------------------------------------------------------------------
+  # 1. DATABASE SERVICE — PostgreSQL 16
+  # ---------------------------------------------------------------------------
+  postgres:
+    image: postgres:16-alpine
+    container_name: fabins-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-fabins}
+      POSTGRES_USER: ${POSTGRES_USER:-fabins_user}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    ports: []
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-fabins_user} -d ${POSTGRES_DB:-fabins}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  # ---------------------------------------------------------------------------
+  # 2. BACKEND SERVICE — Spring Boot REST API
+  # ---------------------------------------------------------------------------
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: fabins-backend
+    restart: unless-stopped
+    env_file:
+      - .env
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      SPRING_PROFILES_ACTIVE: prod
+      SERVER_PORT: 8080
+      DATABASE_URL: jdbc:postgresql://postgres:5432/${POSTGRES_DB:-fabins}
+      DATABASE_USERNAME: ${POSTGRES_USER:-fabins_user}
+      DATABASE_PASSWORD: ${POSTGRES_PASSWORD}
+      SUPER_ADMIN_SHARED_PASSWORD: ${SUPER_ADMIN_SHARED_PASSWORD}
+      SUPER_ADMIN_PASSWORD: ${SUPER_ADMIN_PASSWORD}
+      SUPER_ADMIN_1_USERNAME: ${SUPER_ADMIN_1_USERNAME}
+      SUPER_ADMIN_1_EMPLOYEE_ID: ${SUPER_ADMIN_1_EMPLOYEE_ID}
+      SUPER_ADMIN_2_USERNAME: ${SUPER_ADMIN_2_USERNAME}
+      SUPER_ADMIN_2_EMPLOYEE_ID: ${SUPER_ADMIN_2_EMPLOYEE_ID}
+      FABINS_ADMIN_USERNAME: ${SUPER_ADMIN_1_USERNAME}
+      FABINS_ADMIN_PASSWORD: ${SUPER_ADMIN_PASSWORD}
+      FABINS_ALLOWED_ORIGIN: ${FABINS_ALLOWED_ORIGIN:-http://localhost:3000}
+      FABINS_BACKEND_URL: ${FABINS_BACKEND_URL:-http://localhost:8080}
+      SPRING_MAIL_HOST: ${SPRING_MAIL_HOST:-mail.nevolyn.com}
+      SPRING_MAIL_PORT: ${SPRING_MAIL_PORT:-465}
+      SPRING_MAIL_USERNAME: ${SPRING_MAIL_USERNAME:-fabins@nevolyn.com}
+      SPRING_MAIL_PASSWORD: ${SPRING_MAIL_PASSWORD:-}
+      SPRING_MAIL_FROM: ${SPRING_MAIL_FROM:-fabins@nevolyn.com}
+    ports:
+      - "127.0.0.1:${BACKEND_PORT:-8081}:8080"
+    healthcheck:
+      test: ["CMD-SHELL", "wget --no-verbose --tries=1 --spider http://localhost:8080/actuator/health || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # ---------------------------------------------------------------------------
+  # 3. FRONTEND SERVICE — Next.js 16 Web Application
+  # ---------------------------------------------------------------------------
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: fabins-frontend
+    restart: unless-stopped
+    depends_on:
+      backend:
+        condition: service_healthy
+    environment:
+      NODE_ENV: production
+      PORT: 3000
+      NEXT_PUBLIC_API_BASE_URL: ${NEXT_PUBLIC_API_BASE_URL:-http://localhost:8080}
+    ports:
+      - "127.0.0.1:${FRONTEND_PORT:-3001}:3000"
+
+# -----------------------------------------------------------------------------
+# PERSISTENT VOLUMES
+# -----------------------------------------------------------------------------
+volumes:
+  postgres_data:
+    driver: local

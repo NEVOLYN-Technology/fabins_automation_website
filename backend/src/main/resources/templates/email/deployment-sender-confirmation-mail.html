@@ -1,0 +1,372 @@
+<!--
+================================================================================
+EMAIL TEMPLATE: Deployment Assessment — Applicant Receipt & PDF Delivery
+FILE: templates/email/deployment-sender-confirmation-mail.html
+--------------------------------------------------------------------------------
+WHEN IT IS USED:
+  Sent automatically to the applicant (mill owner / factory representative)
+  immediately after they submit the technical assessment form on the /deploy page.
+  It acts as an official confirmation of receipt and delivers the generated
+  engineering assessment report PDF directly into their inbox.
+
+RECIPIENT:
+  Applicant's Work Email Address (entered in the form)
+
+SENDER:
+  FABINS@NEVOLYN <fabins@nevolyn.com>
+
+SUBJECT LINE:
+  [FABINS] Deployment Assessment Received: {{millName}} [{{requestId}}]
+
+ATTACHMENTS:
+  FABINS_Deployment_Assessment-{{requestId}}.pdf (generated technical assessment report)
+
+SUPPORTED PLACEHOLDERS:
+  - {{contactName}}             : Contact Representative's Full Name
+  - {{millName}}                : Factory / Mill Name
+  - {{requestId}}               : Tracking Reference Code (e.g. FAB-2026-XXXXXXXX)
+  - {{adminEmail}}              : Official Support & Engineering Email (fabins@nevolyn.com)
+================================================================================
+-->
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="color-scheme" content="light">
+  <meta name="supported-color-schemes" content="light">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>FABINS — Deployment Assessment Confirmation — NEVOLYN</title>
+
+  <style>
+    :root {
+      color-scheme: light;
+    }
+
+    body,
+    table,
+    td,
+    p,
+    a,
+    li {
+      -webkit-text-size-adjust: 100%;
+      -ms-text-size-adjust: 100%;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      line-height: 1.6;
+      color: #1e293b;
+      background-color: #f8fafc;
+      margin: 0;
+      padding: 30px 15px;
+    }
+
+    .wrapper {
+      max-width: 640px;
+      margin: 0 auto;
+      background: #ffffff;
+      border-radius: 12px;
+      overflow: hidden;
+      box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.05), 0 4px 6px -2px rgba(0, 0, 0, 0.02);
+      border: 1px solid #e2e8f0;
+    }
+
+    .body-content {
+      padding: 32px 32px 8px 32px;
+    }
+
+    .greeting {
+      font-size: 16px;
+      font-weight: 600;
+      color: #080d16;
+      margin-bottom: 16px;
+    }
+
+    /* Light Sky Blue Reference Code */
+    .ref-pill {
+      display: inline-block;
+      background-color: #e0f2fe;
+      color: #0f172a;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace;
+      font-size: 13px;
+      font-weight: 700;
+      padding: 4px 10px;
+      border-radius: 5px;
+      border: 1px solid #bae6fd;
+    }
+
+    /* Official PDF Attachment Panel */
+    .pdf-box {
+      background-color: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-left: 4px solid #64748b;
+      border-radius: 8px;
+      padding: 16px 18px;
+      margin: 22px 0;
+    }
+
+    /* Formal PDF Icon */
+    .pdf-icon {
+      display: inline-block;
+      width: 34px;
+      height: 40px;
+      background-color: #dc2626;
+      color: #ffffff;
+      border-radius: 4px;
+      text-align: center;
+      line-height: 40px;
+      font-size: 11px;
+      font-weight: 800;
+      vertical-align: middle;
+      margin-right: 12px;
+    }
+
+    .pdf-title {
+      font-size: 14px;
+      font-weight: 700;
+      color: #334155;
+    }
+
+    .pdf-description {
+      margin: 3px 0 0 0;
+      font-size: 13px;
+      line-height: 1.5;
+      color: #64748b;
+    }
+
+    /* What's Next */
+    .next-card {
+      background-color: #f0fdf4;
+      border: 1px solid #a7f3d0;
+      border-left: 4px solid #059669;
+      padding: 18px 20px;
+      border-radius: 6px;
+      margin: 22px 0;
+    }
+
+    .next-title {
+      font-size: 15px;
+      font-weight: 700;
+      color: #047857;
+      margin: 0 0 8px 0;
+    }
+
+    /* Separate Light Panel for Visit Us */
+    .social-section {
+      text-align: center;
+      margin-top: 20px;
+      padding: 18px 16px;
+      background-color: #f1f5f9;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+    }
+
+    .social-title {
+      font-size: 14px;
+      font-weight: 700;
+      color: #475569;
+      margin: 0 0 14px 0;
+    }
+
+    .company-name {
+      font-size: 13px;
+      font-weight: 700;
+      color: #0f172a;
+      margin: 12px 0 7px 0;
+    }
+
+    .social-links {
+      font-size: 12px;
+      line-height: 1.8;
+    }
+
+    .social-links a {
+      color: #0284c7;
+      text-decoration: none;
+      font-weight: 600;
+      margin: 0 5px;
+    }
+
+    .social-links a:hover {
+      text-decoration: underline;
+    }
+
+    .social-divider {
+      color: #cbd5e1;
+      margin: 0 2px;
+    }
+
+    .footer {
+      background-color: #f8fafc;
+      padding: 16px 32px 24px 32px;
+      border-top: 1px solid #e2e8f0;
+      font-size: 13px;
+      color: #64748b;
+    }
+  </style>
+</head>
+
+<body
+  style="font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; line-height: 1.6; color: #1e293b; background-color: #f8fafc; margin: 0; padding: 30px 15px;">
+
+  <!-- Hidden Preheader -->
+  <div
+    style="display:none;font-size:1px;color:#ffffff;line-height:1px;max-height:0px;max-width:0px;opacity:0;overflow:hidden;">
+    Your deployment assessment for {{millName}} has been received. Tracking Reference Code: {{requestId}}.
+  </div>
+
+  <!-- Email Wrapper Container -->
+  <div class="wrapper"
+    style="max-width: 640px; margin: 0 auto; background: #ffffff; border-radius: 12px; overflow: hidden; border: 1px solid #e2e8f0;">
+
+    <div class="body-content" style="padding: 32px 32px 8px 32px;">
+
+      <div class="greeting" style="font-size: 16px; font-weight: 600; color: #080d16; margin-bottom: 16px;">
+        Dear {{contactName}},
+      </div>
+
+      <p style="margin-top: 0; font-size: 15px; color: #334155;">
+        Thank you for submitting your deployment assessment for
+        <strong>{{millName}}</strong>. We have received your submission successfully,
+        and your <strong>Tracking Reference Code</strong> is
+        <span class="ref-pill"
+          style="display: inline-block; background-color: #e0f2fe; color: #0f172a; font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; font-size: 13px; font-weight: 700; padding: 4px 10px; border-radius: 5px; border: 1px solid #bae6fd;">{{requestId}}</span>.
+      </p>
+
+      <!-- Official PDF Attachment Panel -->
+      <div class="pdf-box"
+        style="background-color: #f8fafc; border: 1px solid #e2e8f0; border-left: 4px solid #64748b; border-radius: 8px; padding: 16px 18px; margin: 22px 0;">
+
+        <table cellpadding="0" cellspacing="0" border="0" style="width:100%; border-collapse:collapse;">
+          <tr>
+
+            <td style="width:46px; vertical-align:top; padding-right:10px;">
+              <div class="pdf-icon"
+                style="display:inline-block; width:34px; height:40px; background-color:#dc2626; color:#ffffff; border-radius:4px; text-align:center; line-height:40px; font-size:11px; font-weight:800;">
+                PDF
+              </div>
+            </td>
+
+            <td style="vertical-align:top;">
+              <div class="pdf-title" style="font-size:14px; font-weight:700; color:#334155;">
+                Official Assessment PDF Attached
+              </div>
+
+              <div
+                style="font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, monospace; font-size: 12px; font-weight: 700; color: #0284c7; margin: 3px 0 5px 0;">
+                FABINS_Deployment_Assessment-{{requestId}}.pdf
+              </div>
+
+              <p class="pdf-description" style="margin:3px 0 0 0; font-size:13px; line-height:1.5; color:#64748b;">
+                A PDF copy containing your submitted mill credentials, machine configuration,
+                and technical specifications has been attached to this email as your official
+                confirmation and record.
+              </p>
+            </td>
+
+          </tr>
+        </table>
+
+      </div>
+
+      <!-- What's Next Card -->
+      <div class="next-card"
+        style="background-color: #f0fdf4; border: 1px solid #a7f3d0; border-left: 4px solid #059669; padding: 18px 20px; border-radius: 6px; margin: 22px 0;">
+
+        <div class="next-title" style="font-size:15px; font-weight:700; color:#047857; margin:0 0 8px 0;">
+          &#10132; What's Next!
+        </div>
+
+        <p style="margin:0; font-size:14px; color:#14532d;">
+          Our team will review your submitted specifications and requirements carefully,
+          assess the details provided, and follow up with you regarding the next steps
+          for your deployment.
+        </p>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <div class="footer"
+      style="background-color:#f8fafc; padding:16px 32px 24px 32px; border-top:1px solid #e2e8f0; font-size:13px; color:#64748b;">
+
+      Warm regards,<br />
+
+      <strong style="color:#334155;">FABINS Automation</strong>
+
+      <!-- ================================================================
+           Marketing / Social Branding Section
+           ================================================================ -->
+
+      <div class="social-section"
+        style="text-align:center; margin-top:20px; padding:18px 16px; background-color:#f1f5f9; border:1px solid #e2e8f0; border-radius:8px;">
+
+        <div class="social-title" style="font-size:14px; font-weight:700; color:#475569; margin:0 0 14px 0;">
+          Visit Us
+        </div>
+
+        <!-- FABINS -->
+        <div class="company-name" style="font-size:13px; font-weight:700; color:#0f172a; margin:12px 0 7px 0;">
+          FABINS - Fabric Inspection Automation
+        </div>
+
+        <div class="social-links" style="font-size:12px; line-height:1.8;">
+
+          <a href="https://fabins.nevolyn.com/" target="_blank"
+            style="color:#0284c7; text-decoration:none; font-weight:600;">
+            Website
+          </a>
+
+          <span class="social-divider" style="color:#cbd5e1; margin:0 2px;">|</span>
+
+          <a href="https://www.facebook.com/fabinsautomation/" target="_blank"
+            style="color:#0284c7; text-decoration:none; font-weight:600;">
+            Facebook
+          </a>
+
+          <span class="social-divider" style="color:#cbd5e1; margin:0 2px;">|</span>
+
+          <a href="https://www.linkedin.com/company/fabinsautomation/" target="_blank"
+            style="color:#0284c7; text-decoration:none; font-weight:600;">
+            LinkedIn
+          </a>
+
+        </div>
+
+        <!-- NEVOLYN -->
+        <div class="company-name" style="font-size:13px; font-weight:700; color:#0f172a; margin:16px 0 7px 0;">
+          NEVOLYN
+        </div>
+
+        <div class="social-links" style="font-size:12px; line-height:1.8;">
+
+          <a href="https://nevolyn.com/" target="_blank" style="color:#0284c7; text-decoration:none; font-weight:600;">
+            Website
+          </a>
+
+          <span class="social-divider" style="color:#cbd5e1; margin:0 2px;">|</span>
+
+          <a href="https://www.facebook.com/nevolyn/" target="_blank"
+            style="color:#0284c7; text-decoration:none; font-weight:600;">
+            Facebook
+          </a>
+
+          <span class="social-divider" style="color:#cbd5e1; margin:0 2px;">|</span>
+
+          <a href="https://www.linkedin.com/company/nevolyn/" target="_blank"
+            style="color:#0284c7; text-decoration:none; font-weight:600;">
+            LinkedIn
+          </a>
+
+        </div>
+
+      </div>
+
+    </div>
+
+  </div>
+
+</body>
+
+</html>

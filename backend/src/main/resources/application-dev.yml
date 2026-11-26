@@ -1,0 +1,43 @@
+# =============================================================================
+# `dev` profile — local development. Active by default.
+#
+# Goal: `./mvnw spring-boot:run` works on a clean machine with no database
+# installed and nothing to configure.
+# =============================================================================
+
+spring:
+  datasource:
+    # In-memory H2, thrown away when the process exits.
+    #
+    # MODE=PostgreSQL makes H2 accept PostgreSQL syntax, so the same Flyway
+    # migrations run here and in production. It is a close approximation, not a
+    # perfect one — always verify a migration against real PostgreSQL before
+    # releasing.
+    #
+    # DB_CLOSE_DELAY=-1 keeps the database alive between connections; without
+    # it H2 drops the schema as soon as the pool closes its last connection.
+    url: jdbc:h2:mem:fabins;MODE=PostgreSQL;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE
+    driver-class-name: org.h2.Driver
+    username: sa
+    password:
+
+  h2:
+    console:
+      # Browse the dev database at http://localhost:8080/h2-console
+      # (JDBC URL: jdbc:h2:mem:fabins — user "sa", no password).
+      # Never enable this outside dev; it is an arbitrary SQL console.
+      enabled: true
+      path: /h2-console
+
+  jpa:
+    # Log the SQL Hibernate generates, formatted, while developing.
+    show-sql: true
+    properties:
+      hibernate:
+        format_sql: true
+
+logging:
+  level:
+    com.fabins: DEBUG
+    # Uncomment to see the values bound to each prepared-statement parameter.
+    # org.hibernate.orm.jdbc.bind: TRACE

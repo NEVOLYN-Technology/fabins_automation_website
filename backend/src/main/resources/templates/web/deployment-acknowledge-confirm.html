@@ -1,0 +1,441 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Confirm Assessment Acknowledgement — FABINS</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=JetBrains+Mono:wght@600;700&display=swap"
+    rel="stylesheet">
+  <style>
+    :root {
+      --primary: #0f172a;
+      --accent: #0284c7;
+      --accent-glow: #38bdf8;
+      --success: #16a34a;
+      --border: #e2e8f0;
+      --bg-page: #f8fafc;
+      --bg-card: #ffffff;
+      --text-main: #0f172a;
+      --text-muted: #64748b;
+    }
+
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      line-height: 1.5;
+      color: var(--text-main);
+      background-color: var(--bg-page);
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: flex-start;
+      padding: 24px 14px;
+    }
+
+    .wrapper {
+      width: 100%;
+      max-width: 680px;
+      margin: 0 auto;
+    }
+
+    .main-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-top: 4px solid var(--accent);
+      border-radius: 16px;
+      box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.06), 0 8px 10px -6px rgba(15, 23, 42, 0.02);
+      overflow: hidden;
+    }
+
+    /* ── Body Content ───────────────────────────────────────── */
+    .content-body {
+      padding: 28px 24px;
+    }
+
+    .page-title {
+      font-size: 22px;
+      font-weight: 800;
+      color: #0f172a;
+      letter-spacing: -0.3px;
+      margin-bottom: 6px;
+    }
+
+    .page-subtitle {
+      font-size: 13.5px;
+      color: var(--text-muted);
+      margin-bottom: 22px;
+      line-height: 1.5;
+    }
+
+    /* ── Details Panel ──────────────────────────────────────── */
+    .details-panel {
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 12px;
+      padding: 16px 18px;
+      margin-bottom: 20px;
+    }
+
+    .panel-header {
+      font-size: 11px;
+      font-weight: 800;
+      color: #475569;
+      text-transform: uppercase;
+      letter-spacing: 0.6px;
+      margin-bottom: 12px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid #e2e8f0;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .detail-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px 16px;
+    }
+
+    .detail-item {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .detail-item.full-width {
+      grid-column: 1 / -1;
+    }
+
+    .detail-label {
+      font-size: 11px;
+      font-weight: 600;
+      color: #64748b;
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+    }
+
+    .detail-val {
+      font-size: 13.5px;
+      font-weight: 600;
+      color: #0f172a;
+      word-break: break-word;
+    }
+
+    .ref-pill {
+      display: inline-block;
+      font-family: 'JetBrains Mono', ui-monospace, Consolas, monospace;
+      font-weight: 700;
+      font-size: 12px;
+      color: #0284c7;
+      background: #e0f2fe;
+      border: 1px solid #bae6fd;
+      padding: 2px 8px;
+      border-radius: 6px;
+      width: fit-content;
+    }
+
+    /* ── Outgoing Preview ───────────────────────────────────── */
+    .preview-card {
+      border: 1px solid #bae6fd;
+      background: #ffffff;
+      border-radius: 12px;
+      overflow: hidden;
+      margin-bottom: 20px;
+    }
+
+    .preview-card-header {
+      background: #f0f9ff;
+      border-bottom: 1px solid #bae6fd;
+      padding: 10px 16px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: 8px;
+    }
+
+    .preview-card-title {
+      font-size: 12px;
+      font-weight: 700;
+      color: #0369a1;
+      display: flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .preview-card-badge {
+      font-size: 10.5px;
+      font-weight: 700;
+      color: #0284c7;
+      background: #ffffff;
+      padding: 2px 8px;
+      border-radius: 999px;
+      border: 1px solid #bae6fd;
+    }
+
+    .preview-card-body {
+      padding: 16px 18px;
+      font-size: 13px;
+      color: #334155;
+      line-height: 1.6;
+    }
+
+    .preview-meta-strip {
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      padding: 10px 12px;
+      margin-bottom: 14px;
+      font-size: 12px;
+      color: #475569;
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+
+    .preview-meta-row strong {
+      color: #0f172a;
+    }
+
+    .next-box {
+      background: #f0fdf4;
+      border: 1px solid #bbf7d0;
+      border-left: 3px solid #16a34a;
+      border-radius: 6px;
+      padding: 10px 12px;
+      margin: 12px 0;
+      font-size: 12.5px;
+      color: #166534;
+      line-height: 1.5;
+    }
+
+    /* ── Alert Note ─────────────────────────────────────────── */
+    .alert-box {
+      background: #eff6ff;
+      border: 1px solid #bfdbfe;
+      border-radius: 10px;
+      padding: 12px 16px;
+      margin-bottom: 22px;
+      font-size: 12.5px;
+      color: #1e40af;
+      line-height: 1.5;
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+    }
+
+    /* ── Action Section ─────────────────────────────────────── */
+    .action-section {
+      text-align: center;
+    }
+
+    .btn-submit {
+      width: 100%;
+      background: linear-gradient(135deg, #0284c7 0%, #0369a1 100%);
+      color: #ffffff;
+      border: none;
+      min-height: 50px;
+      padding: 14px 24px;
+      border-radius: 10px;
+      font-size: 15px;
+      font-weight: 700;
+      letter-spacing: 0.2px;
+      cursor: pointer;
+      box-shadow: 0 4px 14px rgba(2, 132, 199, 0.35);
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+
+    .btn-submit:hover:not(:disabled) {
+      background: linear-gradient(135deg, #0369a1 0%, #075985 100%);
+      box-shadow: 0 6px 18px rgba(2, 132, 199, 0.45);
+      transform: translateY(-1px);
+    }
+
+    .btn-submit:active:not(:disabled) {
+      transform: translateY(1px);
+    }
+
+    .btn-submit:disabled {
+      opacity: 0.8;
+      cursor: not-allowed;
+      box-shadow: none;
+    }
+
+    .action-subtext {
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-top: 10px;
+    }
+
+    .spinner {
+      display: none;
+      width: 18px;
+      height: 18px;
+      border: 2px solid rgba(255, 255, 255, 0.3);
+      border-radius: 50%;
+      border-top-color: #ffffff;
+      animation: spin 0.7s linear infinite;
+    }
+
+    @keyframes spin {
+      to {
+        transform: rotate(360deg);
+      }
+    }
+
+    /* ── Mobile Responsive Adjustments ──────────────────────── */
+    @media (max-width: 640px) {
+      body {
+        padding: 12px 8px;
+      }
+
+      .content-body {
+        padding: 20px 16px;
+      }
+
+      .page-title {
+        font-size: 19px;
+      }
+
+      .page-subtitle {
+        font-size: 12.5px;
+      }
+
+      .detail-grid {
+        grid-template-columns: 1fr;
+        gap: 10px;
+      }
+
+      .preview-card-body {
+        padding: 14px 14px;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <div class="wrapper">
+    <div class="main-card">
+      <!-- Main Body -->
+      <div class="content-body">
+        <h1 class="page-title">Confirm Assessment Acknowledgement</h1>
+        <p class="page-subtitle">
+          Review mill specifications and preview the outgoing client notification before confirming dispatch.
+        </p>
+
+        <!-- Application Details -->
+        <div class="details-panel">
+          <div class="panel-header">
+            <span>Submitted Application Profile</span>
+            <span style="color: #0284c7;">Status: PENDING REVIEW</span>
+          </div>
+          <div class="detail-grid">
+            <div class="detail-item">
+              <span class="detail-label">Tracking Reference Code:</span>
+              <span class="detail-val"><span class="ref-pill">{{referenceCode}}</span></span>
+            </div>
+            <div class="detail-item">
+              <span class="detail-label">Mill Name</span>
+              <span class="detail-val">{{millName}}</span>
+            </div>
+            <div class="detail-item">
+              <span class="detail-label">Representative</span>
+              <span class="detail-val">{{contactName}}</span>
+            </div>
+            <div class="detail-item">
+              <span class="detail-label">Machine Brand</span>
+              <span class="detail-val">{{machineBrand}}</span>
+            </div>
+            <div class="detail-item full-width">
+              <span class="detail-label">Work Email</span>
+              <span class="detail-val" style="color: #0284c7;">{{email}}</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Outgoing Email Preview -->
+        <div class="preview-card">
+          <div class="preview-card-header">
+            <div class="preview-card-title">
+              <span>&#9993;</span> Outgoing Email Preview
+            </div>
+            <div class="preview-card-badge">Delivered to Applicant</div>
+          </div>
+          <div class="preview-card-body">
+            <div class="preview-meta-strip">
+              <div class="preview-meta-row"><strong>To:</strong> {{email}}</div>
+              <div class="preview-meta-row"><strong>Subject:</strong> [FABINS] Deployment Request Acknowledged:
+                {{millName}} [{{referenceCode}}]</div>
+              <div class="preview-meta-row"><strong>From:</strong> FABINS Team &lt;fabins@nevolyn.com&gt;</div>
+            </div>
+            <p style="margin-bottom: 8px;"><strong>Dear {{contactName}},</strong></p>
+            <p style="margin-bottom: 10px;">
+              Your deployment request for <strong>{{millName}}</strong> (<span class="ref-pill"
+                style="font-size: 11px;">{{referenceCode}}</span>) has been officially reviewed and
+              <strong>acknowledged</strong> by the FABINS engineering team.
+            </p>
+            <div class="next-box">
+              &#128172;&nbsp; <strong>What's Next:</strong> Our deployment specialists will contact you within
+              <strong>1–2 working days</strong> to discuss optical frame retrofitting and assessment scheduling.
+            </div>
+          </div>
+        </div>
+
+        <!-- Alert Banner -->
+        <div class="alert-box">
+          <div style="font-size: 16px; line-height: 1;">&#9432;</div>
+          <div>
+            <strong>Single-Acknowledgement Protection:</strong> Confirming will mark this application as
+            <strong>IN_REVIEW</strong> and deliver an official acknowledgement email to <strong>{{email}}</strong>.
+          </div>
+        </div>
+
+        <!-- Action Button -->
+        <div class="action-section">
+          <form id="ackForm" method="POST" action="{{actionUrl}}" onsubmit="handleFormSubmit(event)">
+            <button type="submit" id="submitBtn" class="btn-submit">
+              <span class="spinner" id="btnSpinner"></span>
+              <span id="btnText">&#10003;&nbsp; Confirm &amp; Dispatch Acknowledgement</span>
+            </button>
+          </form>
+          <div class="action-subtext">
+            Protected single-dispatch flow &bull; Immediate delivery to applicant
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+  </div>
+
+  <script>
+    function handleFormSubmit(e) {
+      var btn = document.getElementById('submitBtn');
+      var spinner = document.getElementById('btnSpinner');
+      var text = document.getElementById('btnText');
+
+      btn.disabled = true;
+      spinner.style.display = 'inline-block';
+      text.innerText = 'Dispatching Acknowledgement...';
+      document.getElementById('ackForm').submit();
+    }
+  </script>
+
+</body>
+
+</html>

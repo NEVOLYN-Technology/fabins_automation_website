@@ -1,0 +1,126 @@
+/**
+ * PEOPLE — the team behind FABINS.
+ *
+ * Single source of truth, read by `InnovatorsSection` (the cards and the
+ * profile modal) and by the `Footer` (the "Innovators" column). The footer used
+ * to hardcode its own copy of these names and roles; it now reads from here, so
+ * editing a person in one place updates both.
+ *
+ * ─── TO ADD A TEAM MEMBER ───────────────────────────────────────────────────
+ * Append an entry to `fabinsInnovators` below and drop their portrait into
+ * `public/`. Both the card grid and the footer list pick it up automatically.
+ * Note the cards render in a two-column grid, so an odd number leaves a gap.
+ *
+ * ─── TO REMOVE A LINK ROW FROM A PROFILE ────────────────────────────────────
+ * Delete the field. Every `social` entry is optional and the modal only renders
+ * rows that have a value.
+ */
+
+export interface InnovatorMember {
+  /** Stable key, used as the React list key. */
+  id: string
+  /** URL slug for direct deep-linking, e.g. 'mninadmnobo' or 'rahinrahman'. */
+  slug: string
+  /** Optional secondary slugs or aliases that also resolve to this member (e.g. ['ninad', 'nobo']). */
+  aliases?: string[]
+  name: string
+  /** Full job title, shown on the card and in the modal header. */
+  title: string
+  /** Compact "role · department" line for the footer list. */
+  shortRole?: string
+  /** One-sentence summary shown on the card. */
+  bio: string
+  /** Bullet list in the profile modal. */
+  responsibilities: string[]
+  /** Full biography, one string per paragraph. Falls back to `bio` if omitted. */
+  extendedBio?: string[]
+  email?: string
+  /** Path relative to `public/`, e.g. `/rahin-photo.png`. */
+  image?: string
+  /** Every field optional — the modal renders only the rows that are present. */
+  social?: {
+    github?: string
+    linkedin?: string
+    portfolio?: string
+    scholar?: string
+    /** Display text for the scholar link; falls back to "Google Scholar". */
+    scholarName?: string
+    orcid?: string
+  }
+}
+
+export const fabinsInnovators: InnovatorMember[] = [
+  {
+    id: 'rahin',
+    slug: 'rahinrahman',
+    aliases: ['rahin', 'rahin11'],
+    name: 'Md Rahinur Rahman',
+    title: 'Founder & AI Systems Engineer',
+    bio: 'Designing and engineering industrial AI systems and automation platforms at NEVOLYN.',
+    extendedBio: [
+      'Rahin leads the design and development of AI-powered industrial automation solutions at NEVOLYN, specializing in computer vision, intelligent manufacturing systems, and production-ready AI technologies.',
+      'He graduated in Electrical and Electronic Engineering (EEE) from Bangladesh University of Engineering and Technology (BUET), one of Bangladesh\'s top engineering schools, with a specialization in Communication and Signal Processing (CSP). His academic foundation provided a solid basis in digital signal processing, mathematical modeling, and pattern recognition, bridging deep engineering theory with practical AI systems.',
+      'Throughout his academic and research work, he explored advanced signal analysis, embedded systems, and computer vision algorithms for real-world problems. His hands-on research in hardware-software co-design and intelligent imaging built the technical foundation for his current work in industrial automation, edge AI, and real-time inspection systems.'
+    ],
+    email: 'rahin.rahman11@gmail.com',
+    responsibilities: [
+      'Lead AI architecture and industrial automation initiatives at NEVOLYN',
+      'Computer vision and deep learning model development for FABINS',
+      'Industrial camera integration & zero-latency trigger pipelines',
+      'Industrial imaging systems and digital transformation'
+    ],
+    social: {
+      github: 'https://github.com/rahin11',
+      linkedin: 'https://www.linkedin.com/in/rahin-rahman-94a8a0246',
+      scholar: 'https://scholar.google.com/citations?user=Jq0HF_kAAAAJ',
+      scholarName: 'Md Rahinur Rahman',
+      orcid: 'https://orcid.org/0009-0004-8490-2358'
+
+    },
+    image: '/rahin-photo.png',
+  },
+  {
+    id: 'ninad',
+    slug: 'mninadmnobo',
+    aliases: ['ninad', 'nobo'],
+    name: 'Mohammad Ninad Mahmud Nobo',
+    title: 'Co-Founder & AI Software Engineer',
+    bio: 'Engineering applied computer vision architectures and scalable full-stack web platforms at NEVOLYN.',
+    extendedBio: [
+      'Ninad leads full-stack web application development, production deployment, and machine learning model contributions for FABINS (Fabric Inspection System) and NEVOLYN. His work integrates computer vision pipelines, interactive web dashboards, industrial camera controls, and scalable REST API architectures.',
+      'He graduated in Computer Science and Engineering from Bangladesh University of Engineering and Technology (BUET), one of Bangladesh\'s top engineering schools. There, he explored how AI could tackle complex, real-world challenges, from automated software testing to medical image analysis to Bangla speech processing. That foundation of rigorous research and hands-on building led him to industrial AI, where the software challenges are just as demanding, but the impact is immediate and visible on the factory floor.',
+      'His research includes AutoTestGenX, a multi-agent system that writes and executes software tests autonomously, and MedCAR, which resolves conflicting AI readings of chest X-rays. Beyond FABINS, he has built impactful AI applications including MindTrace, providing caregivers simple tools for dementia support, and GemmaVetCare, delivering edge AI livestock health guidance for low-connectivity environments.'
+    ],
+    email: 'mninadmnobo@gmail.com',
+    responsibilities: [
+      'Full-stack development of NEVOLYN & FABINS web applications',
+      'Image processing, computer vision model training for FABINS',
+      'ML pipeline architecture & production deployment',
+      'API design, software quality standards, & DevOps automation'
+    ],
+    social: {
+      portfolio: 'https://mninadmnobo.github.io',
+      github: 'https://github.com/mninadmnobo',
+      linkedin: 'https://www.linkedin.com/in/mninadmnobo',
+      scholar: 'https://scholar.google.com/citations?user=y5-A2oAAAAAJ&hl=en&oi=ao',
+      scholarName: 'M Ninad M Nobo',
+      orcid: 'https://orcid.org/0009-0006-2781-6693'
+    },
+    image: '/ninad-photo.png',
+  },
+]
+
+/**
+ * Resolves any team member dynamically by their URL slug, id, or aliases (case-insensitive).
+ * Fully generic: works automatically for any number of innovators added to `fabinsInnovators`.
+ */
+export function findInnovatorBySlug(slug: string): InnovatorMember | undefined {
+  if (!slug) return undefined
+  const query = slug.toLowerCase().trim().replace(/^#/, '').replace(/^innovators\//, '')
+  return fabinsInnovators.find((member) => {
+    if (member.slug.toLowerCase() === query) return true
+    if (member.id.toLowerCase() === query) return true
+    if (member.aliases?.some((alias) => alias.toLowerCase() === query)) return true
+    return false
+  })
+}

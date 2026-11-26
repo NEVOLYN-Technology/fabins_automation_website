@@ -1,0 +1,156 @@
+# =============================================================================
+# FABINS API — base configuration
+#
+# These are the defaults for every environment. Profile-specific files override
+# them: application-dev.yml, application-prod.yml, and (tests only)
+# src/test/resources/application-test.yml.
+#
+# Choose a profile with SPRING_PROFILES_ACTIVE=prod, or --spring.profiles.active=prod.
+# `dev` is the default (set below), so `./mvnw spring-boot:run` just works.
+#
+# PRECEDENCE (highest wins):
+#   command-line arg  >  system property  >  environment variable
+#                     >  application-<profile>.yml  >  this file
+#
+# That is why almost every value below is written as ${ENV_VAR:fallback}: the
+# fallback keeps local development frictionless, and the environment variable
+# takes over in production. A value with NO fallback is intentional — it means
+# the application should refuse to start rather than run misconfigured.
+#
+# RELAXED BINDING: Spring maps the environment variable FABINS_BACKEND_URL onto
+# the property fabins.backend-url automatically (upper snake case → kebab case).
+# Both spellings therefore work, and the ${FABINS_BACKEND_URL:…} placeholders
+# below simply make the mapping explicit and self-documenting.
+# =============================================================================
+
+spring:
+  application:
+    name: fabins-api
+
+  profiles:
+    # Applied when SPRING_PROFILES_ACTIVE is unset. Production containers set it
+    # to `prod` explicitly — see the Dockerfile.
+    default: dev
+
+  jpa:
+    # Schema is owned by Flyway, never by Hibernate. `validate` makes the app
+    # refuse to start if the entities and the migrated schema disagree, which
+    # turns a whole class of runtime failure into a startup failure.
+    hibernate:
+      ddl-auto: validate
+    # Leave false. When true, Hibernate runs a query per lazy association and
+    # quietly turns one request into hundreds.
+    open-in-view: false
+
+  flyway:
+    enabled: true
+    locations: classpath:db/migration
+
+  # --- Corporate Webmail / SMTP transport -----------------------------------
+  # Configured for corporate webmail (e.g. mail.nevolyn.com). Supports standard
+  # SMTPS (port 465 with SSL/TLS) or STARTTLS (port 587).
+  #
+  # Local development: leave SPRING_MAIL_PASSWORD blank to log simulated emails
+  # without attempting network connections.
+  mail:
+    host: ${SPRING_MAIL_HOST:mail.nevolyn.com}
+    port: ${SPRING_MAIL_PORT:465}
+    username: ${SPRING_MAIL_USERNAME:fabins@nevolyn.com}
+    # Empty fallback on purpose: with no credential the app still boots and
+    # EmailServiceImpl logs messages instead of failing.
+    password: "${SPRING_MAIL_PASSWORD:}"
+    properties:
+      mail:
+        smtp:
+          auth: true
+          ssl:
+            enable: ${SPRING_MAIL_SSL_ENABLE:true}
+            trust: "*"
+          starttls:
+            enable: ${SPRING_MAIL_STARTTLS_ENABLE:false}
+          socketFactory:
+            port: ${SPRING_MAIL_PORT:465}
+            class: javax.net.ssl.SSLSocketFactory
+          connectiontimeout: 8000
+          timeout: 8000
+          writetimeout: 8000
+        smtps:
+          connectiontimeout: 8000
+          timeout: 8000
+          writetimeout: 8000
+
+  jackson:
+    # Serialise Instant as ISO-8601 ("2026-07-27T18:30:00Z") rather than as an
+    # epoch number, so responses are readable and unambiguous about timezone.
+    serialization:
+      write-dates-as-timestamps: false
+    # Omit null fields from responses, keeping payloads small and letting a
+    # client distinguish "absent" from "present but null".
+    default-property-inclusion: non_null
+
+server:
+  # PaaS platforms inject the port they expect the container to listen on.
+  port: ${PORT:${SERVER_PORT:8080}}
+  error:
+    # Suppress the default Whitelabel error body. Every error response is
+    # produced by GlobalExceptionHandler as RFC 9457 problem+json instead.
+    whitelabel:
+      enabled: false
+
+management:
+  endpoints:
+    web:
+      exposure:
+        # Only these are reachable. Never expose "*" — that publishes env vars,
+        # heap dumps, and bean definitions.
+        include: health,info
+  endpoint:
+    health:
+      show-details: when-authorized
+
+springdoc:
+  swagger-ui:
+    path: /swagger-ui.html
+    # Group endpoints by tag and sort alphabetically for a readable page.
+    tags-sorter: alpha
+    operations-sorter: alpha
+
+# --- Application settings -----------------------------------------------------
+# Bound to ApiProperties. Adding a key here means adding a component there,
+# because records are bound by constructor and an unmatched component is null.
+fabins:
+  # ===========================================================================
+  # FUTURE CUSTOM DOMAIN INSTRUCTIONS — CORS
+  # ---------------------------------------------------------------------------
+  # Allowed browser origins for development
+  cors:
+    allowed-origins:
+      - http://localhost:3000
+      - http://127.0.0.1:3000
+
+  backend-url: ${FABINS_BACKEND_URL:http://localhost:8080}
+
+  admin:
+    username: ${SUPER_ADMIN_1_USERNAME:rahinrahman}
+    password: "${SUPER_ADMIN_SHARED_PASSWORD:}"
+
+  mail:
+    # Internal recipient — where new-enquiry alerts land.
+    admin-address: ${FABINS_ADMIN_ADDRESS:fabins@nevolyn.com}
+    # Envelope sender address (must match your webmail account).
+    from-address: ${SPRING_MAIL_FROM:fabins@nevolyn.com}
+    # Display name shown beside the address in the recipient's inbox.
+    sender-name: ${FABINS_MAIL_SENDER_NAME:FABINS@NEVOLYN}
+    # Optional fallback/legacy variable; defaults to SPRING_MAIL_PASSWORD
+    api-key: "${SPRING_MAIL_PASSWORD:}"
+    # Subject templates. The %s is filled by EmailServiceImpl:
+    #   admin           → mill name
+    #   sender          → reference code (FAB-2026-XXXXXXXX)
+    #   acknowledgement → reference code
+    admin-subject: "[FABINS] Deployment Assessment: %s"
+    sender-subject: "[FABINS] Assessment Request Confirmed [Ref: %s]"
+    acknowledgement-subject: "[FABINS] Assessment Request Acknowledged [Ref: %s]"
+
+logging:
+  level:
+    com.fabins: INFO

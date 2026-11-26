@@ -1,0 +1,33 @@
+{
+  "name": "fabins-portfolio",
+  "version": "1.0.0",
+  "description": "Official Product Portfolio for FABINS — AI-Based Automated Fabric Defect Inspection System",
+  "private": true,
+  "packageManager": "pnpm@9.15.4",
+  "scripts": {
+    "dev": "next dev",
+    "build": "next build",
+    "start": "next start",
+    "lint": "tsc --noEmit",
+    "type-check": "tsc --noEmit"
+  },
+  "dependencies": {
+    "clsx": "^2.1.1",
+    "framer-motion": "^12.42.2",
+    "lucide-react": "^1.16.0",
+    "next": "16.2.6",
+    "next-themes": "^0.4.6",
+    "react": "^19",
+    "react-dom": "^19",
+    "tailwind-merge": "^3.3.1"
+  },
+  "devDependencies": {
+    "@tailwindcss/postcss": "^4.3.3",
+    "@types/node": "^24",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "postcss": "^8.5",
+    "tailwindcss": "^4.3.3",
+    "typescript": "5.7.3"
+  }
+}

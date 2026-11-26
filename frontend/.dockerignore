@@ -1,0 +1,13 @@
+# Node / Next.js build artifacts
+node_modules
+.next
+.git
+.gitignore
+.env*.local
+.vscode
+Dockerfile
+.dockerignore
+npm-debug.log*
+pnpm-debug.log*
+yarn-debug.log*
+README.md

@@ -1,0 +1,21 @@
+# =============================================================================
+# Repository-wide ignores.
+#
+# Each application also has its own .gitignore for tooling specific to it:
+#   frontend/  — Next.js and Node
+#   backend/   — Maven and the JVM
+# =============================================================================
+
+# OS and editor noise
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/
+*.swp
+
+# Secrets. Never commit a real environment file; commit `.env.example` instead.
+.env
+.env.local
+.env.*.local
+*.pem
+run.md

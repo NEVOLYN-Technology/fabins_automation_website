@@ -1,0 +1,199 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  FABINS API — Maven build definition.
+
+  Run everything through the Maven Wrapper (`./mvnw`) rather than a globally
+  installed Maven, so every developer and CI runner uses the same version:
+
+      ./mvnw spring-boot:run     start the API on http://localhost:8080
+      ./mvnw test                run the test suite
+      ./mvnw clean package       build target/fabins-api.jar
+
+  Only a Java 21 JDK is required; the wrapper downloads Maven itself.
+-->
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+
+  <!--
+    Inheriting from spring-boot-starter-parent is what lets every Spring
+    dependency below omit its <version>: the parent pins a set of versions that
+    are known to work together. Upgrade Spring Boot by changing this one number.
+  -->
+  <parent>
+    <groupId>org.springframework.boot</groupId>
+    <artifactId>spring-boot-starter-parent</artifactId>
+    <version>3.4.5</version>
+    <relativePath/>
+  </parent>
+
+  <groupId>com.fabins</groupId>
+  <artifactId>fabins-api</artifactId>
+  <version>1.0.0</version>
+  <name>FABINS API</name>
+  <description>Backend API for the FABINS fabric inspection product site</description>
+
+  <properties>
+    <java.version>21</java.version>
+    <springdoc.version>2.8.6</springdoc.version>
+  </properties>
+
+  <dependencies>
+    <!-- REST controllers, JSON serialisation, embedded Tomcat. -->
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-web</artifactId>
+    </dependency>
+
+    <!-- JPA/Hibernate persistence. -->
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-data-jpa</artifactId>
+    </dependency>
+
+    <!-- Bean Validation (@NotBlank, @Email, …) on request payloads. -->
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-validation</artifactId>
+    </dependency>
+
+    <!-- HTTP Basic protection for the admin endpoints. See SecurityConfig. -->
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-security</artifactId>
+    </dependency>
+
+    <!-- JavaMailSender for automated email notifications. -->
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-mail</artifactId>
+    </dependency>
+
+    <!-- Versioned, repeatable schema migrations. See db/migration. -->
+    <dependency>
+      <groupId>org.flywaydb</groupId>
+      <artifactId>flyway-core</artifactId>
+    </dependency>
+    <dependency>
+      <groupId>org.flywaydb</groupId>
+      <artifactId>flyway-database-postgresql</artifactId>
+    </dependency>
+
+    <!-- Generates OpenAPI 3 docs and serves Swagger UI at /swagger-ui.html -->
+    <dependency>
+      <groupId>org.springdoc</groupId>
+      <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
+      <version>${springdoc.version}</version>
+    </dependency>
+
+    <!-- OpenPDF for generating deployment assessment PDF attachments -->
+    <dependency>
+      <groupId>com.github.librepdf</groupId>
+      <artifactId>openpdf</artifactId>
+      <version>2.0.3</version>
+    </dependency>
+
+    <!-- Dev database. `runtime` so it is never importable from main code. -->
+    <dependency>
+      <groupId>com.h2database</groupId>
+      <artifactId>h2</artifactId>
+      <scope>runtime</scope>
+    </dependency>
+
+    <!-- Production database driver. -->
+    <dependency>
+      <groupId>org.postgresql</groupId>
+      <artifactId>postgresql</artifactId>
+      <scope>runtime</scope>
+    </dependency>
+
+    <!-- Health and metrics endpoints under /actuator. -->
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-actuator</artifactId>
+    </dependency>
+
+    <!-- JUnit 5, AssertJ, MockMvc, Mockito. -->
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-test</artifactId>
+      <scope>test</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.springframework.security</groupId>
+      <artifactId>spring-security-test</artifactId>
+      <scope>test</scope>
+    </dependency>
+
+    <!--
+      Already pulled in transitively by spring-boot-starter-test. Declared
+      explicitly so that surefire can resolve ${org.mockito:mockito-core:jar}
+      below and attach Mockito as a proper Java agent — see the surefire block.
+    -->
+    <dependency>
+      <groupId>org.mockito</groupId>
+      <artifactId>mockito-core</artifactId>
+      <scope>test</scope>
+    </dependency>
+  </dependencies>
+
+  <build>
+    <!-- Produces target/fabins-api.jar rather than fabins-api-1.0.0.jar, so
+         deployment scripts do not need updating on every version bump. -->
+    <finalName>fabins-api</finalName>
+
+    <plugins>
+      <!-- Packages an executable fat jar: `java -jar target/fabins-api.jar`. -->
+      <plugin>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-maven-plugin</artifactId>
+      </plugin>
+
+      <!--
+        Keeps method parameter names in the bytecode. Without this, Spring
+        cannot infer constructor parameter names when binding configuration
+        properties to Java records.
+      -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <configuration>
+          <parameters>true</parameters>
+        </configuration>
+      </plugin>
+
+      <!--
+        Attaches Mockito's byte-buddy agent up front rather than letting it
+        self-attach at runtime. Self-attachment still works on Java 21 but
+        prints a "Dynamic loading of agents will be disallowed" warning on every
+        test run and is scheduled to stop working in a future JDK.
+
+        -Xshare:off disables class-data sharing, which cannot be used once an
+        agent appends to the bootstrap classpath and otherwise warns about it.
+      -->
+      <!-- Exposes each dependency's resolved path as a ${groupId:artifactId:type}
+           property, which is what lets surefire below point -javaagent at the
+           Mockito jar without hardcoding a version or a local repository path. -->
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-dependency-plugin</artifactId>
+        <executions>
+          <execution>
+            <goals>
+              <goal>properties</goal>
+            </goals>
+          </execution>
+        </executions>
+      </plugin>
+
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-surefire-plugin</artifactId>
+        <configuration>
+          <argLine>-javaagent:${org.mockito:mockito-core:jar} -Xshare:off</argLine>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
+</project>

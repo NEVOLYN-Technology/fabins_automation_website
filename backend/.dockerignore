@@ -1,0 +1,7 @@
+# Build outputs & IDE noise
+target/
+.git
+.gitignore
+.vscode
+.idea
+*.log

@@ -1,0 +1,24 @@
+# Dependencies
+/node_modules
+/.pnpm-store
+
+# Next.js build output
+/.next/
+/out/
+/build/
+/dist/
+tsconfig.tsbuildinfo
+next-env.d.ts
+
+# Debug logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Local environment. `.env.example` IS committed and documents the variables.
+.env*.local
+
+# Editor / OS
+.DS_Store
+*.pem

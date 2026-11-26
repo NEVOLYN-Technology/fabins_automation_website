@@ -1,0 +1,348 @@
+@import "tailwindcss";
+
+/* ═══════════════════════════════════════════════════════════════════════════
+   FABINS — GLOBAL STYLESHEET
+
+   Read this file before changing any colour or shared class. It has four parts:
+
+     1. DESIGN TOKENS   — the raw colour and shadow values
+     2. THEME BRIDGE    — exposes those tokens to Tailwind as utility classes
+     3. BASE            — element-level defaults (scrollbar, selection, body)
+     4. COMPONENTS      — the reusable classes (.card, .btn, .eyebrow, …)
+     5. UTILITIES       — the marquee animation and reduced-motion handling
+
+   The site is light-mode only; see the theming note in `app/layout.tsx` for how
+   to add dark mode (short version: add a `.dark` block in part 1 — nothing else
+   hardcodes a colour, so redefining the tokens re-skins the entire site).
+   ═══════════════════════════════════════════════════════════════════════════ */
+
+
+/* ───────────────────────────────────────────────────────────────────────────
+   1. DESIGN TOKENS
+
+   Every colour in the UI resolves through these variables. Change a value here
+   and it propagates everywhere — never hardcode a hex value in a component.
+   ─────────────────────────────────────────────────────────────────────────── */
+
+:root {
+  /* ── Surfaces, back to front ──
+     canvas sits behind everything; panel is a card on top of it. */
+  --canvas: #f4f6fa;
+  /* Page background */
+  --canvas-alt: #eaeef6;
+  /* Alternating section background */
+  --panel: #ffffff;
+  /* Card and navbar background */
+  --panel-2: #f1f4f9;
+  /* Recessed areas: inputs, icon tiles */
+
+  /* ── Borders ── */
+  --line: #dfe5ef;
+  /* Default hairline */
+  --line-strong: #c4d0e0;
+  /* Emphasised border, e.g. on hover */
+
+  /* ── Text, darkest to lightest ── */
+  --ink: #080d16;
+  /* Headings and primary copy */
+  --ink-muted: #4b5a70;
+  /* Body copy and descriptions */
+  --ink-soft: #7a889d;
+  /* Captions, labels, metadata */
+
+  /* ── Brand accent ──
+     The teal that identifies FABINS. Used for links, icons, and highlights. */
+  --accent: #0e7490;
+  --accent-bright: #0891b2;
+  /* Hover state — one step lighter */
+  --accent-quiet: rgba(8, 145, 178, 0.1);
+  /* Tinted background wash */
+
+  /* ── Buttons ──
+     Primary buttons use a left-to-right gradient from `from` to `to`. */
+  --btn-ink: #ffffff;
+  /* Label colour on a primary button */
+  --btn-from: #0891b2;
+  /* Gradient start (cyan) */
+  --btn-to: #2563eb;
+  /* Gradient end (blue) */
+
+  /* ── Ambient decoration ──
+     Used by the fixed background layers in `PageShell`. */
+  --grid-line: rgba(10, 20, 36, 0.045);
+  /* Engineering grid */
+  --glow-a: rgba(8, 145, 178, 0.16);
+  /* Cyan wash, top */
+  --glow-b: rgba(37, 99, 235, 0.12);
+  /* Blue wash, bottom-right */
+
+  /* ── Elevation ──
+     Two-layer shadows: a tight contact shadow plus a wide soft one. */
+  --shadow-card: 0 1px 2px rgba(15, 23, 42, 0.04), 0 10px 30px -18px rgba(15, 23, 42, 0.35);
+  --shadow-lift: 0 2px 6px rgba(15, 23, 42, 0.06), 0 26px 50px -24px rgba(8, 145, 178, 0.45);
+}
+
+
+/* ───────────────────────────────────────────────────────────────────────────
+   2. THEME BRIDGE
+
+   Maps the tokens above onto Tailwind's colour scale, which is what generates
+   the utility classes used throughout the components:
+
+     --color-canvas  →  bg-canvas, text-canvas, border-canvas
+     --color-ink     →  text-ink, bg-ink, …
+
+   Adding a token in part 1 does NOT create a utility class; add it here too.
+   ─────────────────────────────────────────────────────────────────────────── */
+
+@theme inline {
+  --color-canvas: var(--canvas);
+  --color-canvas-alt: var(--canvas-alt);
+  --color-panel: var(--panel);
+  --color-panel-2: var(--panel-2);
+  --color-line: var(--line);
+  --color-line-strong: var(--line-strong);
+  --color-ink: var(--ink);
+  --color-ink-muted: var(--ink-muted);
+  --color-ink-soft: var(--ink-soft);
+  --color-accent: var(--accent);
+  --color-accent-bright: var(--accent-bright);
+
+  /* Sans for copy, mono for labels, specs, and anything technical. */
+  --font-sans: "Inter", ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto,
+    Helvetica, Arial, sans-serif;
+  --font-mono: ui-monospace, "JetBrains Mono", "SF Mono", Menlo, Consolas, monospace;
+}
+
+
+/* ───────────────────────────────────────────────────────────────────────────
+   3. BASE — element defaults
+   ─────────────────────────────────────────────────────────────────────────── */
+
+@layer base {
+  * {
+    -webkit-tap-highlight-color: transparent;
+  }
+
+  html {
+    -webkit-text-size-adjust: 100%;
+
+    /* Stops a section heading landing under the fixed navbar when an anchor
+       link is followed. Must match HEADER_OFFSET_PX in `lib/scroll.ts` and the
+       `pt-24` on <main> in `PageShell`. */
+    scroll-padding-top: 6rem;
+  }
+
+  body {
+    background-color: var(--canvas);
+    color: var(--ink);
+
+    /* Enables ligatures and contextual alternates for cleaner headings. */
+    font-feature-settings: "rlig" 1, "calt" 1;
+
+    /* The hero glow and marquee both overflow horizontally by design. */
+    overflow-x: hidden;
+
+    -webkit-font-smoothing: antialiased;
+  }
+
+  ::selection {
+    background: var(--accent);
+    color: var(--btn-ink);
+  }
+
+  /* Custom scrollbar. WebKit/Blink only; Firefox keeps its native one. */
+  ::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+
+  ::-webkit-scrollbar-track {
+    background: var(--canvas-alt);
+  }
+
+  ::-webkit-scrollbar-thumb {
+    background: var(--line-strong);
+    border-radius: 999px;
+    /* Border colour-matched to the track, to inset the thumb. */
+    border: 2px solid var(--canvas-alt);
+  }
+
+  ::-webkit-scrollbar-thumb:hover {
+    background: var(--accent);
+  }
+}
+
+
+/* ───────────────────────────────────────────────────────────────────────────
+   4. COMPONENTS — shared classes
+
+   These exist because each is used across several sections. A style used in
+   only one place belongs inline in that component, not here.
+   ─────────────────────────────────────────────────────────────────────────── */
+
+@layer components {
+
+  /* Faint engineering grid. Applied to a fixed layer in `PageShell`.
+     Two crossed repeating gradients; `background-size` sets the cell size. */
+  .grid-bg {
+    background-image:
+      linear-gradient(to right, var(--grid-line) 1px, transparent 1px),
+      linear-gradient(to bottom, var(--grid-line) 1px, transparent 1px);
+    background-size: 64px 64px;
+  }
+
+  /* Oversized display heading. Tight leading and negative tracking are what
+     give the headings their compact, editorial look. Pair with a responsive
+     `text-[clamp(…)]` for the size — this class deliberately sets none. */
+  .display {
+    @apply font-extrabold leading-[0.95] tracking-[-0.035em];
+  }
+
+  /* Uppercase mono label above a section heading. The leading dot is a
+     separate <span> supplied by `SectionHeader`, not by this class. */
+  .eyebrow {
+    @apply inline-flex items-center gap-2.5 font-mono text-sm sm:text-base font-bold uppercase tracking-[0.18em] text-accent;
+  }
+
+  /* Standard card surface. Combine with `.card-hover` to make it interactive.
+     Override padding at the call site with `!p-6` — the `!` is needed because
+     this class already sets `p-7`. */
+  .card {
+    @apply rounded-3xl border border-line bg-panel p-7 transition-all duration-300;
+    box-shadow: var(--shadow-card);
+  }
+
+  /* Lifts a card on hover. Separate from `.card` so static cards do not
+     respond to the pointer. */
+  .card-hover:hover {
+    border-color: var(--line-strong);
+    box-shadow: var(--shadow-lift);
+    transform: translateY(-3px);
+  }
+
+  /* Small pill for a spec or tag. */
+  .chip {
+    @apply inline-flex items-center gap-2 rounded-full border border-line px-3.5 py-1.5 font-mono text-[11px] font-semibold uppercase tracking-[0.14em] text-ink-muted;
+    background-color: var(--panel);
+  }
+
+  /* ── Buttons ──
+     `.btn` is the shape and the shared float-on-hover; always pair it with one
+     of the three variants below, e.g. `class="btn btn-primary"`. */
+  .btn {
+    @apply inline-flex cursor-pointer items-center justify-center gap-2.5 rounded-full px-6 py-3.5 text-sm font-semibold transition-all duration-300 ease-out active:scale-[0.97];
+  }
+
+  .btn:hover {
+    transform: translateY(-4px) scale(1.02);
+  }
+
+  /* Filled gradient. The main call to action. */
+  .btn-primary {
+    background-image: linear-gradient(100deg, var(--btn-from), var(--btn-to));
+    color: var(--btn-ink);
+    box-shadow: 0 10px 30px -12px var(--btn-from);
+  }
+
+  .btn-primary:hover {
+    filter: brightness(1.12);
+    box-shadow: 0 20px 45px -10px var(--btn-from), 0 0 30px -4px var(--btn-from);
+  }
+
+  /* Outlined. For secondary actions beside a primary button. */
+  .btn-secondary {
+    @apply border border-line bg-panel text-ink shadow-sm transition-all duration-300;
+  }
+
+  .btn-secondary:hover {
+    @apply border-accent text-accent;
+    background-color: var(--accent-quiet);
+    box-shadow: 0 8px 20px -6px rgba(8, 145, 178, 0.2);
+  }
+
+  /* Borderless. For low-emphasis actions such as "Send another". */
+  .btn-ghost {
+    @apply border border-transparent bg-transparent text-ink-muted;
+  }
+
+  .btn-ghost:hover {
+    @apply text-ink bg-panel-2;
+  }
+
+  /* Form input. Applied to every <input> and <textarea> in the contact form. */
+  .field {
+    @apply w-full rounded-2xl border border-line bg-panel-2 px-4 py-3.5 text-sm text-ink outline-none transition-colors placeholder:text-ink-soft;
+  }
+
+  .input-field {
+    @apply w-full rounded-xl border border-line-strong/60 bg-panel px-4 py-3 text-sm text-ink outline-none transition-all placeholder:text-ink-soft/70 focus:border-accent focus:bg-panel focus:ring-2 focus:ring-accent/20 shadow-sm;
+  }
+
+  /* Focus ring drawn with box-shadow so it does not shift layout. */
+  .field:focus {
+    border-color: var(--accent);
+    box-shadow: 0 0 0 3px var(--accent-quiet);
+  }
+
+  /* Hairline that fades out at both ends. */
+  .divider-glow {
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--line-strong), transparent);
+  }
+}
+
+
+/* ───────────────────────────────────────────────────────────────────────────
+   5. UTILITIES — marquee and motion preferences
+   ─────────────────────────────────────────────────────────────────────────── */
+
+@layer utilities {
+
+  /* Marquee track. Slides left by exactly half its width, which is one full
+     copy of the item list — see the explanation in `MarqueeStrip.tsx`.
+     Change `38s` to adjust the speed: higher is slower. */
+  .marquee-track {
+    animation: marquee 38s linear infinite;
+  }
+
+  /* Pause on hover so a visitor can read an item. */
+  .marquee:hover .marquee-track {
+    animation-play-state: paused;
+  }
+
+  @keyframes marquee {
+    from {
+      transform: translateX(0);
+    }
+
+    to {
+      /* Exactly one copy's width. Must stay -50% for the loop to be seamless. */
+      transform: translateX(-50%);
+    }
+  }
+
+  /* Respect the visitor's OS-level reduced-motion setting: stop the marquee
+     and disable smooth scrolling. Framer Motion's fade/rise entrances are left
+     alone — they are small opacity and transform changes rather than the kind
+     of sustained motion that causes discomfort. */
+  @media (prefers-reduced-motion: reduce) {
+    .marquee-track {
+      animation: none;
+    }
+
+    html {
+      scroll-behavior: auto;
+    }
+  }
+
+  /* Utility to completely hide scrollbar across all browsers */
+  .no-scrollbar::-webkit-scrollbar {
+    display: none;
+  }
+
+  .no-scrollbar {
+    -ms-overflow-style: none;
+    scrollbar-width: none;
+  }
+}

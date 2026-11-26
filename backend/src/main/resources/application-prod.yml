@@ -1,0 +1,130 @@
+# =============================================================================
+# `prod` profile — production (Render Web Service + Render PostgreSQL 18).
+#
+# Activate with SPRING_PROFILES_ACTIVE=prod. The Dockerfile sets it already.
+#
+# This file only states what differs from application.yml. Anything not
+# repeated here — Flyway, Jackson, actuator exposure, mail subjects — is
+# inherited.
+#
+# REQUIRED ENVIRONMENT VARIABLES ON THE RENDER SERVICE
+#   DATABASE_URL           Render's Postgres connection string. It arrives in
+#                          libpq form (postgres://user:pass@host/db), which the
+#                          PostgreSQL JDBC driver cannot parse. FabinsApplication
+#                          rewrites it before Hikari sees it — see that class,
+#                          and docs/CICD_AND_DEPLOYMENT.md §2.
+#   FABINS_ADMIN_PASSWORD  credential for the admin endpoints
+#   FABINS_ALLOWED_ORIGIN  the deployed site origin, e.g. https://fabins.com
+#   FABINS_BACKEND_URL     this service's own public origin, e.g.
+#                          https://api.fabins.com — used for email links
+#   SPRING_MAIL_PASSWORD   password for the webmail account (e.g. fabins@nevolyn.com)
+#
+# OPTIONAL
+#   SPRING_MAIL_HOST       webmail host (default: mail.nevolyn.com)
+#   SPRING_MAIL_PORT       webmail port (default: 465)
+#   SPRING_MAIL_USERNAME   webmail username (default: fabins@nevolyn.com)
+#   SPRING_MAIL_FROM       webmail from address (default: fabins@nevolyn.com)
+# =============================================================================
+
+spring:
+  # ===========================================================================
+  # FUTURE CUSTOM DOMAIN / DATABASE MIGRATION INSTRUCTIONS
+  # ---------------------------------------------------------------------------
+  # The three values below are read AFTER FabinsApplication's
+  # ApplicationEnvironmentPreparedEvent listener has already injected a
+  # higher-priority property source holding a parsed, JDBC-shaped URL plus the
+  # username and password split out of it. So in practice on Render the
+  # listener wins and these placeholders are never consulted.
+  #
+  # They still matter for every other topology — Docker Compose, a managed
+  # Postgres that hands you a proper JDBC URL, a self-hosted VM — where you set
+  # SPRING_DATASOURCE_* or DATABASE_* directly and no rewriting is needed.
+  #
+  # Moving to another Postgres host: change DATABASE_URL on the platform and
+  # redeploy. Nothing in this file needs editing. Flyway migrates the new
+  # database on first boot, so point it at an EMPTY database or restore a dump
+  # first — Flyway will not adopt a schema it did not create.
+  # ===========================================================================
+  datasource:
+    # Nested fallbacks, most specific first: an explicit Spring property beats
+    # the platform-provided one, which beats the Docker Compose defaults. The
+    # innermost values match docker-compose.yml so that `docker compose up`
+    # works with no .env file; they are NOT production credentials and are
+    # never reached on Render, which always supplies DATABASE_URL.
+    url: ${SPRING_DATASOURCE_URL:${DATABASE_URL}}
+    username: ${SPRING_DATASOURCE_USERNAME:${DATABASE_USERNAME:${POSTGRES_USER:fabins_user}}}
+    password: ${SPRING_DATASOURCE_PASSWORD:${DATABASE_PASSWORD:${POSTGRES_PASSWORD:}}}
+    driver-class-name: org.postgresql.Driver
+    hikari:
+      # Pool sizing. More is not better: every connection is a live process on
+      # the Postgres side with its own memory, and a pool larger than the
+      # server's max_connections turns steady load into connection errors.
+      # Render's smaller Postgres plans cap out around 20-25 connections total,
+      # so 10 leaves room for migrations, psql sessions, and a rolling deploy
+      # where the old and new instances briefly overlap.
+      maximum-pool-size: 10
+      # Keep a couple warm so the first request after an idle period does not
+      # pay for a TCP + TLS + auth handshake.
+      minimum-idle: 2
+      # Give up waiting for a free connection after 30s rather than piling up
+      # request threads behind an exhausted pool.
+      connection-timeout: 30000
+
+  jpa:
+    # Never log SQL in production: it is slow and can print personal data.
+    show-sql: false
+
+  # Corporate Webmail / SMTP engine.
+  mail:
+    host: ${SPRING_MAIL_HOST:mail.nevolyn.com}
+    port: ${SPRING_MAIL_PORT:465}
+    username: ${SPRING_MAIL_USERNAME:fabins@nevolyn.com}
+    password: ${SPRING_MAIL_PASSWORD:}
+    properties:
+      mail:
+        smtp:
+          auth: true
+          ssl:
+            enable: ${SPRING_MAIL_SSL_ENABLE:true}
+            trust: "*"
+          starttls:
+            enable: ${SPRING_MAIL_STARTTLS_ENABLE:false}
+          socketFactory:
+            port: ${SPRING_MAIL_PORT:465}
+            class: javax.net.ssl.SSLSocketFactory
+        smtps:
+          connectiontimeout: 10000
+          timeout: 10000
+          writetimeout: 10000
+
+fabins:
+  # Production CORS allowed origins
+  cors:
+    allowed-origins:
+      - ${FABINS_ALLOWED_ORIGIN:https://fabins.nevolyn.com}
+
+  # Service public origin embedded in emails
+  backend-url: ${FABINS_BACKEND_URL:https://fabins.nevolyn.com}
+
+  admin:
+    username: ${SUPER_ADMIN_1_USERNAME:rahinrahman}
+    password: "${SUPER_ADMIN_SHARED_PASSWORD:}"
+
+springdoc:
+  # Interactive API docs are disabled in production — they advertise every
+  # endpoint and payload shape. Set to true temporarily if you need them, and
+  # remember the Swagger routes are permitAll in SecurityConfig.
+  swagger-ui:
+    enabled: false
+  api-docs:
+    enabled: false
+
+logging:
+  level:
+    # INFO across the board: enough to trace a deploy, a Flyway migration, and
+    # every email dispatch, without the volume (or the personal data) that DEBUG
+    # on Hibernate would produce.
+    root: INFO
+    com.fabins: INFO
+    org.springframework: INFO
+    org.hibernate: INFO
